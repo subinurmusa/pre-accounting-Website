@@ -1,0 +1,41 @@
+body{
+/*    background-image:url("https://c0.wallpaperflare.com/preview/742/447/595/business-information-accounting-application.jpg");
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-position: center center;
+   background-attachment: fixed; */
+   background-color: azure;
+}
+ul{
+    list-style:  none;
+    
+}
+.logo{
+    color: rgb(253, 253, 255);
+}
+a{
+    text-decoration: none;
+    color: rgb(241, 237, 237);
+    
+}
+nav{
+   
+ 
+   
+   
+ 
+}
+.main-text{
+   
+    position: absolute;
+    top: 220px;
+    width: 50%;  
+    
+    margin: auto;
+}
+.loginbtn{
+    position: absolute;
+    top: 320px;
+   
+    
+}
