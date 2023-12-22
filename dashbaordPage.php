@@ -209,7 +209,7 @@ $dataPoints2 = array(
 </style>
 
 
-<body class="bg-primary   bg-opacity-50" >
+<body class="bg-secondary   bg-opacity-50" >
 
 
     <div id="sidebar">
@@ -307,7 +307,7 @@ $dataPoints2 = array(
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Hizmet ve ürünler</a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Depolar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Dolaplar Arası Transfer</a></li>
+                                <li><a href="#" class="link-primary d-flex  text-secondary fs-5 p-2 rounded "> <span class="text"> Dolaplar Arası Transfer</span> </a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Giden İrsaliyeler</a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Gelen İrsaliyeler</a></li>
 
@@ -406,9 +406,9 @@ $dataPoints2 = array(
             <div class="col-md-2">
                 <div class="card shadow bg-light  border-2 border border-secondary mb-3" style="width: 300px; height: 300px">
                     <div
-                        class="card-header bg-info border border-secondary border-2 text-secondary fs-3 text-center p-0 ">
+                        class="card-header bg-info border border-secondary border-2 text-white fs-3 text-center p-0 ">
                         Günlük Tahsilatlar</div>
-                    <div class="card-body text-secondary d-grid justify-content-center p-3 ">
+                    <div class="card-body text-white d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam ciro</h5>
                         <?php
 
@@ -449,7 +449,7 @@ $dataPoints2 = array(
                         </svg>
                         <span class=" loading"></span>
                     </div>
-                    <div class="card-footer bg-info border-2 border-secondary align-items-center d-flex p-2">
+                    <div class="card-footer text-white bg-info border-2 border-secondary align-items-center d-flex p-2">
                         <?php echo $Mss ?>
                     </div>
                 </div>
@@ -457,7 +457,7 @@ $dataPoints2 = array(
             <div class="col-md-2">
                 <div class="card shadow  border-2 border border-secondary mb-3" style="width: 300px; height: 300px">
                     <div
-                        class="card-header bg-danger border border-secondary border-2 text-secondary fs-3 text-center p-0 ">
+                        class="card-header bg-danger border border-secondary border-2 text-white fs-3 text-center p-0 ">
                         Günlük Giderler</div>
                     <div class="card-body text-white bg-danger  bg-opacity-50 d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam Gider</h5>
