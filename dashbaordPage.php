@@ -117,7 +117,9 @@ $dataPoints2 = array(
                 animationEnabled: true,
                 theme: "light2",
                 title: {
-                    text: "Şirketinizin haftalık Nakıt akışı"
+                    text: " Şirketinizin haftalık Nakıt akışı ",
+                    
+                    
                 },
                 axisY: {
                     includeZero: true,
@@ -398,7 +400,7 @@ $dataPoints2 = array(
 
     <div class="container mt-3 d-grid justify-content-end align-items-end ">
         <div class="row mt-5 mb-5 d-flex  text-center" style="gap:120px">
-            <div class="fs-3"> Ön Muhasebe Programına Hoşgeldiniz</div>
+            <div class="fs-3 text-white"> Ön Muhasebe Programına Hoşgeldiniz</div>
         </div>
         <div class="row d-flex justify-content-center " style="gap:120px">
             <div class="col-md-2">
