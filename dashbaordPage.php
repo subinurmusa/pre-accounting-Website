@@ -110,6 +110,7 @@ $dataPoints2 = array(
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+    <!-- chart  -->
     <script>
         window.onload = function () {
 
@@ -167,7 +168,7 @@ $dataPoints2 = array(
 
     <title>Document</title>
 </head>
-
+<!-- navbar css -->
 <style>
     .bd-placeholder-img {
         font-size: 1.125rem;
@@ -245,7 +246,7 @@ $dataPoints2 = array(
 </a>
                         <div class="collapse  " id="home-collapse2">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary  fs-5 p-2 rounded ">Satışlar</a></li>
+                                <li><a href="satislar.php" class="link-primary text-secondary  fs-5 p-2 rounded ">Satışlar</a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Faturalar</a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Muşteriler</a></li>
                                 <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Satış Raporu</a></li>
@@ -429,7 +430,7 @@ $dataPoints2 = array(
 
                         } else {
                             $color = "lightgray";
-                            $Mss = "bİraz daha Çlışın ";
+                            $Mss = "biraz daha Çalışın ";
 
                         }
 
