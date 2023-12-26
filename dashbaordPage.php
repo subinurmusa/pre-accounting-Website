@@ -30,7 +30,7 @@ $sql = $db->prepare("SELECT `id`, `name`, `category`, `date-added`, `price` FROM
 $sql->execute();
 
 
-$countbuy = 0;
+$visitcount = 7;
 
 while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
     $countbuy += $result["price"];
@@ -354,6 +354,9 @@ $dataPoints2 = array(
 
 
             <div class=" align-items-center">
+            <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:60px">
+                    <p class="m-0">  Deneme sürenizin bitmesine  <?php echo $visitcount?> gün kaldı   </p> <a href="#" class="border rounded-circle border-3 p-2 bg-white"><i class="fa-solid fa-gift fs-4"></i></a>
+                </div>
                 <ul class="d-flex gap-3 m-0 justify-content-center align-items-center ">
 
 
