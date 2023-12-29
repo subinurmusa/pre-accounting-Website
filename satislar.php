@@ -10,7 +10,15 @@ $visitcount = 7;
 
 ?>
 <script>
-    // localStorage.setItem("mytime", Date.now());
+    if (localStorage.getItem("startdate")) {
+        if (localStorage.getItem("startdate") != "<?php echo date("y-m-d") ?>") {
+        <?php $visitcount = $visitcount - 5; ?>console.log("girdi")
+        }
+    } else {
+        localStorage.setItem("startdate", "<?php echo date("y-m-d") ?>");
+
+    }
+    console.log(localStorage.getItem("startdate"));
 </script>
 
 <!DOCTYPE html>
@@ -19,7 +27,7 @@ $visitcount = 7;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FineLogic-satışlar</title>
+    <title>FineLogic-satışlar </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
@@ -28,7 +36,6 @@ $visitcount = 7;
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
     <link href="css\app.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
-
 </head>
 <!-- navbar css-->
 <style>
@@ -302,7 +309,7 @@ $visitcount = 7;
                                 <div class="card-header p-0"><!--bbbbbuuuuuu-->
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 ">
+                                            <form class="d-flex m-0 " method="POST">
                                                 <input class="form-control me-2 w-100" type="search"
                                                     placeholder="Search" aria-label="Search">
                                                 <button class="btn btn-outline-success rounded-pill text-dark"
@@ -318,7 +325,7 @@ $visitcount = 7;
     <li><a class="dropdown-item" href="#">Something else here</a></li>  
     <li><a class="dropdown-item" href="#">Separated link</a></li>
   </ul>
-</div> -->
+</div>  -->
                                             </form>
 
                                             <div>
@@ -341,6 +348,24 @@ $visitcount = 7;
 
                                     <!-- table strip dark -->
                                     <div class="table-responsive">
+                                        <?php
+                                        $listIds = array(
+                                            (object) [
+                                              'teklifAciklama' => 'bilgisayar leptop',
+                                              'FaturalamaDurumu' => 'true',
+                                              'Oluşturma Tarihi' => '12-28-2023',
+                                              'totalMonay' => '10000'
+
+                                            ]
+                                            
+                                          );
+                                        // $listIds = array("teklifAciklama"=>"bilgisayar leptop", "FaturalamaDurumu"=>"True", "Oluşturma Tarihi"=>"12-28-2023", "totalMonay"=>"10000");
+                                        $jsonIds = json_encode($listIds);
+                                        ?>
+                                        <script>
+                                            localStorage.setItem("myIds", '<?= $jsonIds ?>');
+                                                                                  
+                                        </script>
                                         <table class="table table-striped table-dark mb-0">
                                             <thead>
                                                 <tr>
@@ -353,24 +378,47 @@ $visitcount = 7;
                                             </thead>
                                             <tbody>
 
+                                            <script>
+  // Retrieve data from local storage
+  var satislar = localStorage.getItem("myIds");
 
-                                                <tr>
-                                                    <td> Bir kutu üzüm satıldı</td>
+  // Parse the string into a JavaScript object
+  satislar = JSON.parse(satislar);
+
+  console.log(satislar);
+
+
+    for (let index = 0; index < satislar.length; index++) {
+                document.write(`
+                <tr>
+                                                    <td>${satislar[index].teklifAciklama}</td>
                                                     <td class="d-grid ">
-                                                        <span class="text-start"><?php echo "fatura oluşturuldu"?></span>
-                                                        <span id="ember3950" class="">
-                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>                                                        
-                                                       
-                                                             <svg width="35" height="50">
-                                                                <circle cx="18" cy="25" r="10" 
-                                                                    stroke-width="2" fill="lightgreen" />
-                                                            </svg> KABUL EDİLDİ
+                                                        <span class="text-start text-secondary">
+                                                        ${satislar[index].FaturalamaDurumu === "true" ? "Faturalama Oluşturuldu" : "faturalama Oluşturulmadı"}
+                                                        </span> 
+                                                        <span id="ember3950" class=" fw-bold text-secondary">
+                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
+
+                                                            <svg width="35" height="50">
+                                                                <circle cx="18" cy="25" r="10" stroke-width="2"
+                                                                    fill="lightgreen" />
+                                                                  
+                                                            </svg> 
+                                                            ${satislar[index].FaturalamaDurumu === "true" ? "kabuledildi" : "Cevap Bekleniyor"}
+                                                           
                                                         </span>
                                                     </td>
-                                                    <td class="text-bold-500">15 aralık 2023</td>
-                                                    <td>100.200.00 <i class="fa-solid fa-turkish-lira-sign"></i></td>
+                                                    <td class="text-bold-500">${satislar[index]['Oluşturma Tarihi']}</td>
+                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> ${satislar[index].totalMonay}</td>
 
                                                 </tr>
+                `);
+            }
+    
+ </script>
+                                             
+                                         
+                                              
                                             </tbody>
                                         </table>
                                     </div>
