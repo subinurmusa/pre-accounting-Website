@@ -36,6 +36,14 @@ $visitcount = 7;
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
     <link href="css\app.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+
+
 </head>
 <!-- navbar css-->
 <style>
@@ -109,14 +117,10 @@ $visitcount = 7;
                             data-bs-toggle="collapse" data-bs-target="#home-collapse2">
                             <i class="fa-solid fa-arrow-down-short-wide text-primary"></i> Satışlar
                         </a>
-                        <div class="  <?php $url = $_SERVER['REQUEST_URI'];
-                        $bb = trim($url, "/");
-                        echo $result = str_contains($bb, "accounting") ? "collapsed" : "" ?> " id="home-collapse2">
+                        <div class="collapse " id="home-collapse2">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
                                 <li><a href="satislar.php"
-                                        class="link-primary  <?php $url = $_SERVER['REQUEST_URI'];
-                                        $bb = trim($url, "/");
-                                        echo $result = str_contains($bb, "accounting") ? "text-primary shadow-sm" : "text-secondary" ?> fs-5 p-2 rounded ">Satışlar</a>
+                                        class="link-primary  text-secondary fs-5 p-2 rounded ">Satışlar</a>
                                 </li>
                                 <li><a href="#" class="link-primary  text-secondary fs-5 p-2 rounded ">Faturalar</a>
                                 </li>
@@ -290,154 +294,158 @@ $visitcount = 7;
         </nav>
     </div>
 
-    <div class="">
-        <div class="div">
-            <!-- header-->
-            <div class="div d-flex ps-5 bg-secondary bg-opacity-50 gap-5 align-items-center"
-                style="position:relative; height:40px;">
-                <div class="div text-white fs-4" style="position:absolute;left:370px;"> <span> Satışlar </span> </div>
-
-                <div class="div text-white" style="position:absolute;right:1px;"> <span><i
-                            class="fa-solid fa-rainbow"></i></span> </div>
-            </div>
-            <!-- body-->
-            <div class="mt-4 m-5 py-1 d-flex justify-content-end ">
-                <section class="section" style="width:1100px">
-                    <div class="row" id="table-striped-dark">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header p-0"><!--bbbbbuuuuuu-->
-                                    <nav class="navbar navbar-light p-4 bg-light w-100">
-                                        <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 " method="POST">
-                                                <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Search" aria-label="Search">
-                                                <button class="btn btn-outline-success rounded-pill text-dark"
-                                                    type="submit">Search</button>
-                                                <!--another dropdown here -->
-                                                <!-- <div class="dropdown">
-  <button class="btn btn-outline-success rounded-pill text-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-    Filtreler
-  </button>
-  <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="dropdownMenuButton2">
-    <li><a class="dropdown-item active" href="#">Action</a></li>
-    <li><a class="dropdown-item" href="#">Another action</a></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li>  
-    <li><a class="dropdown-item" href="#">Separated link</a></li>
-  </ul>
-</div>  -->
-                                            </form>
-
-                                            <div>
-                                                <a href="#" class="btn bg-success bg-opacity-25 text-dark">Cevap
-                                                    beklenenler</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">Onaylalanlar</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
-                                                <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
-                                            </div>
-                                            <div>
-                                                <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni Teklif
-                                                    Oluştur</a>
-                                            </div>
-                                        </div>
-                                    </nav>
-                                </div>
-                                <div class="card-content mt-3">
-
-                                    <!-- table strip dark -->
-                                    <div class="table-responsive">
-                                        <?php
-                                        $listIds = array(
-                                            (object) [
-                                              'teklifAciklama' => 'bilgisayar leptop',
-                                              'FaturalamaDurumu' => 'true',
-                                              'Oluşturma Tarihi' => '12-28-2023',
-                                              'totalMonay' => '10000'
-
-                                            ]
-                                            
-                                          );
-                                        // $listIds = array("teklifAciklama"=>"bilgisayar leptop", "FaturalamaDurumu"=>"True", "Oluşturma Tarihi"=>"12-28-2023", "totalMonay"=>"10000");
-                                        $jsonIds = json_encode($listIds);
-                                        ?>
-                                        <script>
-                                            localStorage.setItem("myIds", '<?= $jsonIds ?>');
-                                                                                  
-                                        </script>
-                                        <table class="table table-striped table-dark mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Teklif Açıklaması</th>
-                                                    <th>Faturalama Durumu</th>
-                                                    <th>Oluşturma Tarihi</th>
-                                                    <th>Toplam Teklif Tutarı </th>
-                                                    <th>Işlemler </th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-
-                                            <script>
-  // Retrieve data from local storage
-  var satislar = localStorage.getItem("myIds");
-
-  // Parse the string into a JavaScript object
-  satislar = JSON.parse(satislar);
-
-  console.log(satislar);
-
-
-    for (let index = 0; index < satislar.length; index++) {
-                document.write(`
-                <tr>
-                                                    <td>${satislar[index].teklifAciklama}</td>
-                                                    <td class="d-grid ">
-                                                        <span class="text-start text-secondary">
-                                                        ${satislar[index].FaturalamaDurumu === "true" ? "Faturalama Oluşturuldu" : "faturalama Oluşturulmadı"}
-                                                        </span> 
-                                                        <span id="ember3950" class=" fw-bold text-secondary">
-                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
-
-                                                            <svg width="35" height="50">
-                                                                <circle cx="18" cy="25" r="10" stroke-width="2"
-                                                                    fill="lightgreen" />
-                                                                  
-                                                            </svg> 
-                                                            ${satislar[index].FaturalamaDurumu === "true" ? "Kabul Edildi" : "Cevap Bekleniyor"}
-                                                           
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-bold-500">${satislar[index]['Oluşturma Tarihi']}</td>
-                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> ${satislar[index].totalMonay}</td>
-                                                    <td >
-                                                    <div class="d-flex align-items-center gap-3">
-                                                     <a href="#" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     </td>
-
-                                                    </div>
-                                                    
-                                                </tr>
-                `);
-            }
-    
- </script>
-                                             
-                                         
-                                              
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="container">
+        <form method="POST">
+            <div class="row  d-flex justify-content-end align-items-center mt-5 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center me-5 pe-5  ">
+                    <div class="d-flex align-items-center gap-5 w-75">
+                        <i class="fa-solid fa-note-sticky fs-5 "></i>
+                        <label for="bbb" class="form-label w-50  "> Teklif Açıklaması</label>
+                        <input type="text" id="bbb" class="form-control w-100">
                     </div>
-                </section>
+                    <div class="bottons">
+                        <a href="#" class="btn btn-secondary">Vazgeç</a>
+                        <button type="submit" class="btn btn-primary opacity-75"> Kaydet</button>
+
+                    </div>
+                </div>
+
+
+            </div>
+            <hr>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-5">
+                            <i class="fa-regular fa-address-book fs-5"></i>
+                            <label for="costomer" class="form-label pe-5 me-5">Müsteri </label>
+                            <input type="text" id="costomer" class="form-control w-100 ms-5 ps-5">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
             </div>
 
-            <!-- footer-->
-        </div>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                            <i class="fa-solid fa-calendar-days fs-5 me-2"></i>
+                            <label for="tarih" class="form-label w-25 me-5 ps-3">Düzenleme Tarihi </label>
+                            <input type="text" id="tarih" class="form-control w-100 ms-5 ps-5">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                            <i class="fa-solid fa-bell fs-5"></i>
+                            <label for="tarih" class="form-label w-25  me-5 pe-4 ps-4">Vade Tarihi </label>
+                            <select class="form-select ms-5" aria-label="Default select example">
+                                <option selected>Aynı Gün</option>
+                                <option value="1">7 gÜN </option>
+                                <option value="2">14 Gün</option>
+                                <option value="3">30 Gün</option>
+                                <option value="3">60 Gün</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <hr class="h-auto">
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                            <i class="fa-solid fa-pen-nib fs-5"></i>
+                            <label for="tarih" class="form-label w-25  me-5 pe-5 ps-4">Teklif Koşulları </label>
+                            <textarea class="form-control w-75"
+                                placeholder="Teklif Geçerli olduğu sure , ödeme şartları vb. bilgiler için bu alanı kullanabilirsiniz "
+                                id="floatingTextarea2" style="height: 100px"></textarea>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <hr class="h-auto">
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-3  d-flex justify-content-center align-items-center w-100  me-5 pe-5 ps-5 gap-3">
+
+                    <div class="d-grid align-items-center  w-100 justify-content-end me-5 pe-5 w-100">
+
+                        <label class="form-label pe-5 me-5"> Hizmet /Ürün </label>
+                        <input type="text" class="form-control w-100 ps-5">
+
+                    </div>
+                    <div class="d-grid align-items-center justify-content-center w-25 ">
+
+                        <label class="form-label pe-5 me-5 w-100"> FiYAT</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="0,00">
+                            <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
+
+                        </div>
+
+                    </div>
+                    <div class="d-grid align-items-center justify-content-center w-25 pt-3">
+
+                        <label class="form-label pe-5 me-5 w-100"> VERGi</label>
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01">KDV</label>
+                            <select class="form-select" id="inputGroupSelect01">
+                                <option selected>%20</option>
+                                <option value="1">%50</option>
+                                <option value="2">%80</option>
+                                <option value="3">%100</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="d-grid align-items-center justify-content-center w-25 ">
+
+                        <label for="costomer" class="form-label pe-5 me-5 w-100"> TOPLAM </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="0,00">
+                            <span class="input-group-text opacity-25"><i
+                                    class="fa-solid fa-turkish-lira-sign text-dark"></i></span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+    </div>
+
+
+
+
+    </form>
     </div>
 </body>
 
