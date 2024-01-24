@@ -14,7 +14,7 @@ if (empty($_SESSION["username"])) {
 
 require "db.php"; // Assuming db.php contains your database connection code
 
-$sql1 = $db->prepare("SELECT `id`, `itemName`, `category`, `date-added`, `price` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
+$sql1 = $db->prepare("SELECT `id`, `productcode`, `costomer`, `date-added`, `paymentType` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
 // $sql->bindParam(':date_added', date("Y-m-d"));
 $sql1->execute();
 
@@ -95,7 +95,52 @@ $dataPoints2 = array(
 );
 
 ?>
+<script>  document.addEventListener("DOMContentLoaded", function () {
+    var chart = new CanvasJS.Chart("chartContainer", {
+        animationEnabled: true,
+        theme: "light2",
+        title: {
+            text: " Şirketinizin haftalık Nakıt akışı ",
+        },
+        axisY: {
+            includeZero: true,
+            title: "Para Akışı",
+            valueFormatString: "*",
+            interval: 0
+        },
+        legend: {
+            cursor: "pointer",
+            verticalAlign: "center",
+            horizontalAlign: "right",
+            itemclick: toggleDataSeries
+        },
+        data: [{
+            type: "column",
+            name: "Giderler",
+            indexLabel: "{y}",
+            yValueFormatString: "",
+            showInLegend: true,
+            dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
+        }, {
+            type: "column",
+            name: "Kazançlar",
+            indexLabel: "{y}",
+            yValueFormatString: "",
+            showInLegend: true,
+            dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
+        }]
+    });
+    chart.render();
 
+    function toggleDataSeries(e) {
+        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+        } else {
+            e.dataSeries.visible = true;
+        }
+        chart.render();
+    }
+});</script>
 
 
 <!DOCTYPE html>
@@ -109,61 +154,11 @@ $dataPoints2 = array(
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
-    <!-- chart  -->
-    <script>
-        window.onload = function () {
-
-            var chart = new CanvasJS.Chart("chartContainer", {
-                animationEnabled: true,
-                theme: "light2",
-                title: {
-                    text: " Şirketinizin haftalık Nakıt akışı ",
-                    
-                    
-                },
-                axisY: {
-                    includeZero: true,
-                    title: "Para Akışı",
-                    valueFormatString: "*",
-                    interval: 0
-                },
-                legend: {
-                    cursor: "pointer",
-                    verticalAlign: "center",
-                    horizontalAlign: "right",
-                    itemclick: toggleDataSeries
-                },
-                data: [{
-                    type: "column",
-                    name: "Giderler",
-                    indexLabel: "{y}",
-                    yValueFormatString: "",
-                    showInLegend: true,
-                    dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
-                }, {
-                    type: "column",
-                    name: "Kazançlar",
-                    indexLabel: "{y}",
-                    yValueFormatString: "",
-                    showInLegend: true,
-                    dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
-                }]
-            });
-            chart.render();
-
-            function toggleDataSeries(e) {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                }
-                else {
-                    e.dataSeries.visible = true;
-                }
-                chart.render();
-            }
-
-        }
-    </script>
+        <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+        
+      <!-- <script src="css\canvasjs.min.js"> </script> -->
+        <!-- chart  -->
+  
     <link href="css\app.css" rel="stylesheet">
 
     <title>Document</title>
@@ -213,8 +208,8 @@ $dataPoints2 = array(
 <body class="bg-secondary   bg-opacity-50" >
 
 
-    <div id="sidebar">
-        <div class="sidebar-wrapper active shadow ">
+<div id="sidebar">
+        <div class="sidebar-wrapper  active shadow " style="width: 204px;">
             <div class="sidebar-header position-relative">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="logo"> <!--insert  fake logo  -->
@@ -225,34 +220,44 @@ $dataPoints2 = array(
                 </div>
             </div>
             <div class="sidebar-menu">
-                <ul class="menu">
+                <ul class="menu px-2">
 
                     <li class="sidebar-title">Menu</li>
 
                     <li class="sidebar-item  justify-content-center">
                         <a href="dashbaordPage.php"
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
-                            >
+                            class="btn btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start  ">
                             <i class="fa-solid fa-house-user text-primary"></i> Ana Sayfa
-</a>
-                      
+                        </a>
+
 
                     </li>
                     <li class="sidebar-item  justify-content-center">
-                        <a
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
+                        <a class="btn  btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start   "
                             data-bs-toggle="collapse" data-bs-target="#home-collapse2">
                             <i class="fa-solid fa-arrow-down-short-wide text-primary"></i> Satışlar
-</a>
-                        <div class="collapse  " id="home-collapse2">
+                        </a>
+                        <div class="collapse " id="home-collapse2">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="satislar.php" class="link-primary text-secondary  fs-5 p-2 rounded ">Satışlar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Faturalar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Muşteriler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Satış Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Tahsilatlar Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Gelir Gider Raporu</a></li>
-                            
+                                <li><a href="satislar.php"
+                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Satışlar</a>
+                                </li>
+                                <li><a href="#"
+                                        class="link-primary  text-nowrap text-secondary  p-2 rounded ">Faturalar</a>
+                                </li>
+                                <li><a href="#"
+                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Muşteriler</a>
+                                </li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Satış
+                                        Raporu</a>
+                                </li>
+                                <li><a href="#"
+                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Tahsilatlar
+                                        Raporu</a></li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Gelir
+                                        Gider
+                                        Raporu</a></li>
+
 
 
                             </ul>
@@ -261,19 +266,32 @@ $dataPoints2 = array(
                     </li>
 
                     <li class="sidebar-item  justify-content-center">
-                        <a
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
+                        <a class="btn btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start  "
                             data-bs-toggle="collapse" data-bs-target="#home-collapse3">
                             <i class="fa-solid fa-arrow-up-from-bracket text-primary"></i> Giderler
-</a>
+                        </a>
                         <div class="collapse  " id="home-collapse3">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary  text-secondary fs-5 p-2 rounded ">Gider Listesi</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Tedarikçiler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Çalışanlar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Giderler Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Ödemeler Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">KDV raporu</a></li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Gider
+                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>                                        Listesi</a>
+                                </li>
+                                <li><a href="#"
+
+                                class="link-primary text-nowrap text-secondary  p-2 rounded ">Tedarikçiler</a>
+                                </li>
+                                <li><a href="#"
+                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Çalışanlar</a>
+                                </li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Giderler
+                                        Raporu</a></li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Ödemeler
+                                        Raporu</a></li>
+                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">KDV
+                                        raporu</a>
+                                </li>
 
 
                             </ul>
@@ -282,66 +300,80 @@ $dataPoints2 = array(
                     </li>
 
                     <li class="sidebar-item  justify-content-center">
-                        <a 
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
+                        <a class="btn btn-toggle text-nowrap align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
                             data-bs-toggle="collapse" data-bs-target="#home-collapse-subi">
                             <i class="fa-regular fa-money-bill-1 text-primary"></i> Nakit
-</a>
+                        </a>
                         <div class="collapse  " id="home-collapse-subi">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Kasa Ve Bankalar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Çekler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Kasa/Banka Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Nakit Akışı Raporu</a></li>
+                                <li><a href="#" class="link-primary text-secondary  text-nowrap  p-2 rounded ">Kasa Ve
+                                        Bankalar</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Çekler</a>
+                                </li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Kasa/Banka
+                                        Raporu</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap p-2 rounded ">Nakit Akışı
+                                        Raporu</a></li>
 
                             </ul>
                         </div>
 
                     </li>
                     <li class="sidebar-item  justify-content-center">
-                        <a 
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
+                        <a class="btn btn-toggle align-items-center rounded d-flex gap-3  d-flex justify-content-start  "
                             data-bs-toggle="collapse" data-bs-target="#home-collapses">
                             <i class="fa-solid fa-cubes text-primary"></i> Stok
-</a>
+                        </a>
                         <div class="collapse  " id="home-collapses">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Hizmet ve ürünler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Depolar</a></li>
-                                <li><a href="#" class="link-primary d-flex  text-secondary fs-5 p-2 rounded "> <span class="text"> Dolaplar Arası Transfer</span> </a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Giden İrsaliyeler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Gelen İrsaliyeler</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Hizmet ve
+                                        ürünler</a></li>
+                                <li><a href="#"
+                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Depolar</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded">
+                                        Dolaplar Arası Transfer </a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Giden
+                                        İrsaliyeler</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Gelen
+                                        İrsaliyeler</a></li>
 
                             </ul>
                         </div>
 
                     </li>
-                  
+
                     <li class="sidebar-item  justify-content-center">
-                        <a 
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
+                        <a class="btn btn-toggle align-items-center rounded text-nowrap d-flex gap-3  d-flex justify-content-start  "
                             data-bs-toggle="collapse" data-bs-target="#home-collapse4">
                             <i class="fa-solid fa-gears text-primary"></i> Ayarlar
-</a>
+                        </a>
                         <div class="collapse  " id="home-collapse4">
                             <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Firma Bilgileri </a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Kategori Ve etiketler</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Dolaplar Arası Transfer</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Kullanicilar</a></li>
-                                <li><a href="#" class="link-primary text-secondary fs-5 p-2 rounded ">Yazdırma Şablonları</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Firma
+                                        Bilgileri
+                                    </a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Kategori
+                                        Ve
+                                        etiketler</a></li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Dolaplar
+                                        Arası
+                                        Transfer</a></li>
+                                <li><a href="#"
+                                        class="link-primary text-secondary text-nowrap  p-2 rounded ">Kullanicilar</a>
+                                </li>
+                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Yazdırma
+                                        Şablonları</a></li>
 
                             </ul>
                         </div>
 
                     </li>
-                  
+
                     <li class="sidebar-item  justify-content-center">
                         <a href="logout.php"
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
-                            >
+                            class="btn btn-toggle align-items-center rounded d-flex gap-3  d-flex justify-content-start  ">
                             <i class="fa-solid fa-right-from-bracket text-primary"></i> Çıkış
-</a>
+                        </a>
 
                     </li>
                 </ul>
@@ -350,11 +382,11 @@ $dataPoints2 = array(
     </div>
 
     <div class=" d-flex justify-content-end ">
-        <nav class="navbar d-flex justify-content-end  p-2  ps-5 pe-5 bg-secondary">
+        <nav class="navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-secondary">
 
 
             <div class=" align-items-center">
-            <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:60px">
+            <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:250px">
                     <p class="m-0">  Deneme sürenizin bitmesine  <?php echo $visitcount?> gün kaldı   </p> <a href="#" class="border rounded-circle border-3 p-2 bg-white"><i class="fa-solid fa-gift fs-4"></i></a>
                 </div>
                 <ul class="d-flex gap-3 m-0 justify-content-center align-items-center ">
@@ -415,40 +447,35 @@ $dataPoints2 = array(
                     <div class="card-body text-white d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam ciro</h5>
                         <?php
+                       
+$dateToday = date("d.m.Y");
+$dateToday=strval($dateToday);
 
-                        require "db.php"; // Assuming db.php contains your database connection code
-                        
-                        $sql = $db->prepare("SELECT `id`, `itemName`, `category`, `date-added`, `price` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
-                        // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sql->execute();
+require "db.php"; // Assuming db.php contains your database connection code
 
-                        $count = 0;
-                        while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-                            $count += $result["price"];
-                        }
-                        // echo date("y-m-d");
-                        if ($count > 0) {
-                            $color = "blue";
-                            $Mss = "Bol Kazançlar elde ediyorsunuz Haydi Devam";
+$sql1 = $db->query("SELECT `id`, `productcode`, `costomer`, `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '$dateToday';");
+$sql1->execute();
+$count1 = 0;
+while ($result = $sql1->fetch(PDO::FETCH_ASSOC)) {
+  
+     $count1 += $result["totalPrice"];
+}
 
-                        } else {
-                            $color = "lightgray";
-                            $Mss = "biraz daha Çalışın ";
+if ($count1 > 0) {
+    $color = "blue";
+    $Mss = "Bol Kazançlar elde ediyorsunuz Haydi Devam";
+} else {
+    $color = "lightgray";
+    $Mss = "Biraz daha çalışın";
+}
+?>
 
-                        }
-
-
-
-
-
-
-                        ?>
                         <svg class="progress bg-transparent  " width="200" style="height: 120px;">
                             <circle class="progress-circle" cx="100" cy="60" stroke="<?php echo $color ?>" r="50"
                                 fill="transparent" stroke-width="9" />
                             <text class="loading fs-3" fill="blue" x="100" y="60" alignment-baseline="middle"
                                 text-anchor="middle">
-                                <?php echo $count ?>
+                                <?php echo $count1 ?>
                             </text>
                         </svg>
                         <span class=" loading"></span>
@@ -525,13 +552,13 @@ $dataPoints2 = array(
                         $sellingCount = 0;
                         $total = 0;
 
-                        $sql = $db->prepare("SELECT `id`, `itemName`, `category`, `date-added`, `price` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
+                        $sql = $db->prepare("SELECT `id`,  `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '" . date("d.m.Y") . "';");
                         // $sql->bindParam(':date_added', date("Y-m-d"));
                         $sql->execute();
 
 
                         while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-                            $sellingCount += $result["price"];
+                            $sellingCount += $result["totalPrice"];
                         }
                         // echo date("y-m-d");
                         
@@ -553,14 +580,7 @@ $dataPoints2 = array(
                         } else {
                             $color = "lightgreen";
                             $cheeringMs = "biraz daha çabalayın Başarabilirsiniz ";
-                        }
-
-
-
-
-
-
-                        ?>
+                        } ?>
                         <svg class="progress bg-transparent" width="200" style="height: 120px;">
                             <circle class="progress-circle" cx="100" cy="60" stroke="<?php echo $color ?>" r="50"
                                 fill="transparent" stroke-width="6" />
@@ -582,13 +602,16 @@ $dataPoints2 = array(
     <hr class=" mt-5 bg-primary " style="height:30px ; ">
     <div class="container mt-2 d-grid justify-content-end pe-5 ms-5  ">
         <div id="chartContainer" style="height: 400px; width: 1000px;" class="ps-5 mt-5 mb-5 ms-3">
-
-        </div>
+              
+    </div>
     </div>
 
     </div>
 
-    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+  <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>  -->
+  <script src="https://cdn.canvasjs.com/ga/canvasjs.stock.min.js"></script>
+
+    
 </body>
 
 </html>

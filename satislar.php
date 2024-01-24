@@ -59,6 +59,8 @@ $visitcount = 7;
         color: black;
     }
 
+    .detay:hover {}
+
     body {
         background-color: white;
     }
@@ -338,7 +340,8 @@ $visitcount = 7;
                                                 <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
                                             </div>
                                             <div>
-                                                <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni Teklif
+                                                <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
+                                                    Teklif
                                                     Oluştur</a>
                                             </div>
                                         </div>
@@ -348,84 +351,70 @@ $visitcount = 7;
 
                                     <!-- table strip dark -->
                                     <div class="table-responsive">
-                                        <?php
-                                        $listIds = array(
-                                            (object) [
-                                              'teklifAciklama' => 'bilgisayar leptop',
-                                              'FaturalamaDurumu' => 'true',
-                                              'Oluşturma Tarihi' => '12-28-2023',
-                                              'totalMonay' => '10000'
 
-                                            ]
-                                            
-                                          );
-                                        // $listIds = array("teklifAciklama"=>"bilgisayar leptop", "FaturalamaDurumu"=>"True", "Oluşturma Tarihi"=>"12-28-2023", "totalMonay"=>"10000");
-                                        $jsonIds = json_encode($listIds);
-                                        ?>
-                                        <script>
-                                            localStorage.setItem("myIds", '<?= $jsonIds ?>');
-                                                                                  
-                                        </script>
+
                                         <table class="table table-striped table-dark mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>Teklif Açıklaması</th>
+                                                    <th>Sipariş Kodu</th>
+                                                    <th>Muşteri</th>
                                                     <th>Faturalama Durumu</th>
                                                     <th>Oluşturma Tarihi</th>
-                                                    <th>Toplam Teklif Tutarı </th>
+                                                    <th>Toplam Sipariş Tutarı </th>
                                                     <th>Işlemler </th>
 
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                            <?php
+                                            require "db.php";
+                                            $sql = $db->prepare("select * from selling ");
+                                    $sql->execute();
 
-                                            <script>
-  // Retrieve data from local storage
-  var satislar = localStorage.getItem("myIds");
-
-  // Parse the string into a JavaScript object
-  satislar = JSON.parse(satislar);
-
-  console.log(satislar);
+                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
 
 
-    for (let index = 0; index < satislar.length; index++) {
-                document.write(`
                 <tr>
-                                                    <td>${satislar[index].teklifAciklama}</td>
+                                                    <td> <?php echo $row["productcode"]; ?></td>
+                                                    <td> <?php echo $row["costomer"]; ?></td>
                                                     <td class="d-grid ">
                                                         <span class="text-start text-secondary">
-                                                        ${satislar[index].FaturalamaDurumu === "true" ? "Faturalama Oluşturuldu" : "faturalama Oluşturulmadı"}
-                                                        </span> 
+                                                        <?php echo $bb= $row["status"]===true? ($row["status"]===false|| $row["status"]==="waiting")? "Faturalama Oluşturuldu": "faturalama Oluşturulmadı": "yanıt bekleniyor"; ?>
+                                                         </span> 
                                                         <span id="ember3950" class=" fw-bold text-secondary">
                                                             <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
 
                                                             <svg width="35" height="50">
                                                                 <circle cx="18" cy="25" r="10" stroke-width="2"
-                                                                    fill="lightgreen" />
+                                                                fill=" <?php echo $bb= $row["status"]===true? ($row["status"]===false|| $row["status"]==="waiting")? "lightgreen" : "#cc3333" : "#f7e98e "; ?>"
+                                                   
+                                                                   />
                                                                   
                                                             </svg> 
-                                                            ${satislar[index].FaturalamaDurumu === "true" ? "Kabul Edildi" : "Cevap Bekleniyor"}
-                                                           
+                                                            
+                                                            <?php echo $bb= $row["status"]===true? ($row["status"]===false|| $row["status"]==="waiting")?  "Kabul Edildi" : "Red edildi" :
+                                                                "Cevap Bekleniyor";?>
+                                                      
                                                         </span>
                                                     </td>
-                                                    <td class="text-bold-500">${satislar[index]['Oluşturma Tarihi']}</td>
-                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> ${satislar[index].totalMonay}</td>
+                                                    <td class="text-bold-500"><?php  echo $row["date-added"] ?></td>
+                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> <?php  echo $row["totalPrice"] ?></td>
                                                     <td >
                                                     <div class="d-flex align-items-center gap-3">
                                                      <a href="#" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                     <a href="#" > <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
                                                      </td>
 
                                                     </div>
                                                     
                                                 </tr>
-                `);
-            }
-    
- </script>
+           
+                                  <?php  }   ?> 
                                              
-                                         
-                                              
+                                               
+
+
+
                                             </tbody>
                                         </table>
                                     </div>
