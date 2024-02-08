@@ -76,20 +76,6 @@ $visitcount = 7;
         z-index: 1;
     }
 
-    #invoice:hover::after {
-        content: "Fatura Oluştur";
-  position: fixed; /* Use fixed positioning to follow the cursor */
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  /* Adjust the positioning according to your needs */
-  top: calc(var(--top) + 20px); /* Position the tooltip below the cursor */
-  left: calc(var(--left) + 20px);
-}
-
-
     /* a:hover{
 
 
@@ -185,7 +171,7 @@ $visitcount = 7;
             <!-- header-->
             <div class="div d-flex ps-5 mt-3 gap-5 align-items-center"
                 style="position:relative; height:40px;">
-                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i class="fa-solid fa-arrow-down-short-wide text-secondary fs-3"></i> Satışlar </span> </div>
+                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i class="fa-solid fa-boxes-packing fs-3"></i> Ürünler </span> </div>
 
                 <div class="div text-white" style="position:absolute;right:1px;"> <span><i
                             class="fa-solid fa-rainbow"></i></span> </div>
@@ -201,36 +187,15 @@ $visitcount = 7;
                                         <div class="container-fluid d-flex align-items-center">
                                             <form class="d-flex m-0 " method="POST">
                                                 <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Search" aria-label="Search">
-                                                <button class="btn btn-outline-success rounded-pill text-dark"
-                                                    type="submit">Search</button>
-                                                <!--another dropdown here -->
-                                                <!-- <div class="dropdown">
-  <button class="btn btn-outline-success rounded-pill text-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-    Filtreler
-  </button>
-  <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="dropdownMenuButton2">
-    <li><a class="dropdown-item active" href="#">Action</a></li>
-    <li><a class="dropdown-item" href="#">Another action</a></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li>  
-    <li><a class="dropdown-item" href="#">Separated link</a></li>
-  </ul>
-</div>  -->
+                                                    placeholder="Ara" aria-label="Ara">
+                                                <button class="btn btn-outline-success rounded-pill text-dark "
+                                                    type="submit">AramaYap</button>
+                                             
                                             </form>
 
+                                          
                                             <div>
-                                                <a href="#" class="btn bg-success bg-opacity-25 text-dark">Cevap
-                                                    beklenenler</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">Onaylalanlar</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
-                                                <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
-                                            </div>
-                                            <div>
-                                                <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
-                                                    Teklif
-                                                    Oluştur</a>
+                                                <a href="addUrun.php" class="btn btn-outline-success text-dark"> Yeni Ürün Ekle</a>
                                             </div>
                                         </div>
                                     </nav>
@@ -244,11 +209,16 @@ $visitcount = 7;
                                         <table class="table table-striped table-dark mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>Sipariş Kodu</th>
-                                                    <th>Muşteri</th>
-                                                    <th>Faturalama Durumu</th>
-                                                    <th>Oluşturma Tarihi</th>
-                                                    <th>Toplam Sipariş Tutarı </th>
+                                                    <th>Urun Kodu</th>
+                                                    <th>Ürün adı</th>  
+                                                    <th>Eklenen Tarih</th>
+                                                                                                                                                      
+                                                    <th>Ürün Fiyat</th>                                                                                                     
+                                                    <th>Ürün Barkodu</th>                                                                                                     
+                                                    <th>Ürün Fotorafı</th>                                                                                                     
+                                                    <th>Ürün Birimi</th>                                                                                                     
+                                                    <th>Ürün Stok Miktarı</th>                                                                                                     
+                                                    <th>Ürün Miktarı</th>                                                                                                     
                                                     <th>Işlemler </th>
 
                                                 </tr>
@@ -256,59 +226,30 @@ $visitcount = 7;
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                            $sql = $db->prepare("select * from selling ");
+                                            $sql = $db->prepare("select * from products ");
                                     $sql->execute();
 
                                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
 
 
                 <tr>
-                                                    <td> <?php echo $row["productcode"]; ?></td>
-                                                    <td> <?php echo $row["costomer"]; ?></td>
-                                                    <td class="d-grid ">
-                                                        <span class="text-start text-secondary">
-                                                        <?php echo $bb= $row["status"]==="true"? ($row["status"]==="false"|| $row["status"]==="waiting")? "faturalama Oluşturulmadı": "Faturalama Oluşturuldu": "yanıt bekleniyor"; ?>
-                                                       
-                                                        
-                                                    </span> 
-                                                        <span id="ember3950" class=" fw-bold text-secondary">
-                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
-
-                                                            <svg width="35" height="50">
-                                                                <circle cx="18" cy="25" r="10" stroke-width="2"
-                                                                fill=" 
-                                                                
-                                                                <?php
-echo $bb = $row["status"] === "true"
-    ? "lightgreen"
-    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
-?>
-                                                                "
+                                                    <td> <?php echo $row["productcode"]; ?></td>                                                  
+                                                    
+                                                    <td class="text-bold-500"><?php  echo $row["productname"]; ?></td>
+                                                    <td> <?php echo $row["date-added"]; ?></td>
+                                                    <td> <?php echo $row["price"]; ?></td>
+                                                    <td> <?php echo $row["barkodnumara"]; ?></td>
+                                                    <td> <?php echo $row["productphoto"]; ?></td>
+                                                    <td> <?php echo $row["alSatBirim"]; ?></td>
+                                                    <td> <?php echo $row["stokmiktari"]; ?></td>
+                                                    <td> <?php echo $row["miktar"]; ?></td>
                                                    
-                                                                   />
-                                                                  
-                                                            </svg> 
-                                                            
-                                                           
-                                                                <?php
-echo $bb = $row["status"] === "true"
-    ? "Kabul Edildi"
-    : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" :""));
-?>
-                                                      
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-bold-500"><?php  echo $row["date-added"]; ?></td>
-                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> <?php  echo $row["totalPrice"]; ?></td>
                                                     <td >
                                                     <div class="d-flex align-items-center gap-3">
-                                                     <a href="SatisEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     <a href="SatisInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
-                                                     <?php
-echo $bb = $row["status"] === "true"
-    ? ' <a href="addinvoice.php? id='.$row["id"].'" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
-    : "";
-?>
+                                                     <a href="urunEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                     <a href="urunInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                     <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
+                                                    
                                                      </td>
 
                                                     </div>
@@ -334,6 +275,20 @@ echo $bb = $row["status"] === "true"
             <!-- footer-->
         </div>
     </div>
+
+    <script>
+    function confirmDelete(customerId) {
+        // Display confirmation popup
+        if (confirm("Bu müşteriyi sistemden çıkarmak istediğinize emin misiniz?")) {
+    // Onaylandıysa, silme bağlantısına yönlendir
+    window.location.href = "musteridelete.php?id=" + customerId;
+} else {
+    // İptal edildiyse, bir işlem yapma
+    // İsteğe bağlı olarak kullanıcıya bir geri bildirim verebilirsiniz
+    console.log("Müşteri silme işlemi iptal edildi.");
+}
+    }
+</script>
 </body>
 
 </html>

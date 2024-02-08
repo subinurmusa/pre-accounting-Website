@@ -4,7 +4,7 @@ require "db.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $productid = $_POST["productid"];
 
-    $sql = $db->prepare("SELECT `price`, `alSatBirim` FROM `products` WHERE id=?");
+    $sql = $db->prepare("SELECT * FROM `products` WHERE id=?");
     $sql->execute([$productid]);
 
     if (!$sql) {
@@ -18,7 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo $row['alSatBirim']; */
     $responseArray = array(
         'price' => $row['price'],
-        'alSatBirim' => $row['alSatBirim']
+        'alSatBirim' => $row['alSatBirim'],
+        'miktar' => $row['miktar']
     );
 
     // Convert the array to a JSON string

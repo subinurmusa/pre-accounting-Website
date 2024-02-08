@@ -5,14 +5,7 @@ if (empty($_SESSION["username"])) {
     header("location:login.php");
 }
 
-?>
-
-
-<?php
-
-           
-
-require "db.php"; // Assuming db.php contains your database connection code
+?> <?php require "db.php"; // Assuming db.php contains your database connection code
 
 $sql1 = $db->prepare("SELECT `id`, `productcode`, `costomer`, `date-added`, `paymentType` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
 // $sql->bindParam(':date_added', date("Y-m-d"));
@@ -35,27 +28,28 @@ $visitcount = 7;
 while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
     $countbuy += $result["price"];
 }
-   function convertMonthToTurkishCharacter($date){
+function convertMonthToTurkishCharacter($date)
+{
     $aylar = array(
-        'January'    =>    'Ocak',
-        'February'    =>    'Şubat',
-        'March'        =>    'Mart',
-        'April'        =>    'Nisan',
-        'May'        =>    'Mayıs',
-        'June'        =>    'Haziran',
-        'July'        =>    'Temmuz',
-        'August'    =>    'Ağustos',
-        'September'    =>    'Eylül',
-        'October'    =>    'Ekim',
-        'November'    =>    'Kasım',
-        'December'    =>    'Aralık',
-        'Monday'    =>    'Pazartesi',
-        'Tuesday'    =>    'Salı',
-        'Wednesday'    =>    'Çarşamba',
-        'Thursday'    =>    'Perşembe',
-        'Friday'    =>    'Cuma',
-        'Saturday'    =>    'Cumartesi',
-        'Sunday'    =>    'Pazar',
+        'January' => 'Ocak',
+        'February' => 'Şubat',
+        'March' => 'Mart',
+        'April' => 'Nisan',
+        'May' => 'Mayıs',
+        'June' => 'Haziran',
+        'July' => 'Temmuz',
+        'August' => 'Ağustos',
+        'September' => 'Eylül',
+        'October' => 'Ekim',
+        'November' => 'Kasım',
+        'December' => 'Aralık',
+        'Monday' => 'Pazartesi',
+        'Tuesday' => 'Salı',
+        'Wednesday' => 'Çarşamba',
+        'Thursday' => 'Perşembe',
+        'Friday' => 'Cuma',
+        'Saturday' => 'Cumartesi',
+        'Sunday' => 'Pazar',
         'Jan' => 'Oca',
         'Feb' => 'Şub',
         'Mar' => 'Mar',
@@ -70,7 +64,7 @@ while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
         'Dec' => 'Ara'
 
     );
-    return  strtr($date, $aylar);
+    return strtr($date, $aylar);
 }
 $day = date('d');
 $sMonth = convertMonthToTurkishCharacter(date("M"));
@@ -93,56 +87,11 @@ $dataPoints2 = array(
     array("label" => $day + (5) . "-" . $sMonth, "y" => 0),
     array("label" => $day + (6) . "-" . $sMonth, "y" => 0)
 );
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 ?>
-<script>  document.addEventListener("DOMContentLoaded", function () {
-    var chart = new CanvasJS.Chart("chartContainer", {
-        animationEnabled: true,
-        theme: "light2",
-        title: {
-            text: " Şirketinizin haftalık Nakıt akışı ",
-        },
-        axisY: {
-            includeZero: true,
-            title: "Para Akışı",
-            valueFormatString: "*",
-            interval: 0
-        },
-        legend: {
-            cursor: "pointer",
-            verticalAlign: "center",
-            horizontalAlign: "right",
-            itemclick: toggleDataSeries
-        },
-        data: [{
-            type: "column",
-            name: "Giderler",
-            indexLabel: "{y}",
-            yValueFormatString: "",
-            showInLegend: true,
-            dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
-        }, {
-            type: "column",
-            name: "Kazançlar",
-            indexLabel: "{y}",
-            yValueFormatString: "",
-            showInLegend: true,
-            dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
-        }]
-    });
-    chart.render();
-
-    function toggleDataSeries(e) {
-        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-            e.dataSeries.visible = false;
-        } else {
-            e.dataSeries.visible = true;
-        }
-        chart.render();
-    }
-});</script>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -151,15 +100,14 @@ $dataPoints2 = array(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
-        <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
-        
-      <!-- <script src="css\canvasjs.min.js"> </script> -->
-        <!-- chart  -->
-  
+
+    <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+    <link href="css\sidebars.css" rel="stylesheet">
+    <!-- <script src="css\canvasjs.min.js"> </script> -->
+    <!-- chart  -->
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/sidebars/">
     <link href="css\app.css" rel="stylesheet">
+    <link href="css\bootstrap.min.css" rel="stylesheet">
 
     <title>Document</title>
 </head>
@@ -182,7 +130,9 @@ $dataPoints2 = array(
     a,
     a:hover {
         text-decoration: none;
-        color: black;
+        color: black;      
+       cursor: pointer;
+
     }
 
     body {
@@ -203,208 +153,51 @@ $dataPoints2 = array(
 
 } */
 </style>
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
 
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+</style>
 
-<body class="bg-secondary   bg-opacity-50" >
+<body class="bg-secondary   bg-opacity-50">
 
-
-<div id="sidebar">
-        <div class="sidebar-wrapper  active shadow " style="width: 204px;">
-            <div class="sidebar-header position-relative">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="logo"> <!--insert  fake logo  -->
-                        <a href="#" class="text-primary"> FineLogic </a>
-                    </div>
-
-
-                </div>
-            </div>
-            <div class="sidebar-menu">
-                <ul class="menu px-2">
-
-                    <li class="sidebar-title">Menu</li>
-
-                    <li class="sidebar-item  justify-content-center">
-                        <a href="dashbaordPage.php"
-                            class="btn btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start  ">
-                            <i class="fa-solid fa-house-user text-primary"></i> Ana Sayfa
-                        </a>
-
-
-                    </li>
-                    <li class="sidebar-item  justify-content-center">
-                        <a class="btn  btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start   "
-                            data-bs-toggle="collapse" data-bs-target="#home-collapse2">
-                            <i class="fa-solid fa-arrow-down-short-wide text-primary"></i> Satışlar
-                        </a>
-                        <div class="collapse " id="home-collapse2">
-                            <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="satislar.php"
-                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Satışlar</a>
-                                </li>
-                                <li><a href="#"
-                                        class="link-primary  text-nowrap text-secondary  p-2 rounded ">Faturalar</a>
-                                </li>
-                                <li><a href="#"
-                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Muşteriler</a>
-                                </li>
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Satış
-                                        Raporu</a>
-                                </li>
-                                <li><a href="#"
-                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Tahsilatlar
-                                        Raporu</a></li>
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Gelir
-                                        Gider
-                                        Raporu</a></li>
-
-
-
-                            </ul>
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-item  justify-content-center">
-                        <a class="btn btn-toggle align-items-center text-nowrap rounded d-flex gap-3  d-flex justify-content-start  "
-                            data-bs-toggle="collapse" data-bs-target="#home-collapse3">
-                            <i class="fa-solid fa-arrow-up-from-bracket text-primary"></i> Giderler
-                        </a>
-                        <div class="collapse  " id="home-collapse3">
-                            <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Gider
-                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>                                        Listesi</a>
-                                </li>
-                                <li><a href="#"
-
-                                class="link-primary text-nowrap text-secondary  p-2 rounded ">Tedarikçiler</a>
-                                </li>
-                                <li><a href="#"
-                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Çalışanlar</a>
-                                </li>
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Giderler
-                                        Raporu</a></li>
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">Ödemeler
-                                        Raporu</a></li>
-                                <li><a href="#" class="link-primary text-nowrap text-secondary  p-2 rounded ">KDV
-                                        raporu</a>
-                                </li>
-
-
-                            </ul>
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-item  justify-content-center">
-                        <a class="btn btn-toggle text-nowrap align-items-center rounded d-flex gap-3 fs-5 d-flex justify-content-start  "
-                            data-bs-toggle="collapse" data-bs-target="#home-collapse-subi">
-                            <i class="fa-regular fa-money-bill-1 text-primary"></i> Nakit
-                        </a>
-                        <div class="collapse  " id="home-collapse-subi">
-                            <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary  text-nowrap  p-2 rounded ">Kasa Ve
-                                        Bankalar</a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Çekler</a>
-                                </li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Kasa/Banka
-                                        Raporu</a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap p-2 rounded ">Nakit Akışı
-                                        Raporu</a></li>
-
-                            </ul>
-                        </div>
-
-                    </li>
-                    <li class="sidebar-item  justify-content-center">
-                        <a class="btn btn-toggle align-items-center rounded d-flex gap-3  d-flex justify-content-start  "
-                            data-bs-toggle="collapse" data-bs-target="#home-collapses">
-                            <i class="fa-solid fa-cubes text-primary"></i> Stok
-                        </a>
-                        <div class="collapse  " id="home-collapses">
-                            <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Hizmet ve
-                                        ürünler</a></li>
-                                <li><a href="#"
-                                        class="link-primary text-nowrap text-secondary  p-2 rounded ">Depolar</a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded">
-                                        Dolaplar Arası Transfer </a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Giden
-                                        İrsaliyeler</a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Gelen
-                                        İrsaliyeler</a></li>
-
-                            </ul>
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-item  justify-content-center">
-                        <a class="btn btn-toggle align-items-center rounded text-nowrap d-flex gap-3  d-flex justify-content-start  "
-                            data-bs-toggle="collapse" data-bs-target="#home-collapse4">
-                            <i class="fa-solid fa-gears text-primary"></i> Ayarlar
-                        </a>
-                        <div class="collapse  " id="home-collapse4">
-                            <ul class="btn-toggle-nav list-unstyled text-secondary fw-normal pb-1 p-2 d-grid gap-2">
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Firma
-                                        Bilgileri
-                                    </a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Kategori
-                                        Ve
-                                        etiketler</a></li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Dolaplar
-                                        Arası
-                                        Transfer</a></li>
-                                <li><a href="#"
-                                        class="link-primary text-secondary text-nowrap  p-2 rounded ">Kullanicilar</a>
-                                </li>
-                                <li><a href="#" class="link-primary text-secondary text-nowrap  p-2 rounded ">Yazdırma
-                                        Şablonları</a></li>
-
-                            </ul>
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-item  justify-content-center">
-                        <a href="logout.php"
-                            class="btn btn-toggle align-items-center rounded d-flex gap-3  d-flex justify-content-start  ">
-                            <i class="fa-solid fa-right-from-bracket text-primary"></i> Çıkış
-                        </a>
-
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class=" d-flex justify-content-end ">
+<div class=" d-flex justify-content-end ">
         <nav class="navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-secondary">
 
 
             <div class=" align-items-center">
-            <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:250px">
-                    <p class="m-0">  Deneme sürenizin bitmesine  <?php echo $visitcount?> gün kaldı   </p> <a href="#" class="border rounded-circle border-3 p-2 bg-white"><i class="fa-solid fa-gift fs-4"></i></a>
+                <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:300px">
+                    <p class="m-0"> Deneme sürenizin bitmesine
+                        <?php echo $visitcount ?> gün kaldı
+                    </p> <a href="#" class="border rounded-circle border-3 p-2 bg-white"><i
+                            class="fa-solid fa-gift fs-4"></i></a>
                 </div>
                 <ul class="d-flex gap-3 m-0 justify-content-center align-items-center ">
 
 
-                    <li><a href="#" class="text-white"> Hakkımızda 
-        
-          <?php
-        
+                    <li><a href="#" class="text-white"> Hakkımızda
+
+                            <?php
 
 
 
 
 
-?>
+
+                            ?>
 
 
-</a></li>
+                        </a></li>
 
 
                     <li><a href="#" class="text-white">Yardım</a></li>
@@ -432,6 +225,22 @@ $dataPoints2 = array(
 
         </nav>
     </div>
+
+<div id="sidebar">
+    <div class="sidebar-wrapper  active shadow " style="height: 100vh; width: 200px;">
+    <?php
+    
+    try {
+        require "sidebar.php";
+    } catch (Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+    }
+    ?>
+    </div>
+
+</div>
+
+   
   
 
     <div class="container mt-3 d-grid justify-content-end align-items-end ">
@@ -440,35 +249,36 @@ $dataPoints2 = array(
         </div>
         <div class="row d-flex justify-content-center " style="gap:120px">
             <div class="col-md-2">
-                <div class="card shadow bg-light  border-2 border border-secondary mb-3" style="width: 300px; height: 300px">
-                    <div
-                        class="card-header bg-info border border-secondary border-2 text-white fs-3 text-center p-0 ">
-                        Günlük Tahsilatlar</div>
+                <div class="card shadow bg-light  border-2 border border-secondary mb-3"
+                    style="width: 300px; height: 300px">
+                    <div class="card-header bg-info border border-secondary border-2 text-white fs-3 text-center p-0 ">
+                        Günlük Tahsilatlar
+                    </div>
                     <div class="card-body text-white d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam ciro</h5>
                         <?php
-                       
-$dateToday = date("d.m.Y");
-$dateToday=strval($dateToday);
 
-require "db.php"; // Assuming db.php contains your database connection code
+                        $dateToday = date("d.m.Y");
+                        $dateToday = strval($dateToday);
 
-$sql1 = $db->query("SELECT `id`, `productcode`, `costomer`, `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '$dateToday';");
-$sql1->execute();
-$count1 = 0;
-while ($result = $sql1->fetch(PDO::FETCH_ASSOC)) {
-  
-     $count1 += $result["totalPrice"];
-}
+                        require "db.php"; // Assuming db.php contains your database connection code
+                        
+                        $sql1 = $db->query("SELECT `id`, `productcode`, `costomer`, `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '$dateToday';");
+                        $sql1->execute();
+                        $count1 = 0;
+                        while ($result = $sql1->fetch(PDO::FETCH_ASSOC)) {
 
-if ($count1 > 0) {
-    $color = "blue";
-    $Mss = "Bol Kazançlar elde ediyorsunuz Haydi Devam";
-} else {
-    $color = "lightgray";
-    $Mss = "Biraz daha çalışın";
-}
-?>
+                            $count1 += $result["totalPrice"];
+                        }
+
+                        if ($count1 > 0) {
+                            $color = "blue";
+                            $Mss = "Bol Kazançlar elde ediyorsunuz Haydi Devam";
+                        } else {
+                            $color = "lightgray";
+                            $Mss = "Biraz daha çalışın";
+                        }
+                        ?>
 
                         <svg class="progress bg-transparent  " width="200" style="height: 120px;">
                             <circle class="progress-circle" cx="100" cy="60" stroke="<?php echo $color ?>" r="50"
@@ -539,7 +349,8 @@ if ($count1 > 0) {
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card shadow bg-success bg-opacity-50  border-2 border border-secondary mb-3" style="width: 300px; height: 300px">
+                <div class="card shadow bg-success bg-opacity-50  border-2 border border-secondary mb-3"
+                    style="width: 300px; height: 300px">
                     <div
                         class="card-header bg-success  border border-secondary border-2 text-white fs-3 text-center p-0 ">
                         Günlük Kazanç</div>
@@ -591,7 +402,8 @@ if ($count1 > 0) {
                         </svg>
                         <span class=" loading"></span>
                     </div>
-                    <div class="card-footer text-white bg-success border-2 border-secondary p-2 d-flex justify-content-center">
+                    <div
+                        class="card-footer text-white bg-success border-2 border-secondary p-2 d-flex justify-content-center">
                         <?php echo $cheeringMs ?>
                     </div>
                 </div>
@@ -602,16 +414,69 @@ if ($count1 > 0) {
     <hr class=" mt-5 bg-primary " style="height:30px ; ">
     <div class="container mt-2 d-grid justify-content-end pe-5 ms-5  ">
         <div id="chartContainer" style="height: 400px; width: 1000px;" class="ps-5 mt-5 mb-5 ms-3">
-              
-    </div>
-    </div>
 
+        </div>
     </div>
 
-  <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>  -->
-  <script src="https://cdn.canvasjs.com/ga/canvasjs.stock.min.js"></script>
+ 
 
-    
+    <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>  -->
+    <script src="https://cdn.canvasjs.com/ga/canvasjs.stock.min.js"></script>
+
+
+    <script src="css\sidebars.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            theme: "light2",
+            title: {
+                text: " Şirketinizin haftalık Nakıt akışı ",
+            },
+            axisY: {
+                includeZero: true,
+                title: "Para Akışı",
+                valueFormatString: "*",
+                interval: 0
+            },
+            legend: {
+                cursor: "pointer",
+                verticalAlign: "center",
+                horizontalAlign: "right",
+                itemclick: toggleDataSeries
+            },
+            data: [{
+                type: "column",
+                name: "Giderler",
+                indexLabel: "{y}",
+                yValueFormatString: "",
+                showInLegend: true,
+                dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
+            }, {
+                type: "column",
+                name: "Kazançlar",
+                indexLabel: "{y}",
+                yValueFormatString: "",
+                showInLegend: true,
+                dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
+            }]
+        });
+        chart.render();
+
+        function toggleDataSeries(e) {
+            if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                e.dataSeries.visible = false;
+            } else {
+                e.dataSeries.visible = true;
+            }
+            chart.render();
+        }
+    });
+    </script>
 </body>
 
 </html>

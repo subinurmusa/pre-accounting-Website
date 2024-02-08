@@ -76,20 +76,6 @@ $visitcount = 7;
         z-index: 1;
     }
 
-    #invoice:hover::after {
-        content: "Fatura Oluştur";
-  position: fixed; /* Use fixed positioning to follow the cursor */
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  /* Adjust the positioning according to your needs */
-  top: calc(var(--top) + 20px); /* Position the tooltip below the cursor */
-  left: calc(var(--left) + 20px);
-}
-
-
     /* a:hover{
 
 
@@ -185,7 +171,7 @@ $visitcount = 7;
             <!-- header-->
             <div class="div d-flex ps-5 mt-3 gap-5 align-items-center"
                 style="position:relative; height:40px;">
-                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i class="fa-solid fa-arrow-down-short-wide text-secondary fs-3"></i> Satışlar </span> </div>
+                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i class="fa-solid fa-file-invoice fs-3"></i> Satış Faturaları </span> </div>
 
                 <div class="div text-white" style="position:absolute;right:1px;"> <span><i
                             class="fa-solid fa-rainbow"></i></span> </div>
@@ -218,7 +204,7 @@ $visitcount = 7;
 </div>  -->
                                             </form>
 
-                                            <div>
+                                          <!--   <div>
                                                 <a href="#" class="btn bg-success bg-opacity-25 text-dark">Cevap
                                                     beklenenler</a>
                                                 <a href="#"
@@ -226,7 +212,7 @@ $visitcount = 7;
                                                 <a href="#"
                                                     class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
                                                 <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
-                                            </div>
+                                            </div> -->
                                             <div>
                                                 <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
                                                     Teklif
@@ -244,6 +230,7 @@ $visitcount = 7;
                                         <table class="table table-striped table-dark mb-0">
                                             <thead>
                                                 <tr>
+                                                <th></th>
                                                     <th>Sipariş Kodu</th>
                                                     <th>Muşteri</th>
                                                     <th>Faturalama Durumu</th>
@@ -263,6 +250,7 @@ $visitcount = 7;
 
 
                 <tr>
+                <td> <i class="fa-solid fa-file-invoice fs-3"></i></td>
                                                     <td> <?php echo $row["productcode"]; ?></td>
                                                     <td> <?php echo $row["costomer"]; ?></td>
                                                     <td class="d-grid ">
@@ -304,11 +292,6 @@ echo $bb = $row["status"] === "true"
                                                     <div class="d-flex align-items-center gap-3">
                                                      <a href="SatisEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
                                                      <a href="SatisInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
-                                                     <?php
-echo $bb = $row["status"] === "true"
-    ? ' <a href="addinvoice.php? id='.$row["id"].'" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
-    : "";
-?>
                                                      </td>
 
                                                     </div>
