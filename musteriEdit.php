@@ -401,7 +401,7 @@ try {
                 <div class="col-md-9  d-flex  align-items-center  me-5 pe-5">
                     <div class="d-flex align-items-center justify-content-end w-100 ms-4">
                     <div class="bottons">
-                        <a href="satislar.php" class="btn btn-secondary">Vazgeç</a>
+                        <a href="musteriler.php" class="btn btn-secondary">Vazgeç</a>
                         <button type="submit" name="submit" id="submit" class="btn btn-primary opacity-75"> Düzenle</button>
 
                     </div>

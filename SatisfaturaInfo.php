@@ -6,87 +6,37 @@ if (empty($_SESSION["username"])) {
     header("location:login.php");
 }
 
-$visitcount = 7;
+ $visitcount = 7;
 $num = 0;
 $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
 
-$sellingid = isset($_GET["id"]) ? $_GET["id"] : null;
-
-$sqld = $db->prepare("SELECT * FROM selling where id = ? ");
-$sqld->execute([$sellingid]);
-$sellings = $sqld->fetch(PDO::FETCH_ASSOC);
-$jsonData = $sellings["products"];
-$productsArray = json_decode($jsonData, true);
+$invoiceid = isset($_GET["id"]) ? $_GET["id"] : null;
+//invoice
+$sqld = $db->prepare("SELECT * FROM invoice where id = ? ");
+$sqld->execute([$invoiceid]);
+$invoicerow = $sqld->fetch(PDO::FETCH_ASSOC);
+$sellingid = $invoicerow["sellingId"];
+//selling
+$sqls = $db->prepare("SELECT * FROM selling where id = ? ");
+$sqls->execute([$sellingid]);
+$sellings = $sqls->fetch(PDO::FETCH_ASSOC);
+//products array 
+$sellingproductarray=$sellings["products"];
+$productsArray = json_decode($sellingproductarray, true);
 //customers
-$sqld = $db->prepare("SELECT * FROM customers where id = ? ");
-$sqld->execute([$sellings["costomer"]]);
-$customers = $sqld->fetch(PDO::FETCH_ASSOC);
-
-echo count($productsArray) . "nnnnnnnnuuuuuu";
-
-?>
-
-<?php
-
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+$sqlcus = $db->prepare("SELECT * FROM customers where id = ? ");
+$sqlcus->execute([$sellings["costomer"]]);
+$customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
 
 
-try {
-    if (isset($_POST['submit'])) {
-        $invoicenumber = isset($_POST['invoicenumber']) ? $_POST['invoicenumber'] : null;
-        $invoiceDate = isset($_POST['invoiceDate']) ? $_POST['invoiceDate'] : null;
-        $SendingComName = isset($_POST['SendingComName']) ? $_POST['SendingComName'] : null;
-
-        $sendingComAddress = isset($_POST['sendingComAddress']) ? $_POST['sendingComAddress'] : null;
-        $sendingComPhone = isset($_POST['sendingComPhone']) ? $_POST['sendingComPhone'] : null;
-        $sendingComEmail = isset($_POST['sendingComEmail']) ? $_POST['sendingComEmail'] : null;
-        $SendingComTaxNumber = isset($_POST['SendingComTaxNumber']) ? $_POST['SendingComTaxNumber'] : null;
-        
-
-        if (empty($invoicenumber)||empty($invoiceDate)) {
-            $error = "<div class='alert alert-danger'>Fatura Bilgileri Doldurulmalıdır </div>";
-
-        } else if (empty($SendingComName)||empty($sendingComAddress)||empty($sendingComPhone)||empty($sendingComEmail)||empty($SendingComTaxNumber)) {
-            $error = "<div class='alert alert-danger'>Gönderici Bilgilerini Doldurulması zorunludur</div>";
-        } else {
-            //  var_dump($_POST);
-          
-            $sql = $db->prepare("INSERT INTO `invoice`( `sellingId`, `InvoiceDate`, `InvoiceNumber`, `sendingComName`, `sendingComAddress`, `sendingComPhone`, `sendingComEmail`, `SendingComTaxNumber`,`customerid`) VALUES (?,?,?,?,?,?,?,?,?)");
-
-            $sql->execute([$sellingid, $invoiceDate, $invoicenumber, $SendingComName, $sendingComAddress, $sendingComPhone, $sendingComEmail, $SendingComTaxNumber,$sellings["costomer"]]);
-
-            // Check if the SQL statement was executed successfully
-            if ($sql) {
-                // Redirect to satislar.php
-                header("location: satisfatura.php");
-                // Make sure to exit after header to prevent further code execution
-            } else {
-                $error = "<div class='alert alert-danger'>An error occurred while editing data.</div>";
-                //   echo json_encode(['error' => $error]);
-                return;
-            }
-        }
-
-
-        // If everything is successful, redirect to satislar.php
-
-    }
-
-} catch (Exception $e) {
-    // Log the exception details
-    error_log("Caught exception: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-
-    // Optionally, display a generic error message to the user
-    $error = "$e";
-    echo json_encode(['error' => $error]);
-    return;
-}
 
 ?>
+
+
+
 
 
 <!DOCTYPE html>
@@ -229,11 +179,11 @@ try {
 
     </div>
     <div class=" d-flex align-items-center w-50 justify-content-center mt-5 ms-5">
-        <p class="text-primary d-flex align-items-center gap-2 fs-3 mt-5"> Yeni Fatura Oluştur</p>
+        <p class="text-primary d-flex align-items-center gap-2 fs-3 mt-5"> Fatura Bilgileri</p>
     </div>
 
     <div>
-        <form method="POST" id="form" enctype="multipart/form-data">
+       
             <div class="row  d-flex justify-content-end align-items-center ">
                 <div class="col-md-9  d-flex justify-content-around align-items-center me-5 pe-5  ">
                     <?php echo $tt = empty($error) ? "" : $error;
@@ -266,10 +216,9 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="invoicenumber" class="form-label w-25  me-5 pe-4 ps-4">Fatura Numarası </label>
                            
-                            <input type="text" id="invoicenumber"  name="invoicenumber" class="form-control ms-5"
-                            value="">
-                        <input type="hidden" id="invoicenumber_hidden" name="invoicenumber_hidden"
-                            value="">
+                            <input type="text" id="invoicenumber" disabled  name="invoicenumber"  class="form-control ms-5"
+                            value="<?php  echo $invoicerow["InvoiceNumber"]?>">
+                      
                         </div>
 
                     </div>
@@ -285,7 +234,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="invoiceDate" class="form-label w-25 text-nowrap me-5 pe-4 ps-4">Fatura Oluşturma Tarihi </label>
                            
-                            <input type="text" id="invoiceDate"  name="invoiceDate" class="form-control ms-5"
+                            <input type="text" id="invoiceDate"  name="invoiceDate" disabled class="form-control ms-5" value="<?php  echo $invoicerow["InvoiceDate"]?>"
                             >
                         <input type="hidden" id="invoiceDate_hidden" name="invoiceDate_hidden"
                             value="">
@@ -320,8 +269,8 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComName" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adı</label>
                            
-                            <input type="text" id="SendingComName"  name="SendingComName" class="form-control ms-5"
-                            value="">
+                            <input type="text" id="SendingComName" disabled  name="SendingComName" class="form-control ms-5"
+                            value="<?php  echo $invoicerow["sendingComName"]?>">
                         
                         </div>
 
@@ -338,7 +287,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComAddress" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adresi</label>
                            
-                            <textarea type="text" id="sendingComAddress"  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"></textarea>
+                            <textarea type="text" id="sendingComAddress" disabled  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"><?php  echo $invoicerow["sendingComAddress"]?></textarea>
                         
                         </div>
 
@@ -355,7 +304,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
                            
-                            <input type="number" id="sendingComPhone"  name="sendingComPhone" class="form-control ms-5">
+                            <input type="number" id="sendingComPhone" disabled name="sendingComPhone" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComPhone"]?>">
                         
                         </div>
 
@@ -372,7 +321,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComEmail" class="form-label w-25 text-nowrap  me-5 pe-4 ps-4">Gönderici Şirket  Email</label>
                            
-                            <input type="email" id="sendingComEmail"  name="sendingComEmail" class="form-control ms-5">
+                            <input type="email" id="sendingComEmail"  disabled name="sendingComEmail" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComEmail"]?>">
                         
                         </div>
 
@@ -389,7 +338,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComTaxNumber" class="form-label w-25   me-5 pe-4 ps-4">Gönderici Şirket  Vergi Numarası</label>
                            
-                            <input type="number" id="SendingComTaxNumber"  name="SendingComTaxNumber" class="form-control ms-5">
+                            <input type="number" id="SendingComTaxNumber" disabled name="SendingComTaxNumber" class="form-control ms-5" value="<?php  echo $invoicerow["SendingComTaxNumber"]?>">
                         
                         </div>
 
@@ -887,23 +836,16 @@ try {
             <div class="row p-3 d-flex justify-content-center align-items-center mt-3 ">
                 <div class="col-md-9  d-flex justify-content-start w-75 align-items-center ps-5 ms-5 gap-5 ">
                     <div class="d-flex ps-5 ms-5 ">
-                    <a href="satislar.php" class="btn btn-secondary">Vazgeç</a>
+                    <a href="satisfatura.php" class="btn btn-secondary">geridön <i class="fa-solid fa-arrow-left"></i></a>
 
                     </div>
-                    <div >
-                        
-                       
-                        <button type="submit" name="submit" id="submit" class="btn btn-primary opacity-75">
-                            Fatura Oluştur</button>
-
-                 
-                        </div>
+                   
 
                 </div>
 
 
             </div>
-        </form>
+       
     </div>
 
 

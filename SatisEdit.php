@@ -36,10 +36,10 @@ try {
         // Your existing code here
         echo "console.log('submit alse');";
         // Your database operations, form processing, etc.
-        $musteri = isset($_POST['musteri']) ? $_POST['musteri'] : null;
+        $musteri = isset($_POST['musteri']) ? $_POST['musteri'] : 0;
         $date = isset($_POST['hiddentarih']) ? $_POST['hiddentarih'] : null;
         $productname = isset($_POST['urunhizmet']) ? $_POST['urunhizmet'] : null;
-
+        var_dump($_POST);
         if (empty($musteri)) {
             $error = "<div class='alert alert-danger'>Müşteriler doldurulması zorunlu alanlardır </div>";
 
@@ -49,7 +49,7 @@ try {
             $error = "<div class='alert alert-danger'>Ürün seçilmelisiniz  </div>";
 
         } else {
-            //  var_dump($_POST);
+              var_dump($_POST);
             $productcode = isset($_POST['ordernumber_hidden']) ? $_POST['ordernumber_hidden'] : null;
             $musteri = isset($_POST['musteri']) ? $_POST['musteri'] : null;
             $paymentType = isset($_POST['paymentType']) ? $_POST['paymentType'] : null;
@@ -325,7 +325,7 @@ try {
                                 while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
 
-                                    <option value="<?php echo $row["name"]; ?>" <?php echo $ex = $sellings["costomer"] == $row["name"] ? "selected" : "" ?>>
+                                    <option value="<?php echo $row["id"]; ?>" <?php echo $ex = $sellings["costomer"] == $row["id"] ? "selected" : "" ?>>
                                         <?php echo $row["name"]; ?>
                                     </option>
 

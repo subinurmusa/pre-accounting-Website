@@ -6,7 +6,7 @@ if (empty($_SESSION["username"])) {
     header("location:login.php");
 }
 
-$visitcount = 7;
+ $visitcount = 7;
 $num = 0;
 $error = "";
 ini_set('display_errors', 1);
@@ -22,7 +22,7 @@ $jsonData = $sellings["products"];
 $productsArray = json_decode($jsonData, true);
 
 echo count($productsArray) . "nnnnnnnnuuuuuu";
-
+ 
 ?>
 
 <?php
@@ -230,7 +230,7 @@ ini_set('log_errors', 1);
                                 while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
 
-                                    <option value="<?php echo $row["name"]; ?>" <?php echo $ex = $sellings["costomer"] == $row["name"] ? "selected" : "" ?>>
+                                    <option value="<?php echo $row["costomer"]; ?>" <?php echo $ex = $sellings["costomer"] == $row["id"] ? "selected" : "" ?>>
                                         <?php echo $row["name"]; ?>
                                     </option>
 

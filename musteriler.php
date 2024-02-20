@@ -6,7 +6,9 @@ if (empty($_SESSION["username"])) {
 }
 
 $visitcount = 7;
-
+//$searchName =null;
+require "db.php";
+ 
 
 ?>
 <script>
@@ -182,16 +184,18 @@ $visitcount = 7;
                     <div class="row" id="table-striped-dark">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header p-0"><!--bbbbbuuuuuu-->
+                                <div class="card-header p-0">
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 " method="POST">
-                                                <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Ara" aria-label="Ara">
-                                                <button class="btn btn-outline-success rounded-pill text-dark "
-                                                    type="submit">AramaYap</button>
-                                             
-                                            </form>
+                                        <form class="d-flex m-0" method="GET">
+    <select class="form-select w-75 me-1" name="category">
+        <option value="name">Müşteri İsmi</option>
+        <option value="vergiNumber">Müşteri Numarası</option>
+        <option value="id">Şirket Adı</option>
+    </select>
+    <input class="form-control me-2 w-100" type="search" placeholder="Ara" aria-label="Search" name="search">
+    <button class="btn btn-outline-success rounded-pill text-dark" type="submit">Ara</button>
+</form>
 
                                           
                                             <div>
@@ -219,32 +223,94 @@ $visitcount = 7;
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                            $sql = $db->prepare("select * from customers ");
-                                    $sql->execute();
-
-                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
-
-
-                <tr>
-                                                    <td> <?php echo $row["companyName"]; ?></td>
-                                                    <td> <?php echo $row["vergiNumber"]; ?></td>
-                                                    
-                                                    <td class="text-bold-500"><?php  echo $row["email"]; ?></td>
-                                                   
-                                                    <td >
-                                                    <div class="d-flex align-items-center gap-3">
-                                                     <a href="musteriEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     <a href="musteriInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
-                                                     <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
-                                                    
-                                                     </td>
-
-                                                    </div>
-                                                    
-                                                </tr>
-           
-                                  <?php  }   ?> 
+                                           $whiledata=null;
                                              
+                                           $searchTerm = isset($_GET["search"]) ? $_GET["search"] : null;
+                                           $category = isset($_GET["category"]) ? $_GET["category"] : null;
+                                           
+                                           if (!empty($searchTerm) && !empty($category)) {
+                                               // Prepare the SQL query based on the selected category
+                                               switch ($category) {
+                                                   case 'name':
+                                                       $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm";
+                                                       break;
+                                                   case 'vergiNumber':
+                                                       $sql = "SELECT * FROM customers WHERE musterinumara LIKE :searchTerm";
+                                                       break;
+                                                   case 'id':
+                                                       // Assuming ID is an integer
+                                                       $sql = "SELECT * FROM customers WHERE companyName = :searchTerm";
+                                                       break;
+                                                   default:
+                                                       // Default to search by name
+                                                       $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm";
+                                                       break;
+                                               }
+                                               $stmt = $db->prepare($sql);
+                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                           
+                                               while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+                                                     //   echo "222222end";
+                                                       // print_r($row);
+
+                                                ?>  
+                                                        <tr>
+                                                        <td> <?php echo $row["companyName"]; ?></td>
+                                                      <td> <?php echo $row["vergiNumber"]; ?></td>
+                                                      
+                                                      <td class="text-bold-500"><?php  echo $row["email"]; ?></td>
+                                                     
+                                                      <td>
+                                                      <div class="d-flex align-items-center gap-3">
+                                                       <a href="musteriEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                       <a href="musteriInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                       <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
+                                                      
+                                                      </div>
+                                                      </td>
+                                                      
+                                                         </tr>   
+                                                   <?php 
+                                                   }
+                                                }
+                                                
+
+                                                else{
+                                                    $sql = $db->prepare("SELECT * FROM customers");                                               
+                                                    $sql->execute();
+                                                   // echo "1111111111111111111";
+                                                    while ($row =  $sql ->fetch(PDO::FETCH_ASSOC)) { 
+    
+                                                  ?>  
+                                                   <tr>
+                                                         <td> <?php echo $row["companyName"]; ?></td>
+                                                       <td> <?php echo $row["vergiNumber"]; ?></td>
+                                                       
+                                                       <td class="text-bold-500"><?php  echo $row["email"]; ?></td>
+                                                      
+                                                       <td>
+                                                       <div class="d-flex align-items-center gap-3">
+                                                        <a href="musteriEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                        <a href="musteriInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                        <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
+                                                       
+                                                      
+    
+                                                       </div>
+                                                       </td>
+                                                       
+                                                  </tr>     
+                                                  
+                                                  <?php 
+                                                    }
+                                                }
+                                                
+                                                                                   
+                                            
+                                    
+
+                       
+                                            ?> 
                                                
 
 
@@ -272,6 +338,12 @@ $visitcount = 7;
         }
     }
 </script>
+<!-- <script>
+    document.getElementById('searchButton').addEventListener('click', function() {
+        document.querySelector('form').submit();
+    });
+</script> -->
+
 </body>
 
 </html>

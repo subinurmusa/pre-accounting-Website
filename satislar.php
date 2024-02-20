@@ -264,7 +264,12 @@ $visitcount = 7;
 
                 <tr>
                                                     <td> <?php echo $row["productcode"]; ?></td>
-                                                    <td> <?php echo $row["costomer"]; ?></td>
+                                                    <td>  <?php  
+        $sql_customer = $db->prepare("select * from customers where id=".$row["costomer"]);
+        $sql_customer->execute(); 
+        $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+        echo $customer_row["name"]; 
+        ?></td>
                                                     <td class="d-grid ">
                                                         <span class="text-start text-secondary">
                                                         <?php echo $bb= $row["status"]==="true"? ($row["status"]==="false"|| $row["status"]==="waiting")? "faturalama Oluşturulmadı": "Faturalama Oluşturuldu": "yanıt bekleniyor"; ?>

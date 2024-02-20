@@ -76,10 +76,18 @@ $visitcount = 7;
         z-index: 1;
     }
 
-    /* a:hover{
-
-
-} */
+    #print:hover::after {
+        content: "Fatura Yazdır";
+  position: fixed; /* Use fixed positioning to follow the cursor */
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  /* Adjust the positioning according to your needs */
+  top: calc(var(--top) + 20px); /* Position the tooltip below the cursor */
+  left: calc(var(--left) + 20px);
+}
 </style>
 <style>
       .bd-placeholder-img {
@@ -201,7 +209,7 @@ $visitcount = 7;
     <li><a class="dropdown-item" href="#">Something else here</a></li>  
     <li><a class="dropdown-item" href="#">Separated link</a></li>
   </ul>
-</div>  -->
+ </div>  -->
                                             </form>
 
                                           <!--   <div>
@@ -213,11 +221,11 @@ $visitcount = 7;
                                                     class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
                                                 <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
                                             </div> -->
-                                            <div>
+                                            <!-- <div>
                                                 <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
                                                     Teklif
                                                     Oluştur</a>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </nav>
                                 </div>
@@ -231,10 +239,10 @@ $visitcount = 7;
                                             <thead>
                                                 <tr>
                                                 <th></th>
-                                                    <th>Sipariş Kodu</th>
-                                                    <th>Muşteri</th>
-                                                    <th>Faturalama Durumu</th>
-                                                    <th>Oluşturma Tarihi</th>
+                                                    <th>Fatura İsmi</th>
+                                                    <th>Fatura Numarası</th>
+                                                    <th>Ftura Oluştturulma Tarihi</th>                                                   
+                                                    <th>Vade Tarihi</th>
                                                     <th>Toplam Sipariş Tutarı </th>
                                                     <th>Işlemler </th>
 
@@ -243,7 +251,7 @@ $visitcount = 7;
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                            $sql = $db->prepare("select * from selling ");
+                                            $sql = $db->prepare("select * from invoice ");
                                     $sql->execute();
 
                                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
@@ -251,47 +259,33 @@ $visitcount = 7;
 
                 <tr>
                 <td> <i class="fa-solid fa-file-invoice fs-3"></i></td>
-                                                    <td> <?php echo $row["productcode"]; ?></td>
-                                                    <td> <?php echo $row["costomer"]; ?></td>
-                                                    <td class="d-grid ">
-                                                        <span class="text-start text-secondary">
-                                                        <?php echo $bb= $row["status"]==="true"? ($row["status"]==="false"|| $row["status"]==="waiting")? "faturalama Oluşturulmadı": "Faturalama Oluşturuldu": "yanıt bekleniyor"; ?>
-                                                       
-                                                        
-                                                    </span> 
-                                                        <span id="ember3950" class=" fw-bold text-secondary">
-                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
-
-                                                            <svg width="35" height="50">
-                                                                <circle cx="18" cy="25" r="10" stroke-width="2"
-                                                                fill=" 
-                                                                
-                                                                <?php
-echo $bb = $row["status"] === "true"
-    ? "lightgreen"
-    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
-?>
-                                                                "
+                                                    <td> <?php  
+        $sql_customer = $db->prepare("select * from customers where id=".$row["customerid"]);
+        $sql_customer->execute(); 
+        $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+        echo $customer_row["name"]; 
+        ?></td>
+                                                    <td> <?php echo $row["InvoiceNumber"]; ?></td>
                                                    
-                                                                   />
-                                                                  
-                                                            </svg> 
-                                                            
-                                                           
-                                                                <?php
-echo $bb = $row["status"] === "true"
-    ? "Kabul Edildi"
-    : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" :""));
-?>
-                                                      
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-bold-500"><?php  echo $row["date-added"]; ?></td>
-                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> <?php  echo $row["totalPrice"]; ?></td>
+                                                    <td class="text-bold-500"><?php  echo $row["InvoiceDate"]; ?></td>
+                                                    <td> <?php 
+        $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+        $sql_vade->execute(); 
+        $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+        echo $vade_row["vadetarihi"]; 
+                                                    ?></td>
+                                                    <td> <i class="fa-solid fa-turkish-lira-sign"></i> <?php 
+                                                        $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+                                                        $sql_vade->execute(); 
+                                                        $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+                                                        echo $vade_row["totalPrice"]; 
+                                                    ?></td>
                                                     <td >
                                                     <div class="d-flex align-items-center gap-3">
-                                                     <a href="SatisEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     <a href="SatisInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                     <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                     <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                     <a href="printSatis.php? invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
+                                                   
                                                      </td>
 
                                                     </div>
