@@ -39,7 +39,7 @@
                 <ul class="nav flex-column">
                     <li class="nav-item"><a href="satislar.php" class="nav-link text-white">GiderListesi</a></li>
                     <li class="nav-item"><a href="#" class="nav-link text-white">Tedarikçiler</a></li>
-                    <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Çalışanlar</a></li>
+                    <li class="nav-item"><a href="employees.php" class="nav-link text-white">Çalışanlar</a></li>
                     <li class="nav-item"><a href="#" class="nav-link text-white">Giderler Raporu</a></li>
                     <li class="nav-item"><a href="#" class="nav-link text-white">Ödemeler Raporu</a></li>
                     <li class="nav-item"><a href="#" class="nav-link text-white">KDV Raporu</a></li>
