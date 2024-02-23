@@ -190,7 +190,7 @@ require "db.php";
                                         <form class="d-flex m-0" method="GET">
     <select class="form-select w-75 me-1" name="category">
         <option value="name">Müşteri İsmi</option>
-        <option value="vergiNumber">Müşteri Numarası</option>
+        <option value="musteriNumber">Müşteri Numarası</option>
         <option value="id">Şirket Adı</option>
     </select>
     <input class="form-control me-2 w-100" type="search" placeholder="Ara" aria-label="Search" name="search">
@@ -223,7 +223,7 @@ require "db.php";
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                           $whiledata=null;
+                                           
                                              
                                            $searchTerm = isset($_GET["search"]) ? $_GET["search"] : null;
                                            $category = isset($_GET["category"]) ? $_GET["category"] : null;
@@ -234,7 +234,7 @@ require "db.php";
                                                    case 'name':
                                                        $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm";
                                                        break;
-                                                   case 'vergiNumber':
+                                                   case 'musteriNumber':
                                                        $sql = "SELECT * FROM customers WHERE musterinumara LIKE :searchTerm";
                                                        break;
                                                    case 'id':

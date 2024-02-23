@@ -323,7 +323,7 @@ try {
                                 while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
 
-                                    <option value="<?php echo $row["name"]; ?>">
+                                    <option value="<?php echo $row["id"]; ?>">
                                         <?php echo $row["name"]; ?>
                                     </option>
 

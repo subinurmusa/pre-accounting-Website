@@ -78,16 +78,18 @@ $visitcount = 7;
 
     #invoice:hover::after {
         content: "Fatura Oluştur";
-  position: fixed; /* Use fixed positioning to follow the cursor */
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  /* Adjust the positioning according to your needs */
-  top: calc(var(--top) + 20px); /* Position the tooltip below the cursor */
-  left: calc(var(--left) + 20px);
-}
+        position: fixed;
+        /* Use fixed positioning to follow the cursor */
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 14px;
+        /* Adjust the positioning according to your needs */
+        top: calc(var(--top) + 20px);
+        /* Position the tooltip below the cursor */
+        left: calc(var(--left) + 20px);
+    }
 
 
     /* a:hover{
@@ -96,20 +98,21 @@ $visitcount = 7;
 } */
 </style>
 <style>
-      .bd-placeholder-img {
+    .bd-placeholder-img {
         font-size: 1.125rem;
         text-anchor: middle;
         -webkit-user-select: none;
         -moz-user-select: none;
         user-select: none;
-      }
+    }
 
-      @media (min-width: 768px) {
+    @media (min-width: 768px) {
         .bd-placeholder-img-lg {
-          font-size: 3.5rem;
+            font-size: 3.5rem;
         }
-      }
-    </style>
+    }
+</style>
+
 <body>
 
 
@@ -167,25 +170,25 @@ $visitcount = 7;
         </nav>
     </div>
     <div id="sidebar">
-    <div class="sidebar-wrapper  active shadow " style="height: 100vh; width: 200px;">
-    <?php
-    
-    try {
-        require "sidebar.php";
-    } catch (Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
-    }
-    ?>
-    </div>
+        <div class="sidebar-wrapper  active shadow " style="height: 100vh; width: 200px;">
+            <?php
+
+            try {
+                require "sidebar.php";
+            } catch (Exception $e) {
+                echo 'Caught exception: ', $e->getMessage(), "\n";
+            }
+            ?>
+        </div>
 
     </div>
 
     <div class="">
         <div class="div">
             <!-- header-->
-            <div class="div d-flex ps-5 mt-3 gap-5 align-items-center"
-                style="position:relative; height:40px;">
-                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i class="fa-solid fa-arrow-down-short-wide text-secondary fs-3"></i> Satışlar </span> </div>
+            <div class="div d-flex ps-5 mt-3 gap-5 align-items-center" style="position:relative; height:40px;">
+                <div class="div text-black fs-3" style="position:absolute;left:280px;"> <span><i
+                            class="fa-solid fa-arrow-down-short-wide text-secondary fs-3"></i> Satışlar </span> </div>
 
                 <div class="div text-white" style="position:absolute;right:1px;"> <span><i
                             class="fa-solid fa-rainbow"></i></span> </div>
@@ -199,33 +202,26 @@ $visitcount = 7;
                                 <div class="card-header p-0"><!--bbbbbuuuuuu-->
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 " method="POST">
-                                                <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Search" aria-label="Search">
+                                            <form class="d-flex m-0" method="GET">
+                                                <select class="form-select w-75 me-1" name="category">
+                                                    <option value="name">Müşteri İsmi</option>
+                                                    <option value="orderNumber">Sipariş Numarası</option>
+                                                   
+                                                </select>
+                                                <input class="form-control me-2 w-100" type="search" placeholder="Ara"
+                                                    aria-label="Search" name="search">
                                                 <button class="btn btn-outline-success rounded-pill text-dark"
-                                                    type="submit">Search</button>
-                                                <!--another dropdown here -->
-                                                <!-- <div class="dropdown">
-  <button class="btn btn-outline-success rounded-pill text-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-    Filtreler
-  </button>
-  <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="dropdownMenuButton2">
-    <li><a class="dropdown-item active" href="#">Action</a></li>
-    <li><a class="dropdown-item" href="#">Another action</a></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li>  
-    <li><a class="dropdown-item" href="#">Separated link</a></li>
-  </ul>
-</div>  -->
+                                                    type="submit">Ara</button>
                                             </form>
 
                                             <div>
-                                                <a href="#" class="btn bg-success bg-opacity-25 text-dark">Cevap
+                                                <a href="satislar.php?status=waiting" class="btn bg-success bg-opacity-25 text-dark">Cevap
                                                     beklenenler</a>
-                                                <a href="#"
+                                                <a href="satislar.php?status=true"
                                                     class="btn bg-success bg-opacity-25  text-dark">Onaylalanlar</a>
-                                                <a href="#"
+                                                <a href="satislar.php?status=false"
                                                     class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
-                                                <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
+                                                <a href="satislar.php?status=all" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
                                             </div>
                                             <div>
                                                 <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
@@ -254,90 +250,298 @@ $visitcount = 7;
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            <?php
-                                            require "db.php";
-                                            $sql = $db->prepare("select * from selling ");
-                                    $sql->execute();
-
-                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
+                                                <?php
+                                                require "db.php";
 
 
-                <tr>
-                                                    <td> <?php echo $row["productcode"]; ?></td>
-                                                    <td>  <?php  
-        $sql_customer = $db->prepare("select * from customers where id=".$row["costomer"]);
-        $sql_customer->execute(); 
-        $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
-        echo $customer_row["name"]; 
-        ?></td>
-                                                    <td class="d-grid ">
-                                                        <span class="text-start text-secondary">
-                                                        <?php echo $bb= $row["status"]==="true"? ($row["status"]==="false"|| $row["status"]==="waiting")? "faturalama Oluşturulmadı": "Faturalama Oluşturuldu": "yanıt bekleniyor"; ?>
+                                                $searchTerm = isset($_GET["search"]) ? $_GET["search"] : null;
+                                                $category = isset($_GET["category"]) ? $_GET["category"] : null;
+                                                $status = isset($_GET["status"]) ? $_GET["status"] : null;
+
+                                                 if($status){
+                                                    echo "go ".$status;
+                                                     switch ($status) {
+                                                        case 'all':
+                                                            $stmt = $db->prepare("SELECT * FROM selling");
+                                                            $stmt->execute();
+                                                            break;
                                                        
-                                                        
-                                                    </span> 
-                                                        <span id="ember3950" class=" fw-bold text-secondary">
-                                                            <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
+                                                        default:
 
-                                                            <svg width="35" height="50">
-                                                                <circle cx="18" cy="25" r="10" stroke-width="2"
-                                                                fill=" 
+                                                        $sql = "SELECT * FROM selling WHERE status LIKE :status";
+                                                        $stmt = $db->prepare($sql);
+                                                        $stmt->execute(array(':status' => '%' . $status . '%'));
+                                                            break;
+                                                    } 
+                                                  
+                                                    
+                                                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                        //   echo "222222end";
+                                                        // print_r($row);
+                                                
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <?php echo $row["productcode"]; ?>
+                                                            </td>
+                                                            <td>
+                                                                <?php
+                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
+                                                                $sql_customer->execute();
+                                                                $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                echo $customer_row["name"];
+                                                                ?>
+                                                            </td>
+                                                            <td class="d-grid ">
+                                                                <span class="text-start text-secondary">
+                                                                    <?php echo $bb = $row["status"] === "true" ? ($row["status"] === "false" || $row["status"] === "waiting") ? "faturalama Oluşturulmadı" : "Faturalama Oluşturuldu" : "yanıt bekleniyor"; ?>
+
+
+                                                                </span>
+                                                                <span id="ember3950" class=" fw-bold text-secondary">
+                                                                    <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
+
+                                                                    <svg width="35" height="50">
+                                                                        <circle cx="18" cy="25" r="10" stroke-width="2" fill=" 
                                                                 
                                                                 <?php
-echo $bb = $row["status"] === "true"
-    ? "lightgreen"
-    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
-?>
-                                                                "
-                                                   
-                                                                   />
-                                                                  
-                                                            </svg> 
-                                                            
-                                                           
+                                                                echo $bb = $row["status"] === "true"
+                                                                    ? "lightgreen"
+                                                                    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
+                                                                ?>
+                                                                " />
+
+                                                                    </svg>
+
+
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? "Kabul Edildi"
+                                                                        : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" : ""));
+                                                                    ?>
+
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-bold-500">
+                                                                <?php echo $row["date-added"]; ?>
+                                                            </td>
+                                                            <td><i class="fa-solid fa-turkish-lira-sign"></i>
+                                                                <?php echo $row["totalPrice"]; ?>
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    <a href="SatisEdit.php? id=<?php echo $row["id"]; ?>"><i
+                                                                            class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                    <a href="SatisInfo.php? id=<?php echo $row["id"]; ?>"> <i
+                                                                            class="fa-solid fa-circle-info fs-3 detay text-primary">
+                                                                        </i> </a>
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? ' <a href="addinvoice.php? id=' . $row["id"] . '" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
+                                                                        : "";
+                                                                    ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                    }
+                                                 }
+                                                else if  (!empty($searchTerm) && !empty($category)) {
+                                                    // Prepare the SQL query based on the selected category
+                                                    echo"else if";
+                                                    switch ($category) {
+                                                        case 'name':
+                                                            $sql_customerid = $db->prepare("SELECT id FROM customers WHERE name LIKE ?");
+                                                            $sql_customerid->execute(["%" . $searchTerm . "%"]);
+                                                            $searchTermRow = $sql_customerid->fetch(PDO::FETCH_ASSOC);
+                                                            echo $searchTermRow["id"];
+
+                                                            $stmt = $db->prepare("SELECT * FROM selling WHERE costomer = ?");
+                                                            $stmt->execute([$searchTermRow["id"]]);
+                                                          /*   $ghgh = $stmt->fetch(PDO::FETCH_ASSOC);
+                                                            echo $ghgh["name"]; */
+                                                            //   $searchTerm = $stm->fetch(PDO::FETCH_ASSOC);
+                                                            break;
+                                                        case 'orderNumber':
+                                                            $sql = "SELECT * FROM selling WHERE productcode LIKE :searchTerm";
+                                                            $stmt = $db->prepare($sql);
+                                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                                            break;
+
+                                                        default:
+
+                                                            $sql = "SELECT * FROM selling ";
+                                                            break;
+                                                    }
+
+
+                                                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                        //   echo "222222end";
+                                                        // print_r($row);
+                                                
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <?php echo $row["productcode"]; ?>
+                                                            </td>
+                                                            <td>
                                                                 <?php
-echo $bb = $row["status"] === "true"
-    ? "Kabul Edildi"
-    : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" :""));
-?>
-                                                      
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-bold-500"><?php  echo $row["date-added"]; ?></td>
-                                                    <td><i class="fa-solid fa-turkish-lira-sign"></i> <?php  echo $row["totalPrice"]; ?></td>
-                                                    <td >
-                                                    <div class="d-flex align-items-center gap-3">
-                                                     <a href="SatisEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     <a href="SatisInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
-                                                     <?php
-echo $bb = $row["status"] === "true"
-    ? ' <a href="addinvoice.php? id='.$row["id"].'" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
-    : "";
-?>
-                                                     </td>
+                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
+                                                                $sql_customer->execute();
+                                                                $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                echo $customer_row["name"];
+                                                                ?>
+                                                            </td>
+                                                            <td class="d-grid ">
+                                                                <span class="text-start text-secondary">
+                                                                    <?php echo $bb = $row["status"] === "true" ? ($row["status"] === "false" || $row["status"] === "waiting") ? "faturalama Oluşturulmadı" : "Faturalama Oluşturuldu" : "yanıt bekleniyor"; ?>
 
-                                                    </div>
-                                                    
-                                                </tr>
-           
-                                  <?php  }   ?> 
-                                             
-                                               
 
+                                                                </span>
+                                                                <span id="ember3950" class=" fw-bold text-secondary">
+                                                                    <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
+
+                                                                    <svg width="35" height="50">
+                                                                        <circle cx="18" cy="25" r="10" stroke-width="2" fill=" 
+                                                                
+                                                                <?php
+                                                                echo $bb = $row["status"] === "true"
+                                                                    ? "lightgreen"
+                                                                    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
+                                                                ?>
+                                                                " />
+
+                                                                    </svg>
+
+
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? "Kabul Edildi"
+                                                                        : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" : ""));
+                                                                    ?>
+
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-bold-500">
+                                                                <?php echo $row["date-added"]; ?>
+                                                            </td>
+                                                            <td><i class="fa-solid fa-turkish-lira-sign"></i>
+                                                                <?php echo $row["totalPrice"]; ?>
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    <a href="SatisEdit.php? id=<?php echo $row["id"]; ?>"><i
+                                                                            class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                    <a href="SatisInfo.php? id=<?php echo $row["id"]; ?>"> <i
+                                                                            class="fa-solid fa-circle-info fs-3 detay text-primary">
+                                                                        </i> </a>
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? ' <a href="addinvoice.php? id=' . $row["id"] . '" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
+                                                                        : "";
+                                                                    ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                    }
+                                                } else {
+                                                    $sql = $db->prepare("SELECT * FROM selling");
+                                                    $sql->execute();
+                                                    // echo "1111111111111111111";
+                                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+
+                                                        ?>
+                                                        <tr>
+                                                            <td>
+                                                                <?php echo $row["productcode"]; ?>
+                                                            </td>
+                                                            <td>
+                                                                <?php
+                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
+                                                                $sql_customer->execute();
+                                                                $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                echo $customer_row["name"];
+                                                                ?>
+                                                            </td>
+                                                            <td class="d-grid ">
+                                                                <span class="text-start text-secondary">
+                                                                    <?php echo $bb = $row["status"] === "true" ? ($row["status"] === "false" || $row["status"] === "waiting") ? "faturalama Oluşturulmadı" : "Faturalama Oluşturuldu" : "yanıt bekleniyor"; ?>
+
+
+                                                                </span>
+                                                                <span id="ember3950" class=" fw-bold text-secondary">
+                                                                    <i class="fa-regular fa-file-lines fs-5 text-secondary"></i>
+
+                                                                    <svg width="35" height="50">
+                                                                        <circle cx="18" cy="25" r="10" stroke-width="2" fill=" 
+                                                                
+                                                                <?php
+                                                                echo $bb = $row["status"] === "true"
+                                                                    ? "lightgreen"
+                                                                    : ($row["status"] === "false" ? "#cc3333" : ($row["status"] === "waiting" ? "#f7e98e" : ""));
+                                                                ?>
+                                                                " />
+
+                                                                    </svg>
+
+
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? "Kabul Edildi"
+                                                                        : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" : ""));
+                                                                    ?>
+
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-bold-500">
+                                                                <?php echo $row["date-added"]; ?>
+                                                            </td>
+                                                            <td><i class="fa-solid fa-turkish-lira-sign"></i>
+                                                                <?php echo $row["totalPrice"]; ?>
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    <a href="SatisEdit.php? id=<?php echo $row["id"]; ?>"><i
+                                                                            class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                    <a href="SatisInfo.php? id=<?php echo $row["id"]; ?>"> <i
+                                                                            class="fa-solid fa-circle-info fs-3 detay text-primary">
+                                                                        </i> </a>
+                                                                    <?php
+                                                                    echo $bb = $row["status"] === "true"
+                                                                        ? ' <a href="addinvoice.php? id=' . $row["id"] . '" id="invoice"> <i class="fa-solid fa-receipt fs-3"></i> </a>'
+                                                                        : "";
+                                                                    ?>
+                                                            </td>
+                                                        </tr>
+
+                                                    <?php
+                                                    }
+                                                }
+
+
+
+
+
+
+                                                ?>
 
 
                                             </tbody>
                                         </table>
                                     </div>
+
+
+
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
             </div>
-
-            <!-- footer-->
+            </section>
         </div>
+
+        <!-- footer-->
+    </div>
     </div>
 </body>
 

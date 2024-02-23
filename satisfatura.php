@@ -10,14 +10,17 @@ $visitcount = 7;
 
 ?>
 <script>
-    if (localStorage.getItem("startdate")) {
-        if (localStorage.getItem("startdate") != "<?php echo date("y-m-d") ?>") {
-        <?php $visitcount = $visitcount - 5; ?>console.log("girdi")
+    <?php
+    if (isset($_SESSION["startdate"])) {
+        if ($_SESSION["startdate"] != date("y-m-d")) {
+            $visitcount = $visitcount - 5;
+            echo "console.log('girdi');";
         }
     } else {
-        localStorage.setItem("startdate", "<?php echo date("y-m-d") ?>");
-
+        $_SESSION["startdate"] = date("y-m-d");
+        echo "localStorage.setItem('startdate', '" . date("y-m-d") . "');";
     }
+    ?>
     console.log(localStorage.getItem("startdate"));
 </script>
 
@@ -193,39 +196,15 @@ $visitcount = 7;
                                 <div class="card-header p-0"><!--bbbbbuuuuuu-->
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 " method="POST">
-                                                <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Search" aria-label="Search">
-                                                <button class="btn btn-outline-success rounded-pill text-dark"
-                                                    type="submit">Search</button>
-                                                <!--another dropdown here -->
-                                                <!-- <div class="dropdown">
-  <button class="btn btn-outline-success rounded-pill text-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-    Filtreler
-  </button>
-  <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="dropdownMenuButton2">
-    <li><a class="dropdown-item active" href="#">Action</a></li>
-    <li><a class="dropdown-item" href="#">Another action</a></li>
-    <li><a class="dropdown-item" href="#">Something else here</a></li>  
-    <li><a class="dropdown-item" href="#">Separated link</a></li>
-  </ul>
- </div>  -->
-                                            </form>
-
-                                          <!--   <div>
-                                                <a href="#" class="btn bg-success bg-opacity-25 text-dark">Cevap
-                                                    beklenenler</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">Onaylalanlar</a>
-                                                <a href="#"
-                                                    class="btn bg-success bg-opacity-25  text-dark">reddedilenler</a>
-                                                <a href="#" class="btn bg-success bg-opacity-25   text-dark">tümü</a>
-                                            </div> -->
-                                            <!-- <div>
-                                                <a href="YeniTeklif.php" class="btn btn-outline-success text-dark">Yeni
-                                                    Teklif
-                                                    Oluştur</a>
-                                            </div> -->
+                                        <form class="d-flex m-0" method="GET">
+    <select class="form-select w-75 me-1" name="category">
+        <option value="invoiceNo">Fatura NO</option>
+        <option value="companyAd">Şirket adı</option>        
+    </select>
+    <input class="form-control me-2 w-100" type="search" placeholder="Ara" aria-label="Search" name="search">
+    <button class="btn btn-outline-success rounded-pill text-dark" type="submit">Ara</button>
+</form>
+                                  
                                         </div>
                                     </nav>
                                 </div>
@@ -251,48 +230,107 @@ $visitcount = 7;
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                            $sql = $db->prepare("select * from invoice ");
-                                    $sql->execute();
+                                            $category = isset($_GET["category"]) ? $_GET["category"] : null;
+                                           
+                                            $searchname=isset($_GET["search"])? $_GET["search"]: null;
+                                            if($searchname){
+                                                switch ($category){
+                                                    case 'invoiceNo':
+                                                        $sql="SELECT * From invoice where InvoiceNumber = :searchingname";
+                                                     break;
 
-                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
+                                                        case 'companyAd': 
+                                                            $sql="SELECT * From invoice where sendingComName   = :searchingname";
+                                                         break;
 
-
-                <tr>
-                <td> <i class="fa-solid fa-file-invoice fs-3"></i></td>
-                                                    <td> <?php  
-        $sql_customer = $db->prepare("select * from customers where id=".$row["customerid"]);
-        $sql_customer->execute(); 
-        $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
-        echo $customer_row["name"]; 
-        ?></td>
-                                                    <td> <?php echo $row["InvoiceNumber"]; ?></td>
-                                                   
-                                                    <td class="text-bold-500"><?php  echo $row["InvoiceDate"]; ?></td>
-                                                    <td> <?php 
-        $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
-        $sql_vade->execute(); 
-        $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
-        echo $vade_row["vadetarihi"]; 
-                                                    ?></td>
-                                                    <td> <i class="fa-solid fa-turkish-lira-sign"></i> <?php 
-                                                        $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
-                                                        $sql_vade->execute(); 
-                                                        $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
-                                                        echo $vade_row["totalPrice"]; 
-                                                    ?></td>
-                                                    <td >
-                                                    <div class="d-flex align-items-center gap-3">
-                                                     <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
-                                                     <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
-                                                     <a href="printSatis.php? invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
-                                                   
-                                                     </td>
-
-                                                    </div>
-                                                    
-                                                </tr>
-           
-                                  <?php  }   ?> 
+                                                }
+                                                $sqlstm=$db->prepare($sql);
+                                                $sqlstm->execute(array(":searchingname"=> $searchname));
+                                                while ($row = $sqlstm->fetch(PDO::FETCH_ASSOC)) { 
+                                                 ?>     
+                                                 <tr>
+                                                 <td> <i class="fa-solid fa-file-invoice fs-3"></i></td>
+                                                                                     <td> 
+                                                                                         <?php  
+                                         $sql_customer = $db->prepare("select * from customers where id=".$row["customerid"]);
+                                         $sql_customer->execute(); 
+                                         $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                         echo $customer_row["name"]; 
+                                         ?></td>
+                                                                                     <td> <?php echo $row["InvoiceNumber"]; ?></td>
+                                                                                    
+                                                                                     <td class="text-bold-500"><?php  echo $row["InvoiceDate"]; ?></td>
+                                                                                     <td> <?php 
+                                         $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+                                         $sql_vade->execute(); 
+                                         $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+                                         echo $vade_row["vadetarihi"]; 
+                                                                                     ?></td>
+                                                                                     <td> <i class="fa-solid fa-turkish-lira-sign"></i> <?php 
+                                                                                         $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+                                                                                         $sql_vade->execute(); 
+                                                                                         $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+                                                                                         echo $vade_row["totalPrice"]; 
+                                                                                     ?></td>
+                                                                                     <td>
+                                                                                     <div class="d-flex align-items-center gap-3">
+                                                                                      <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                                      <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                                                      <a href="printSatis.php?invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
+                                                                                     </div>
+                                                                                      </td>
+                                 
+                                                                                     
+                                                                                     
+                                                    </tr>
+                                                    <?php
+                                                }
+                                            } else{
+                                                $sql = $db->prepare("select * from invoice ");
+                                                $sql->execute();
+            
+                                                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
+            
+            
+                            <tr>
+                            <td> <i class="fa-solid fa-file-invoice fs-3"></i></td>
+                                                                <td> 
+                                                                    <?php  
+                    $sql_customer = $db->prepare("select * from customers where id=".$row["customerid"]);
+                    $sql_customer->execute(); 
+                    $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                    echo $customer_row["name"]; 
+                    ?></td>
+                                                                <td> <?php echo $row["InvoiceNumber"]; ?></td>
+                                                               
+                                                                <td class="text-bold-500"><?php  echo $row["InvoiceDate"]; ?></td>
+                                                                <td> <?php 
+                    $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+                    $sql_vade->execute(); 
+                    $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+                    echo $vade_row["vadetarihi"]; 
+                                                                ?></td>
+                                                                <td> <i class="fa-solid fa-turkish-lira-sign"></i> <?php 
+                                                                    $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
+                                                                    $sql_vade->execute(); 
+                                                                    $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+                                                                    echo $vade_row["totalPrice"]; 
+                                                                ?></td>
+                                                                <td>
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                 <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                 <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                                 <a href="printSatis.php?invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
+                                                                </div>
+                                                                 </td>
+            
+                                                                
+                                                                
+                                                            </tr>
+                       
+                                              <?php  }   ?> 
+                                              <?php  }   ?> 
+                                   
                                              
                                                
 
