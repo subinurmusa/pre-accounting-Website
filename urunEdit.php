@@ -21,6 +21,8 @@ $sqld->execute([$productid]);
 $products = $sqld->fetch(PDO::FETCH_ASSOC);
 
 
+
+
 ?>
 <?php
 

@@ -7,6 +7,9 @@ if (empty($_SESSION["username"])) {
 
 $visitcount = 7;
 
+// send email
+
+
 
 ?>
 <script>
@@ -304,12 +307,26 @@ $visitcount = 7;
                                                                 <td> <?php echo $row["InvoiceNumber"]; ?></td>
                                                                
                                                                 <td class="text-bold-500"><?php  echo $row["InvoiceDate"]; ?></td>
-                                                                <td> <?php 
-                    $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
-                    $sql_vade->execute(); 
-                    $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
-                    echo $vade_row["vadetarihi"]; 
-                                                                ?></td>
+                                                                <td>
+    <?php 
+    $sql_vade = $db->prepare("SELECT * FROM selling WHERE id=".$row["sellingId"]);
+    $sql_vade->execute(); 
+    $vade_row = $sql_vade->fetch(PDO::FETCH_ASSOC);
+    
+    $due_date = strtotime($vade_row["vadetarihi"]);
+    $current_date = strtotime(date("Y-m-d"));
+    $days_passed = ($current_date - $due_date) / (60 * 60 * 24);
+    
+    if ($due_date < $current_date) {
+        echo '<span style="color: red;">'.$vade_row["vadetarihi"].'</span>';
+        echo '<br>';
+        echo '<span style="color: red;">('.$days_passed.'Gün geçti)</span>';
+    } else {
+        echo $vade_row["vadetarihi"]; 
+    }
+    ?>
+</td>
+
                                                                 <td> <i class="fa-solid fa-turkish-lira-sign"></i> <?php 
                                                                     $sql_vade = $db->prepare("select * from selling where id=".$row["sellingId"]);
                                                                     $sql_vade->execute(); 

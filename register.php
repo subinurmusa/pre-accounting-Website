@@ -60,6 +60,8 @@ if (empty($username) || empty($password1) || empty($password2) || empty($email))
      session_start();
       $_SESSION["username"] = $username;
       $_SESSION["name"] = $result1["name"];
+      $_SESSION["email"] = $result1["email"];
+      $_SESSION["name"] = $result1["name"];
 
       $error = "<div class='alert alert-success'>Kayıt Başarılı</div>";
      header("Location: dashbaordPage.php"); // Redirect user to another page

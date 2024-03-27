@@ -7,6 +7,9 @@ if (empty($_SESSION["username"])) {
 
 $visitcount = 7;
 
+   
+       
+
 
 ?>
 <script>
@@ -185,13 +188,14 @@ $visitcount = 7;
                                 <div class="card-header p-0"><!--bbbbbuuuuuu-->
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
-                                            <form class="d-flex m-0 " method="POST">
-                                                <input class="form-control me-2 w-100" type="search"
-                                                    placeholder="Ara" aria-label="Ara">
-                                                <button class="btn btn-outline-success rounded-pill text-dark "
-                                                    type="submit">AramaYap</button>
-                                             
-                                            </form>
+                                        <form class="d-flex m-0" method="GET">
+    <select class="form-select w-75 me-1" name="category">
+        <option value="pro-name">Ürün Adı</option>
+        <option value="pro-code">Ürün Kodu</option>        
+    </select>
+    <input class="form-control me-2 w-100" type="search" placeholder="Ara" aria-label="Search" name="search">
+    <button class="btn btn-outline-success rounded-pill text-dark" type="submit">Ara</button>
+</form>
 
                                           
                                             <div>
@@ -209,13 +213,13 @@ $visitcount = 7;
                                         <table class="table table-striped table-dark mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>Urun Kodu</th>
+                                                    <th>Urun </th>
                                                     <th>Ürün adı</th>  
                                                     <th>Eklenen Tarih</th>
                                                                                                                                                       
                                                     <th>Ürün Fiyat</th>                                                                                                     
                                                     <th>Ürün Barkodu</th>                                                                                                     
-                                                    <th>Ürün Fotorafı</th>                                                                                                     
+                                                    <th>Ürün Kodu</th>                                                                                                     
                                                     <th>Ürün Birimi</th>                                                                                                     
                                                     <th>Ürün Stok Miktarı</th>                                                                                                     
                                                     <th>Ürün Miktarı</th>                                                                                                     
@@ -226,22 +230,37 @@ $visitcount = 7;
                                             <tbody>
                                             <?php
                                             require "db.php";
-                                            $sql = $db->prepare("select * from products ");
-                                    $sql->execute();
+                                            $category = isset($_GET["category"]) ? $_GET["category"] : null;
+                                           
+                                            $searchname=isset($_GET["search"])? $_GET["search"]: null;
+                                            if($searchname){
+                                                switch ($category){
+                                                    case 'pro-name':
+                                                        $sql="SELECT * From products where productname = :searchingname";
+                                                     break;
 
-                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
+                                                        case 'pro-code': 
+                                                            $sql="SELECT * From products where productcode   = :searchingname";
+                                                         break;
 
-
-                <tr>
-                                                    <td> <?php echo $row["productcode"]; ?></td>                                                  
-                                                    
+                                                }
+                                                $sqlstm=$db->prepare($sql);
+                                                $sqlstm->execute(array(":searchingname"=> $searchname));
+                                                while ($row = $sqlstm->fetch(PDO::FETCH_ASSOC)) { 
+                                                 ?> 
+                                                  <tr>
+                <td >  <?php 
+                if($row["productphoto"]!=null && file_exists("photoes/". $row["productphoto"]) )
+{ echo "<img src='photoes/".$row["productphoto"]."' class='d-flex justify-content-center align-items-center'  width='60'height='60'>";}
+ else {echo "<i class='fa-solid fa-box-open fs-2 d-flex justify-content-center align-items-center'></i>" ; } ?></td> 
+                 
                                                     <td class="text-bold-500"><?php  echo $row["productname"]; ?></td>
                                                     <td> <?php echo $row["date-added"]; ?></td>
                                                     <td> <?php echo $row["price"]; ?></td>
                                                     <td> <?php echo $row["barkodnumara"]; ?></td>
-                                                    <td> <?php echo $row["productphoto"]; ?></td>
+                                                    <td> <?php echo $row["productcode"]; ?></td>    
                                                     <td> <?php echo $row["alSatBirim"]; ?></td>
-                                                    <td> <?php echo $row["stokmiktari"]; ?></td>
+                                                    <td class="<?php if(  $row["stokmiktari"]<250 ){echo "text-danger ";}?>"> <?php echo  $row["stokmiktari"]; ?></td>
                                                     <td> <?php echo $row["miktar"]; ?></td>
                                                    
                                                     <td >
@@ -249,14 +268,50 @@ $visitcount = 7;
                                                      <a href="urunEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
                                                      <a href="urunInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
                                                      <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
-                                                    
+                                                     </div>
                                                      </td>
 
-                                                    </div>
+                                                   
                                                     
                                                 </tr>
            
-                                  <?php  }   ?> 
+                                  <?php  } } else{ 
+                                      $sql = $db->prepare("select * from products ");
+                                      $sql->execute();
+  
+                                      while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { 
+                                        $stokmessage=null;
+                                   ?> 
+
+
+                <tr>
+                <td >  <?php 
+                if($row["productphoto"]!=null && file_exists("photoes/". $row["productphoto"]) )
+{ echo "<img src='photoes/".$row["productphoto"]."' class='d-flex justify-content-center align-items-center'  width='60'height='60'>";}
+ else {echo "<i class='fa-solid fa-box-open fs-2 d-flex justify-content-center align-items-center'></i>" ; } ?></td> 
+                 
+                                                    <td class="text-bold-500"><?php  echo $row["productname"]; ?></td>
+                                                    <td> <?php echo $row["date-added"]; ?></td>
+                                                    <td> <?php echo $row["price"]; ?></td>
+                                                    <td> <?php echo $row["barkodnumara"]; ?></td>
+                                                    <td> <?php echo $row["productcode"]; ?></td>    
+                                                    <td> <?php echo $row["alSatBirim"]; ?></td>
+                                                    <td class="<?php if(  $row["stokmiktari"]<  $ttt = $row["kritikstokseviyesi"]!=null?$row["kritikstokseviyesi"]:1 ){echo "text-danger "; $stokmessage="-Kritik Miktar";}?>"> <?php echo $row["stokmiktari"].$stokmessage; ?></td>
+                                                    <td> <?php echo $row["miktar"]; ?></td>
+                                                   
+                                                    <td >
+                                                    <div class="d-flex align-items-center gap-3">
+                                                     <a href="urunEdit.php? id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                     <a href="urunInfo.php? id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
+                                                     <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>);"> <i class="fa-solid fa-trash text-danger"></i></a>
+                                                     </div>
+                                                     </td>
+
+                                                   
+                                                    
+                                                </tr>
+           
+                                  <?php  }  }  ?> 
                                              
                                                
 

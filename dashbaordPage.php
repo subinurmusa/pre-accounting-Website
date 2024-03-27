@@ -4,94 +4,134 @@ session_start();
 if (empty($_SESSION["username"])) {
     header("location:login.php");
 }
+$visitcount=7;
+?> 
+<script>
+    if (localStorage.getItem("startdate")) {
+        if (localStorage.getItem("startdate") != "<?php echo date("y-m-d") ?>") {
+        <?php $visitcount = $visitcount - 5; ?>console.log("girdi")
+        }
+    } else {
+        localStorage.setItem("startdate", "<?php echo date("y-m-d") ?>");
 
-?> <?php require "db.php"; // Assuming db.php contains your database connection code
+    }
+    console.log(localStorage.getItem("startdate"));
+</script>
+<?php
+require "db.php";
 
-$sql1 = $db->prepare("SELECT `id`, `productcode`, `costomer`, `date-added`, `paymentType` FROM `selling` WHERE `date-added` = '" . date("y-m-d") . "';");
-// $sql->bindParam(':date_added', date("Y-m-d"));
-$sql1->execute();
+// Get current week's start and end dates
 
-$count = 0;
-$countbuy = 0;
+$currentWeekStartDate = date('Y-m-d', strtotime('monday this week'));
+$currentWeekEndDate = date('Y-m-d', strtotime('sunday this week'));
 
-while ($result1 = $sql1->fetch(PDO::FETCH_ASSOC)) {
-    $count += $result1["price"];
+// Function to fetch expenses from bankagiderler table for the current week
+function getBankaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y')) AS day, SUM(totalCost) AS total_expense FROM bankagiderler WHERE STR_TO_DATE(issueDate, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y'))";
+    $result = $db->query($sql);
+
+    $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
+
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
+    }
+
+    return $expenses;
 }
 
-$sql = $db->prepare("SELECT `id`, `name`, `category`, `date-added`, `price` FROM `buying` WHERE `date-added` = '" . date("y-m-d") . "';");
-// $sql->bindParam(':date_added', date("Y-m-d"));
-$sql->execute();
+// Function to fetch expenses from fisfaturagiderler table for the current week
+function getFisFaturaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y')) AS day, SUM(geneltoplam) AS total_expense FROM fisfaturagiderler WHERE STR_TO_DATE(fisFaturaDate, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y'))";
+    $result = $db->query($sql);
 
+    $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-$visitcount = 7;
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
+    }
 
-while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-    $countbuy += $result["price"];
+    return $expenses;
 }
-function convertMonthToTurkishCharacter($date)
-{
-    $aylar = array(
-        'January' => 'Ocak',
-        'February' => 'Şubat',
-        'March' => 'Mart',
-        'April' => 'Nisan',
-        'May' => 'Mayıs',
-        'June' => 'Haziran',
-        'July' => 'Temmuz',
-        'August' => 'Ağustos',
-        'September' => 'Eylül',
-        'October' => 'Ekim',
-        'November' => 'Kasım',
-        'December' => 'Aralık',
-        'Monday' => 'Pazartesi',
-        'Tuesday' => 'Salı',
-        'Wednesday' => 'Çarşamba',
-        'Thursday' => 'Perşembe',
-        'Friday' => 'Cuma',
-        'Saturday' => 'Cumartesi',
-        'Sunday' => 'Pazar',
-        'Jan' => 'Oca',
-        'Feb' => 'Şub',
-        'Mar' => 'Mar',
-        'Apr' => 'Nis',
-        'May' => 'May',
-        'Jun' => 'Haz',
-        'Jul' => 'Tem',
-        'Aug' => 'Ağu',
-        'Sep' => 'Eyl',
-        'Oct' => 'Eki',
-        'Nov' => 'Kas',
-        'Dec' => 'Ara'
 
-    );
-    return strtr($date, $aylar);
+// Function to fetch expenses from maas table for the current week
+function getMaasExpenses($db, $startOfWeek, $endOfWeek) {
+    $sql = "SELECT DAYNAME(date) AS day, SUM(toplamtutar) AS total_expense FROM maas WHERE date BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(date)";
+    $result = $db->query($sql);
+
+    $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
+
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
+    }
+
+    return $expenses;
 }
-$day = date('d');
-$sMonth = convertMonthToTurkishCharacter(date("M"));
-$one = 1;
-$dataPoints1 = array(
-    array("label" => "$day-$sMonth", "y" => "$countbuy"),
-    array("label" => $day + (1) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (2) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (3) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (4) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (5) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (6) . "-" . $sMonth, "y" => 0)
-);
-$dataPoints2 = array(
-    array("label" => "$day-$sMonth", "y" => "$count"),
-    array("label" => $day + (1) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (2) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (3) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (4) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (5) . "-" . $sMonth, "y" => 0),
-    array("label" => $day + (6) . "-" . $sMonth, "y" => 0)
-);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
+// Function to fetch expenses from vergisgkpirimigiderler table for the current week
+function getVergisGkPirimGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
+    $sql = "SELECT DAYNAME(date) AS day, SUM(totalCost) AS total_expense FROM vergisgkpirimigiderler WHERE date BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(date)";
+    $result = $db->query($sql);
+
+    $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
+
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
+    }
+
+    return $expenses;
+}
+
+// Function to fetch income from selling table for the current week
+
+function getIncome($db, $startOfWeek, $endOfWeek) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y')) AS day, SUM(totalPrice) AS total_income FROM selling WHERE STR_TO_DATE(`date-added`, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y'))";
+    $result = $db->query($sql);
+
+    $income = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
+
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $income[$row['day']] = $row['total_income'];
+    }
+
+    return $income;
+}
+
+function generateWeekLabels($startOfWeek, $endOfWeek) {
+    setlocale(LC_TIME, 'tr_TR.UTF-8'); // Set locale to Turkish
+
+    // Define short week day names in Turkish
+    $shortWeekDays = [
+        'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cts', 'Paz'
+    ];
+
+    $labels = [];
+    $currentDate = $startOfWeek;
+
+    while ($currentDate <= $endOfWeek) {
+        $weekDay = strftime('%a', strtotime($currentDate)); // Get short week day name
+        $date = strftime('%d.%m.%y', strtotime($currentDate)); // Change format to day.month.year
+        $labels[] = ['weekDay' => $shortWeekDays[date('N', strtotime($currentDate)) - 1], 'date' => $date];
+        $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+    }
+
+    return $labels;
+}
+
+// Generate array of week labels
+$weekData = generateWeekLabels($currentWeekStartDate, $currentWeekEndDate);
+
+// Get current week's expenses and income
+$bankaGiderlerExpenses = getBankaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
+$fisFaturaGiderlerExpenses = getFisFaturaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
+$maasExpenses = getMaasExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
+$vergisGkPirimGiderlerExpenses = getVergisGkPirimGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
+$income = getIncome($db, $currentWeekStartDate, $currentWeekEndDate);
+
+
+// Close connection
+$db = null;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,7 +140,7 @@ error_reporting(E_ALL);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
     <link href="css\sidebars.css" rel="stylesheet">
     <!-- <script src="css\canvasjs.min.js"> </script> -->
@@ -108,7 +148,23 @@ error_reporting(E_ALL);
     <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/sidebars/">
     <link href="css\app.css" rel="stylesheet">
     <link href="css\bootstrap.min.css" rel="stylesheet">
-
+    <style>
+       
+     
+    
+        #content {
+            margin-left: 200px; /* Adjust the margin to fit the sidebar */
+            padding: 20px;
+       
+        }
+        #myChart {
+            width: 100%; /* Adjust the width of the chart */
+            max-width: 1000px; /* Set maximum width */
+            margin: 20px auto; /* Center the chart horizontally */
+            display: block;
+            background-color: white;
+        }
+    </style>
     <title>Document</title>
 </head>
 <!-- navbar css -->
@@ -136,7 +192,7 @@ error_reporting(E_ALL);
     }
 
     body {
-        background-color: white;
+        background-color: #f0fff0;
     }
 
     ul {
@@ -153,60 +209,44 @@ error_reporting(E_ALL);
 
 } */
 </style>
-<style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-    }
 
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
-    }
-</style>
 
-<body class="bg-secondary   bg-opacity-50">
+
+<body class="">
 
 <div class=" d-flex justify-content-end ">
-        <nav class="navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-secondary">
+        <nav class="navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-black bg-opacity-75">
 
 
-            <div class=" align-items-center">
-                <div class="text-dark d-flex align-items-center gap-2" style="position:absolute; left:300px">
+            <div class=" align-items-center d-flex justify-content-between">
+                <div class="text-white d-flex align-items-center gap-2" style="position:absolute; left:250px">
                     <p class="m-0"> Deneme sürenizin bitmesine
                         <?php echo $visitcount ?> gün kaldı
                     </p> <a href="#" class="border rounded-circle border-3 p-2 bg-white"><i
                             class="fa-solid fa-gift fs-4"></i></a>
                 </div>
+                <div class=" ">
+                    <a href="#" class="border bg-white border-2 rounded-pill p-2"><i
+                            class="fa-brands fa-rocketchat"></i> Canlı Destek </a>
+                </div>
                 <ul class="d-flex gap-3 m-0 justify-content-center align-items-center ">
 
 
-                    <li><a href="#" class="text-white"> Hakkımızda
 
-                            <?php
-
-
-
-
-
-
-                            ?>
-
-
-                        </a></li>
 
 
                     <li><a href="#" class="text-white">Yardım</a></li>
                     <li><a href="logout.php" class="text-white">Çıkış</a></li>
-                    <li>
+
+                    <li class="d-flex align-items-center gap-2">
                         <div
-                            class=" bg-secondary text-white border border-2 p-2 shadow justify-content-center align-items-center">
-                            <i class="fa-solid fa-user"></i>
+                            class=" bg-secondary text-white border border-2 p-2 rounded-circle shadow justify-content-center align-items-center">
+                            <i class="fa-solid fa-user "></i>
+
+                        </div>
+                        <div class="text-white fs-5">
                             <?php
+
                             echo $_SESSION["name"];
                             ?>
                         </div>
@@ -226,18 +266,16 @@ error_reporting(E_ALL);
         </nav>
     </div>
 
-<div id="sidebar">
-    <div class="sidebar-wrapper  active shadow " style="height: 100vh; width: 200px;">
-    <?php
-    
-    try {
-        require "sidebar.php";
-    } catch (Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
-    }
-    ?>
+    <div id="sidebar" >
+    <div class="sidebar-wrapper active shadow" style="height: 100%; width: 200px;">
+        <?php
+        try {
+            require "sidebar.php";
+        } catch (Exception $e) {
+            echo 'Caught exception: ',  $e->getMessage(), "\n";
+        }
+        ?>
     </div>
-
 </div>
 
    
@@ -245,8 +283,9 @@ error_reporting(E_ALL);
 
     <div class="container mt-3 d-grid justify-content-end align-items-end ">
         <div class="row mt-5 mb-5 d-flex  text-center" style="gap:120px">
-            <div class="fs-3 text-white"> Ön Muhasebe Programına Hoşgeldiniz</div>
+            <div class="fs-3 text-dark"> Ön Muhasebe Programına Hoşgeldiniz</div>
         </div>
+        <div class="container mt-5">
         <div class="row d-flex justify-content-center " style="gap:120px">
             <div class="col-md-2">
                 <div class="card shadow bg-light  border-2 border border-secondary mb-3"
@@ -303,17 +342,43 @@ error_reporting(E_ALL);
                     <div class="card-body text-white bg-danger  bg-opacity-50 d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam Gider</h5>
                         <?php
-
-                        require "db.php"; // Assuming db.php contains your database connection code
-                        
-                        $sql = $db->prepare("SELECT `id`, `name`, `category`, `date-added`, `price` FROM `buying` WHERE `date-added` = '" . date("y-m-d") . "';");
-                        // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sql->execute();
-
                         $count = 0;
-                        while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-                            $count += $result["price"];
+                        require "db.php"; // Assuming db.php contains your database connection code
+                        //bank giderler
+                        $sqlbank = $db->prepare("SELECT `totalCost`FROM `bankagiderler` WHERE `issueDate` = '" . date("d.m.Y") . "';");
+                        // $sql->bindParam(':date_added', date("Y-m-d"));
+                        $sqlbank->execute();
+                        while ($result = $sqlbank->fetch(PDO::FETCH_ASSOC)) {
+                            $count += $result["totalCost"];
                         }
+                        
+                        //fisfaturagiderler
+                        $sqlfatura = $db->prepare("SELECT `geneltoplam`FROM `fisfaturagiderler` WHERE `fisFaturaDate` = '" . date("d.m.Y") . "';");
+                        // $sql->bindParam(':date_added', date("Y-m-d"));
+                        $sqlfatura->execute();
+
+                        
+                        while ($result = $sqlfatura->fetch(PDO::FETCH_ASSOC)) {
+                            $count += $result["geneltoplam"];
+                        }
+                          //maas
+                          $sqlmaas = $db->prepare("SELECT `toplamtutar`FROM `maas` WHERE `date` = '" . date("y-m-d") . "';");
+                          // $sql->bindParam(':date_added', date("Y-m-d"));
+                          $sqlmaas->execute();
+  
+                          
+                          while ($result = $sqlmaas->fetch(PDO::FETCH_ASSOC)) {
+                              $count += $result["toplamtutar"];
+                          }
+                                   //vergisgkpirimigiderler
+                                   $sqlsgk = $db->prepare("SELECT `totalCost`FROM `vergisgkpirimigiderler` WHERE `date` = '" . date("y-m-d") . "';");
+                                   // $sql->bindParam(':date_added', date("Y-m-d"));
+                                   $sqlsgk->execute();
+           
+                                   
+                                   while ($result = $sqlsgk->fetch(PDO::FETCH_ASSOC)) {
+                                       $count += $result["totalCost"];
+                                   }
                         // echo date("y-m-d");
                         if ($count > 0) {
                             $color = "red";
@@ -357,34 +422,10 @@ error_reporting(E_ALL);
                     <div class="card-body text-white d-grid justify-content-center p-3 ">
                         <h5 class="card-title text-center">toplam Kazanç</h5>
                         <?php
-
-                        require "db.php"; // Assuming db.php contains your database connection code
-                        $buyingCount = 0;
-                        $sellingCount = 0;
                         $total = 0;
 
-                        $sql = $db->prepare("SELECT `id`,  `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '" . date("d.m.Y") . "';");
-                        // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sql->execute();
-
-
-                        while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-                            $sellingCount += $result["totalPrice"];
-                        }
-                        // echo date("y-m-d");
-                        
-                        //start calculating buying number
-                        $sql = $db->prepare("SELECT `id`, `name`, `category`, `date-added`, `price` FROM `buying` WHERE `date-added` = '" . date("y-m-d") . "';");
-                        // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sql->execute();
-
-
-                        while ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
-                            $buyingCount += $result["price"];
-                        }
-                        // time to add all togather
-                        
-                        $total = $sellingCount - $buyingCount;
+                 
+                        $total = $count1 - $count;
                         if ($total > 0) {
                             $color = "green";
                             $cheeringMs = "aynen Böyle Devam Edin ";
@@ -409,74 +450,98 @@ error_reporting(E_ALL);
                 </div>
             </div>
         </div>
+</div>
+
 
     </div>
-    <hr class=" mt-5 bg-primary " style="height:30px ; ">
-    <div class="container mt-2 d-grid justify-content-end pe-5 ms-5  ">
+    <hr class=" mt-5  " style="height:10px ; ">
+   <!--  <div class="container mt-2 d-grid justify-content-end pe-5 ms-5  ">
         <div id="chartContainer" style="height: 400px; width: 1000px;" class="ps-5 mt-5 mb-5 ms-3">
 
         </div>
-    </div>
+    </div> -->
 
+    <div id="content">
+        <canvas id="myChart"></canvas>
+    </div>
  
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode(array_map(function($data) {
+                return $data['weekDay'] . "\n" . $data['date']; // Combine week day and date with a line break
+            }, $weekData)); ?>,
+                datasets: [{
+                    label: 'Banka Giderleri',
+                    data: [<?php echo $bankaGiderlerExpenses['Monday']; ?>, <?php echo $bankaGiderlerExpenses['Tuesday']; ?>, <?php echo $bankaGiderlerExpenses['Wednesday']; ?>, <?php echo $bankaGiderlerExpenses['Thursday']; ?>, <?php echo $bankaGiderlerExpenses['Friday']; ?>, <?php echo $bankaGiderlerExpenses['Saturday']; ?>, <?php echo $bankaGiderlerExpenses['Sunday']; ?>],
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Fis Fatura Giderleri',
+                    data: [<?php echo $fisFaturaGiderlerExpenses['Monday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Tuesday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Wednesday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Thursday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Friday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Saturday']; ?>, <?php echo $fisFaturaGiderlerExpenses['Sunday']; ?>],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Maaş Giderleri',
+                    data: [<?php echo $maasExpenses['Monday']; ?>, <?php echo $maasExpenses['Tuesday']; ?>, <?php echo $maasExpenses['Wednesday']; ?>, <?php echo $maasExpenses['Thursday']; ?>, <?php echo $maasExpenses['Friday']; ?>, <?php echo $maasExpenses['Saturday']; ?>, <?php echo $maasExpenses['Sunday']; ?>],
+                    backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Vergi ve G.K. Prim Giderleri',
+                    data: [<?php echo $vergisGkPirimGiderlerExpenses['Monday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Tuesday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Wednesday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Thursday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Friday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Saturday']; ?>, <?php echo $vergisGkPirimGiderlerExpenses['Sunday']; ?>],
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Satış Gelirleri',
+                    data: [<?php echo $income['Monday']; ?>, <?php echo $income['Tuesday']; ?>, <?php echo $income['Wednesday']; ?>, <?php echo $income['Thursday']; ?>, <?php echo $income['Friday']; ?>, <?php echo $income['Saturday']; ?>, <?php echo $income['Sunday']; ?>],
+                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Şirketinizin haftalık Nakıt akışı',
+                         font: {
+            size: 20 // Adjust the font size here as needed
+        }
+                    },
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: {
+                                size: 17
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 
     <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>  -->
     <script src="https://cdn.canvasjs.com/ga/canvasjs.stock.min.js"></script>
 
 
-    <script src="css\sidebars.js"></script>
+   <script src="css\sidebars.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script> 
 
-        <script>
-          document.addEventListener("DOMContentLoaded", function () {
-        var chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            theme: "light2",
-            title: {
-                text: " Şirketinizin haftalık Nakıt akışı ",
-            },
-            axisY: {
-                includeZero: true,
-                title: "Para Akışı",
-                valueFormatString: "*",
-                interval: 0
-            },
-            legend: {
-                cursor: "pointer",
-                verticalAlign: "center",
-                horizontalAlign: "right",
-                itemclick: toggleDataSeries
-            },
-            data: [{
-                type: "column",
-                name: "Giderler",
-                indexLabel: "{y}",
-                yValueFormatString: "",
-                showInLegend: true,
-                dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
-            }, {
-                type: "column",
-                name: "Kazançlar",
-                indexLabel: "{y}",
-                yValueFormatString: "",
-                showInLegend: true,
-                dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
-            }]
-        });
-        chart.render();
-
-        function toggleDataSeries(e) {
-            if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                e.dataSeries.visible = false;
-            } else {
-                e.dataSeries.visible = true;
-            }
-            chart.render();
-        }
-    });
-    </script>
+     
 </body>
 
 </html>

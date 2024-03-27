@@ -26,6 +26,7 @@ else{
         //user authentication is successful 
         $_SESSION["username"]=$result["username"];
         $_SESSION["name"]=$result["name"];
+        $_SESSION["email"]=$result["email"];
 
         //$_SESSION["usertype"]=$result["usertype"];
         $error="";

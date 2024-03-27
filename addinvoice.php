@@ -25,8 +25,7 @@ $sqld = $db->prepare("SELECT * FROM customers where id = ? ");
 $sqld->execute([$sellings["costomer"]]);
 $customers = $sqld->fetch(PDO::FETCH_ASSOC);
 
-echo count($productsArray) . "nnnnnnnnuuuuuu";
-
+$productarray= [];
 ?>
 
 <?php
@@ -62,7 +61,123 @@ try {
             // Check if the SQL statement was executed successfully
             if ($sql) {
                 // Redirect to satislar.php
-                header("location: satisfatura.php");
+                // urun stok miktarından urunleri çıkart
+               
+                foreach ($productsArray as $productlist) {
+                    $sqlpro=$db->prepare("SELECT *  from  products where id=?");
+                    $sqlpro->execute([$productlist["productname"]]);
+                    $stokamount=$sqlpro->fetch(PDO::FETCH_ASSOC);
+                    $calculation= $stokamount["stokmiktari"]-$productlist["miktar"];
+
+                
+                    // now update it with the new stokmiktar amount
+                    $sqlproup=$db->prepare("UPDATE products set  stokmiktari =?   where id=?");
+                    $sqlproup->execute([$calculation,$productlist["productname"]]);
+
+               
+                }
+                $sqlproducts = $db->prepare("SELECT * FROM products");
+                $sqlproducts->execute();
+                $allproducts = $sqlproducts->fetchAll(PDO::FETCH_ASSOC);
+                
+                $productarray = []; // Corrected variable name
+                
+                foreach ($allproducts as $product) {
+                    echo $product["stokmiktari"];
+                    if ($product["stokmiktari"] < 5) {
+                        echo "11111";
+                        $Productdetailsformail = [
+                            'productname' => $product["productname"],
+                            'stockamount' => $product["stokmiktari"],
+                            'productphoto' => $product["productphoto"],
+                            'productcode' => $product["productcode"]
+                        ];
+                        $productarray[] = $Productdetailsformail;
+                    }
+                }
+                
+                
+                
+                if (!empty($productarray)) {
+                  
+                    $textmessage = ""; // Initialize variable correctly
+                    
+                    // Constructing HTML for product details
+                    foreach ($productarray as $product) { 
+                        $textmessage .= "<div style='margin-bottom: 20px;'>";
+                        $textmessage .= "<p style='font-weight: bold; margin-bottom: 5px;'>Ürün: " . $product["productname"] . "</p>";
+                        $textmessage .= "<p>Stok Seviyesi: <strong>" . $product["stockamount"] . "</strong></p>";
+                        $textmessage .= "</div>";
+                    }
+                    
+                    require "mailsender.php";
+                
+                    $mail->addAddress($_SESSION["email"], $_SESSION["name"]); // Add a recipient
+                    $mail->addReplyTo('info@example.com', 'Information');
+                
+                    // Content
+                    $mail->isHTML(true); // Set email format to HTML
+                    $mail->Subject = '<b>Kritik stok seviyesi</b>';
+                    
+                    // Body of the email
+                    $mail->Body = '
+                        <html>
+                        <head>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f2f2f2;
+                                    margin: 0;
+                                    padding: 0;
+                                    color: #333; /* Setting text color to black */
+                                }
+                                .container {
+                                    padding: 20px;
+                                    background-color: #e6e7e8;
+                                    border-radius: 10px;
+                                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                    color: #333; /* Setting text color to black */
+                                }
+                                h2 {
+                                    color: #333;
+                                    margin-top: 0;
+                                }
+                                p {
+                                    margin: 0;
+                                    line-height: 1.5;
+                                    color: #333; /* Setting text color to black */
+                                }
+                                strong {
+                                    font-weight: bold;
+                                }
+                                a {
+                                    color: #333 !important; /* Setting link color to black */
+                                    text-decoration: underline; /* Adding underline to links */
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <h2>Depo Lardaki Ürünlerin Stok Miktarları Güncellenmesi Gerekiyor</h2>
+                                <p>Seviyesi Kritik Olan Ürünler:</p>
+                                '.$textmessage.'
+                                <p>Lütfen stok seviyelerini güncelleyin.</p>
+                            </div>
+                        </body>
+                        </html>';
+                    
+                    // Plain text version of the email
+                    $mail->AltBody = 'Depo Lardaki Ürünlerin Stok Miktarları Güncellenmesi Gerekiyor. Seviyesi Kritik Olan:' . $textmessage . '. Lütfen stok seviyelerini güncelleyin.';
+                
+                    $mail->send();
+                }
+                
+                
+
+
+
+               
+               header("location: satisfatura.php");
                 // Make sure to exit after header to prevent further code execution
             } else {
                 $error = "<div class='alert alert-danger'>An error occurred while editing data.</div>";
@@ -233,7 +348,8 @@ try {
     </div>
 
     <div>
-        <form method="POST" id="form" enctype="multipart/form-data">
+        <form method="POST" id="form" enctype="multipart/form-data" >
+            
             <div class="row  d-flex justify-content-end align-items-center ">
                 <div class="col-md-9  d-flex justify-content-around align-items-center me-5 pe-5  ">
                     <?php echo $tt = empty($error) ? "" : $error;
@@ -354,7 +470,7 @@ try {
                         <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
-                           
+                         
                             <input type="number" id="sendingComPhone"  name="sendingComPhone" class="form-control ms-5">
                         
                         </div>
@@ -890,12 +1006,12 @@ try {
                     <a href="satislar.php" class="btn btn-secondary">Vazgeç</a>
 
                     </div>
-                    <div >
+                    <div class=" d-flex justify-content-center align-items-center gap-2" >
                         
                        
                         <button type="submit" name="submit" id="submit" class="btn btn-primary opacity-75">
                             Fatura Oluştur</button>
-
+                         <p class="fs-5 text-danger d-flex  p-0 m-0  "> Fatura oluşturulduktan sonra Ürün Sroklarında kalıcı güncellenme olucaktır  </p>
                  
                         </div>
 

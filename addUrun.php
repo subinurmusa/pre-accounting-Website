@@ -158,7 +158,7 @@ try {
     .sidebar-menu .menu .sidebar-item a {
         font-size: 17px;
     }
-
+  
     /* a:hover{
 
 
@@ -459,6 +459,24 @@ try {
 
                     </div>
 
+
+                </div>
+                <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                    <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                        <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                            <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                                <i class="fas fa-cubes fs-5"></i>
+
+                                <label for="kiritikstokseviyesi" class="form-label w-25  me-5 pe-4 ps-4">Kritik stok seviyesi</label>
+                                <input class="form-control" type="number" id="kiritikstokseviyesi" name="kiritikstokseviyesi"> 
+                               
+                            </div>
+                         
+                        </div>
+                       
+                    </div>
+                  
+                   
 
                 </div>
                 <div class="row  d-flex justify-content-end align-items-center mt-3 ">

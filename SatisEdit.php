@@ -428,7 +428,7 @@ try {
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5 text-nowrap">Hizmet /Ürün</label>
                                     <select class="form-select" onchange="productchanged(<?php echo $i ?>)"
-                                        name="urunhizmet[]" id="urunhizmet1">
+                                        name="urunhizmet[]" id="urunhizmet<?php echo $i;?>">
 
                                         <?php
 
@@ -449,9 +449,9 @@ try {
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Birim</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="birim[]" id="birim1" disabled
+                                        <input type="text" class="form-control" name="birim[]" id="birim<?php echo $i;?>" disabled
                                             value="<?php echo $row_product["birim"]; ?>">
-                                        <input type="hidden" class="form-control" name="birim[]" id="hiddenbirim1"
+                                        <input type="hidden" class="form-control" name="birim[]" id="hiddenbirim<?php echo $i;?>"
                                             value="<?php echo $row_product["birim"]; ?>">
                                         <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
                                     </div>
@@ -460,7 +460,7 @@ try {
                             <div class="col-md-1">
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Miktar</label>
-                                    <input type="number" class="form-control" id="miktar1"
+                                    <input type="number" class="form-control" id="miktar<?php echo $i;?>"
                                         onchange="productchanged(<?php echo $i ?>)" name="miktar[]"
                                         value="<?php echo $v = $row_product["miktar"] == "" ? "1" : $row_product["miktar"] ?>">
                                 </div>
@@ -468,9 +468,9 @@ try {
                             <div class="col-md-1">
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">BR.fiyat</label>
-                                    <input type="number" class="form-control" disabled id="birimfiyat1" name="birimfiyat[]"
+                                    <input type="number" class="form-control" disabled id="birimfiyat<?php echo $i;?>" name="birimfiyat[]"
                                         placeholder="0,00" value="<?php echo $row_product["birimfiyat"] ?>">
-                                    <input type="hidden" class="form-control" id="hiddenbirimfiyat1"
+                                    <input type="hidden" class="form-control" id="hiddenbirimfiyat<?php echo $i;?>"
                                         name="hiddenbirimfiyat[]" value="<?php echo $row_product["birimfiyat"] ?>">
                                 </div>
                             </div>
@@ -478,7 +478,7 @@ try {
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Iskonto</label>
                                     <select class="form-select" name="iskonto[]" onchange="productchanged(<?php echo $i ?>)"
-                                        id="iskonto1">
+                                        id="iskonto<?php echo $i;?>">
                                         <option value="0" <?php echo $tv = $row_product["iskonto"] == "0" ? "selected" : "" ?>>
                                             %0</option>
                                         <option value="1" <?php echo $tv = $row_product["iskonto"] == "1" ? "selected" : "" ?>>
@@ -505,7 +505,7 @@ try {
                                     <div class="input-group">
                                         <label class="input-group-text" for="kdv">KDV</label>
                                         <select class="form-select" name="kdv[]" onchange="productchanged(<?php echo $i ?>)"
-                                            id="kdv1">
+                                            id="kdv<?php echo $i;?>">
                                             <option value="20" <?php echo $tv = $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
                                             <option value="18" <?php echo $tv = $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
                                             <option value="10" <?php echo $tv = $row_product["kdv"] == "10" ? "selected" : "" ?>>%10</option>
@@ -523,9 +523,9 @@ try {
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Fiyat</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" disabled id="fiyat1" name="urunfiyat[]"
+                                        <input type="number" class="form-control" disabled id="fiyat<?php echo $i;?>" name="urunfiyat[]"
                                             value="<?php echo $row_product["urunfiyat"] ?>">
-                                        <input type="hidden" class="form-control" id="hiddenfiyat1" name="hiddenurunfiyat[]"
+                                        <input type="hidden" class="form-control" id="hiddenfiyat<?php echo $i;?>"  name="hiddenurunfiyat[]"
                                             value="<?php echo $row_product["urunfiyat"] ?>">
                                         <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
                                     </div>
@@ -728,8 +728,8 @@ try {
         var dycnum = <?php echo count($productsArray); ?>;
 
         function productchanged(indexl) {
-            var urunhizmetValue = document.getElementsByName("urunhizmet[]")[2].value;
-            console.log(urunhizmetValue + "urunhizmetValue ");
+         /*    var urunhizmetValue = document.getElementsByName("urunhizmet[]")[indexl-1].value;
+            console.log(urunhizmetValue + "urunhizmetValue "); */
 
             var toplambirimfiyat = [];
             var toplamkdv = 0;
@@ -740,7 +740,8 @@ try {
             var ajaxCalls = [];
 
             for (let index = 1; index <= dycnum; index++) {
-                var productid = $("urunhizmet[]" + index + " option:selected").val();
+                var productid = $("select[name='urunhizmet[]']").eq(index - 1).val();
+
                 console.log(productid + "urunvalue-index");
 
                 var ajaxCall = $.ajax({
