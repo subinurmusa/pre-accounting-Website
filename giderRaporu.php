@@ -207,7 +207,7 @@ require "db.php";
                                     <nav class="navbar navbar-light p-4 bg-light w-100">
                                         <div class="container-fluid d-flex align-items-center">
                                             <form class="d-flex m-0" method="GET">
-                                                <select class="form-select w-75 me-1" name="category">
+                                                <select class="form-select w-100 me-1" name="category">
                                                     <option value="">kategori Seç ..</option>
                                                     <option value="bank">Banka Giderler</option>
                                                     <option value="devletKurumu">Devlet kurumu </option>
@@ -220,31 +220,15 @@ require "db.php";
                                                     type="submit">Ara</button>
                                             </form>
      
-                                <div class="d-flex justify-content-center align-items-center">
-   
-    <a href="fisFatura.php?status=true" class="btn bg-success bg-opacity-25  text-dark">Fiş/Fatura Oluşturma</a>    
-    
-    <div class="dropdown">
-        <button class="btn bg-success bg-opacity-25 text-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Diğer
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            
-            <a class="dropdown-item" href="maas.php"> Maaş/ Prim</a>
-            <a class="dropdown-item" href="vergiSgkPirim.php"> vergi/ SGK Pirimi</a>
-            <a class="dropdown-item" href="bankaGiderler.php"> Banka Giderleri</a>
-            
-        </div>
-    </div>
-</div>
+               
 
                                         </div>
                                     </nav>
                                 </div>
                                 <div class="card-content mt-3">
   
-                                <div class="card">
-    <h5 class="card-header mb-2 border bg-success p-2 text-dark bg-opacity-50 p-2 d-flex align-items-center">
+                                <div class="card shadow">
+    <h5 class="card-header mb-2  p-2 text-dark bg-opacity-50 p-2 d-flex align-items-center">
         <span class="ps-3 flex-fill">Kayıt İsmi</span>
         <span class="flex-fill">Düzenleme Tarihi</span>
         <span class="pe-3 flex-fill">Kalan Meblağ</span>
@@ -256,21 +240,20 @@ require "db.php";
                                            if ( !empty($category)) {
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
-                                                   case 'devletKurumu':
-                                                       $sql = "SELECT * FROM vergisgkpirimigiderler ";
-                                                       break;
-                                                   case 'bank':
-                                                       $sql = "SELECT * FROM bankagiderler ";
-                                                       break;
-                                                       case 'fisfatura':
-                                                        $sql = "SELECT * FROM fisfaturagiderler ";
-                                                        break;
-                                                        case 'maas':
-                                                            $sql = "SELECT * FROM maas ";
-                                                            break;
-                                                  
-                                                  
-                                               }
+                                                case 'devletKurumu':
+                                                    $sql = "SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE()";
+                                                    break;
+                                                case 'bank':
+                                                    $sql = "SELECT * FROM bankagiderler WHERE dueDate < CURDATE()";
+                                                    break;
+                                                case 'fisfatura':
+                                                    $sql = "SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE()";
+                                                    break;
+                                                case 'maas':
+                                                    $sql = "SELECT * FROM maas WHERE lastPaymentDate < CURDATE()";
+                                                    break;
+                                            }
+                                            
                                                $stmt = $db->prepare($sql);
                                                $stmt->execute();
                                            
@@ -320,7 +303,7 @@ require "db.php";
                                                    
                                                    <div class="card-body">
         <?php
-        $sqlbank = $db->prepare("SELECT * FROM bankagiderler");
+        $sqlbank = $db->prepare("SELECT * FROM bankagiderler WHERE dueDate < CURDATE()");
         $sqlbank->execute();
         $bankgiderler = $sqlbank->fetchAll(PDO::FETCH_ASSOC);
 
@@ -352,7 +335,7 @@ require "db.php";
             }
         }
 
-        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler");
+        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE()");
         $sqlsgk->execute();
         $sgklar = $sqlsgk->fetchAll(PDO::FETCH_ASSOC);
         if ($sgklar != null) {
@@ -383,7 +366,7 @@ require "db.php";
             }
         }
 
-        $sqlmaas = $db->prepare("SELECT * FROM maas");
+        $sqlmaas = $db->prepare("SELECT * FROM maas where lastPaymentDate < CURDATE()");
         $sqlmaas->execute();
         $maaslar = $sqlmaas->fetchAll(PDO::FETCH_ASSOC);
         if ($maaslar != null) {
@@ -413,7 +396,7 @@ require "db.php";
         <?php
             }
         }
-        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler");
+        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE()");
         $sqlfatura->execute();
         $fisFaturalar = $sqlfatura->fetchAll(PDO::FETCH_ASSOC);
         if ($fisFaturalar != null) {
