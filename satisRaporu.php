@@ -270,8 +270,12 @@ $visitcount = 7;
     });
 </script>
 
+
+
+
                                             <div>
-                                               
+                                            <button onclick="exportToXLSX()" class="btn btn-secondary"> exel Dosya Aktar </button>
+                                          
                                                <button onclick="window.print()" class="btn bg-primary bg-opacity-50   text-dark">Dışarı Aktar</button>
                                         
                                             </div>
@@ -309,7 +313,7 @@ $visitcount = 7;
                                                
                                                 if  (!empty($searchTerm)|| !empty($dateinput) && !empty($category)) {
                                                     // Prepare the SQL query based on the selected category
-                                                    echo"else if".$dateinput;
+                                                   
                                                     switch ($category) {
                                                         case 'name':
                                                             $sql_customerid = $db->prepare("SELECT id FROM customers WHERE name LIKE ?");
@@ -338,12 +342,37 @@ $visitcount = 7;
                                                             $sql = "SELECT * FROM selling  where status = 'true' ";
                                                             break;
                                                     }
-
+                                                    $xlsxDataList = [['Sipariş Kodu', 'Muşteri', 'Fatura Durumu', 'oluşturma tarihi ', 'hizmet ve ürünler', 'toplam sıpariş tutarı']];
 
                                                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                        //   echo "222222end";
-                                                        // print_r($row);
-                                                
+                                                        // getting customer name
+                                                        $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
+                                                        $sql_customer->execute();
+                                                        $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                        
+                                                        // getting products 
+                                                        $products = json_decode($row['products'], true);
+                                                        $productDetails = "";
+                                                        foreach ($products as $product) {
+                                                            $sqlh = $db->prepare("select * from products where id = ?");
+                                                            $sqlh->execute([$product['productname']]);
+                                                            $productname = $sqlh->fetch(PDO::FETCH_ASSOC);
+                                                            $productDetails .= $product['miktar'] . " " . $product['birim'] . " " . $productname["productname"] . "\n"; // Use "\n" instead of "<br>"
+                                                        }
+                                                    
+                                                        // Fatura Durumu
+                                                        $faturaDurumu = $row["status"] === "true" ? "Kabul Edildi" : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" : ""));
+                                                    
+                                                        $data = [
+                                                            $row["productcode"],
+                                                            $customer_row["name"],
+                                                            $faturaDurumu,
+                                                            $row["date-added"],
+                                                            $productDetails,
+                                                            $row["totalPrice"]
+                                                        ];
+                                                    
+                                                        $xlsxDataList[] = $data;
                                                         ?>
                                                         <tr>
                                                             <td>
@@ -351,9 +380,7 @@ $visitcount = 7;
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
-                                                                $sql_customer->execute();
-                                                                $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                
                                                                 echo $customer_row["name"];
                                                                 ?>
                                                             </td>
@@ -411,7 +438,37 @@ $visitcount = 7;
                                                     $sql = $db->prepare("SELECT * FROM selling where status = 'true'");
                                                     $sql->execute();
                                                     // echo "1111111111111111111";
+                                                    $xlsxDataList = [['Sipariş Kodu', 'Muşteri', 'Fatura Durumu', 'oluşturma tarihi ', 'hizmet ve ürünler', 'toplam sıpariş tutarı']];
+
                                                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+                                                                           // getting customer name
+                                                                           $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
+                                                                           $sql_customer->execute();
+                                                                           $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                           
+                                                                           // getting products 
+                                                                           $products = json_decode($row['products'], true);
+                                                                           $productDetails = "";
+                                                                           foreach ($products as $product) {
+                                                                               $sqlh = $db->prepare("select * from products where id = ?");
+                                                                               $sqlh->execute([$product['productname']]);
+                                                                               $productname = $sqlh->fetch(PDO::FETCH_ASSOC);
+                                                                               $productDetails .= $product['miktar'] . " " . $product['birim'] . " " . $productname["productname"] . "\n"; // Use "\n" instead of "<br>"
+                                                                           }
+                                                                       
+                                                                           // Fatura Durumu
+                                                                           $faturaDurumu = $row["status"] === "true" ? "Kabul Edildi" : ($row["status"] === "false" ? "Red Edildi" : ($row["status"] === "waiting" ? "Cevap Bekleniyor" : ""));
+                                                                       
+                                                                           $data = [
+                                                                               $row["productcode"],
+                                                                               $customer_row["name"],
+                                                                               $faturaDurumu,
+                                                                               $row["date-added"],
+                                                                               $productDetails,
+                                                                               $row["totalPrice"]
+                                                                           ];
+                                                                       
+                                                                           $xlsxDataList[] = $data;
 
                                                         ?>
                                                         <tr>
@@ -420,9 +477,7 @@ $visitcount = 7;
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
-                                                                $sql_customer->execute();
-                                                                $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
+                                                                
                                                                 echo $customer_row["name"];
                                                                 ?>
                                                             </td>
@@ -559,6 +614,26 @@ $(document).ready(function () {
 }) 
 
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<script>
+    function exportToXLSX() {
+        // Example data
+      
+
+        // Create a new workbook
+        var wb = XLSX.utils.book_new();
+
+        // Add a worksheet
+        var ws = XLSX.utils.aoa_to_sheet(<?php echo json_encode($xlsxDataList); ?>);
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+        // Save the workbook as XLSX
+        XLSX.writeFile(wb, 'SatışRaporu.xlsx');
+    } 
+</script>
+
 
 </html>
 

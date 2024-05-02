@@ -25,6 +25,8 @@ $username = isset($_POST["username"]) ? $_POST["username"] : null;
 $email = isset($_POST["email"]) ? $_POST["email"] : null;
 $password1 = isset($_POST["password1"]) ? $_POST["password1"] : null;
 $password2 = isset($_POST["password2"]) ? $_POST["password2"] : null;
+$companyName = isset($_POST["companyName"]) ? $_POST["companyName"] : null;
+
 $error = "";
 
 if (isset($_POST["submit"])) {
@@ -36,7 +38,7 @@ if (isset($_POST["submit"])) {
   echo "gel";
   if($result==null){
 // if it's empty thers is no user like that so you can create that user 
-if (empty($username) || empty($password1) || empty($password2) || empty($email)) {
+if (empty($username) || empty($password1) || empty($password2) || empty($email)|| empty($companyName)) {
   $error = "<div class='alert alert-danger'> tüm alanlar doldurulmalı</div>";
 
 } else if ($password1 != $password2) {
@@ -45,12 +47,16 @@ if (empty($username) || empty($password1) || empty($password2) || empty($email))
 }  else {
   echo $username."else box in side";
   //add 
-  $sql1 = $db->prepare("INSERT INTO `users`(`username`, `name`, `lastname`, `email`, `password`) VALUES (?,?,?,?,?)");
-  $sql1->execute([$username, $name, $lastname, $email, md5($password1)]);
+  $sql1 = $db->prepare("INSERT INTO `users`(`username`, `name`, `lastname`, `email`, `password`, `companyName`) VALUES (?,?,?,?,?,?)");
+  $sql1->execute([$username, $name, $lastname, $email, md5($password1),$companyName]);
   // read 
   $sql = $db->prepare("SELECT * FROM `users` WHERE PASSWORD= '".md5($password1)."' and username='".$username."';");
 
   $sql->execute();
+
+  $sqlcom = $db->prepare("UPDATE `companyi̇nfo` SET `companyName`=? ");
+
+            $sqlcom->execute([ $companyName]);
 
   $result1 = $sql->fetch(PDO::FETCH_ASSOC);
   echo $result1["username"]."mmm";
@@ -99,6 +105,10 @@ $error = "<div class='alert alert-danger'>Böle Bir kullanici zatenvar</div>";
           <div class="mb-3">
             <label class="form-label">SoyAd</label>
             <input name="lastname" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Firma Adı</label>
+            <input name="companyName" class="form-control">
           </div>
           <div class="mb-3">
             <label class="form-label">Kullanıcı Adi</label>

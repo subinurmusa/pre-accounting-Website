@@ -19,6 +19,7 @@ $visitcount=7;
 </script>
 <?php
 require "db.php";
+error_reporting(E_ALL);
 
 // Get current week's start and end dates
 
@@ -32,9 +33,13 @@ function getBankaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $expenses[$row['day']] = $row['total_expense'];
+
+    if($result!=null){
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $expenses[$row['day']] = $row['total_expense'];
+        }
     }
+   
 
     return $expenses;
 }
@@ -46,8 +51,10 @@ function getFisFaturaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $expenses[$row['day']] = $row['total_expense'];
+    if($result!=null){
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $expenses[$row['day']] = $row['total_expense'];
+        }
     }
 
     return $expenses;
@@ -60,8 +67,10 @@ function getMaasExpenses($db, $startOfWeek, $endOfWeek) {
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $expenses[$row['day']] = $row['total_expense'];
+    if($result!=null){
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $expenses[$row['day']] = $row['total_expense'];
+        }
     }
 
     return $expenses;
@@ -74,8 +83,10 @@ function getVergisGkPirimGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $expenses[$row['day']] = $row['total_expense'];
+    if($result!=null){
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $expenses[$row['day']] = $row['total_expense'];
+        }
     }
 
     return $expenses;
@@ -89,8 +100,10 @@ function getIncome($db, $startOfWeek, $endOfWeek) {
 
     $income = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $income[$row['day']] = $row['total_income'];
+    if($result!=null){
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $expenses[$row['day']] = $row['total_expense'];
+        }
     }
 
     return $income;
@@ -118,6 +131,8 @@ function generateWeekLabels($startOfWeek, $endOfWeek) {
 }
 
 // Generate array of week labels
+
+
 $weekData = generateWeekLabels($currentWeekStartDate, $currentWeekEndDate);
 
 // Get current week's expenses and income
@@ -215,7 +230,7 @@ $db = null;
 <body class="">
 
 <div class=" d-flex justify-content-end ">
-        <nav class="navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-black bg-opacity-75">
+        <nav class=" navbar d-flex justify-content-end  p-2  w-100 pe-5 bg-black bg-opacity-75">
 
 
             <div class=" align-items-center d-flex justify-content-between">
@@ -266,7 +281,7 @@ $db = null;
         </nav>
     </div>
 
-    <div id="sidebar" >
+    <div id="sidebar" class="d-none d-md-block">
     <div class="sidebar-wrapper active shadow" style="height: 100%; width: 200px;">
         <?php
         try {

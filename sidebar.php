@@ -25,8 +25,8 @@
                     <li class="nav-item"><a href="satisfatura.php" class="nav-link text-white">Faturalar</a></li>
                     <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Müşteriler</a></li>
                     <li class="nav-item"><a href="satisRaporu.php" class="nav-link text-white">Satış Raporu</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Tahsilatlar Raporu</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Gelir Gider Raporu</a></li>
+                   <!--  <li class="nav-item"><a href="#" class="nav-link text-white">Tahsilatlar Raporu</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link text-white">Gelir Gider Raporu</a></li> -->
                 </ul>
             </div>
         </li>
@@ -39,9 +39,9 @@
                     <li class="nav-item"><a href="giderler.php" class="nav-link text-white">GiderListesi</a></li>
                     <li class="nav-item"><a href="vendors.php" class="nav-link text-white">Tedarikçiler</a></li>
                     <li class="nav-item"><a href="employees.php" class="nav-link text-white">Çalışanlar</a></li>
-                    <li class="nav-item"><a href="giderRaporu.php" class="nav-link text-white">Giderler Raporu</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Ödemeler Raporu</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">KDV Raporu</a></li>
+                    <li class="nav-item"><a href="giderRaporu.php" class="nav-link  text-nowrap text-white">Giderler Raporu</a></li>
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-white">Ödemeler Raporu</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link text-white">KDV Raporu</a></li> -->
                 </ul>
             </div>
         </li>
@@ -51,10 +51,10 @@
             </a>
             <div class="collapse" id="home-collapse4">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a href="satislar.php" class="nav-link text-white">Kasa Ve Bankalar</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Çekler</a></li>
-                    <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Kasa/Banka Raporu</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Nakit Akışı Raporu</a></li>
+                    <li class="nav-item"><a href="satislar.php" class="nav-link text-nowrap text-white">Kasa Ve Bankalar</a></li>
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-white">Çekler</a></li> -->
+                   <!--  <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Kasa/Banka Raporu</a></li> -->
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-white">Nakit Akışı Raporu</a></li> -->
                 </ul>
             </div>
         </li>
@@ -64,11 +64,11 @@
             </a>
             <div class="collapse" id="home-collapse5">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a href="urunvehizmet.php" class="nav-link text-white">Hizmet Ve Ürünler</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Depolar</a></li>
-                    <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Depolar Arası Transfer</a>
+                    <li class="nav-item"><a href="urunvehizmet.php" class="nav-link  text-nowrap text-white">Hizmet Ve Ürünler</a></li>
+             <!--        <li class="nav-item"><a href="#" class="nav-link text-white">Depolar</a></li>
+                    <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Depolar Arası Transfer</a> -->
                     </li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Giden İrsaliyeler</a></li>
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-white">Giden İrsaliyeler</a></li> -->
                 </ul>
             </div>
         </li>
@@ -78,10 +78,10 @@
             </a>
             <div class="collapse" id="home-collapse6">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a href="satislar.php" class="nav-link text-white">Firma Bilgileri</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Kategori Ve etiketler</a></li>
-                    <li class="nav-item"><a href="musteriler.php" class="nav-link text-white">Kullanıcılar</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link text-white">Yazdırma Şablonları</a></li>
+                    <li class="nav-item"><a href="firmaInfo.php" class="nav-link text-white">Firma Bilgileri</a></li>
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-nowrap text-white">Kategori Ve etiketler</a></li> -->
+                    <li class="nav-item"><a href="userinfo.php" class="nav-link text-nowrap text-white">Kullanıcı Bilgilerim</a></li>
+                    <!-- <li class="nav-item"><a href="#" class="nav-link text-white">Yazdırma Şablonları</a></li> -->
                 </ul>
             </div>
         </li>

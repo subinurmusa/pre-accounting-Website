@@ -399,7 +399,7 @@ try {
                     <div class="d-flex align-items-center justify-content-between w-100 ms-4">
                         <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                         <i class="fa-solid fa-hashtag fs-5"></i>
-                            <label for="invoiceDate" class="form-label w-25 text-nowrap me-5 pe-4 ps-4">Fatura Oluşturma Tarihi </label>
+                            <label for="invoiceDate" class="form-label w-25 text-nowrap me-5 pe-3 ps-4">Fatura Oluşturma Tarihi </label>
                            
                             <input type="text" id="invoiceDate"  name="invoiceDate" class="form-control ms-5"
                             >
@@ -415,6 +415,11 @@ try {
             </div>
             <hr>
              <!--gönderici bilgileri-->
+             <?php $sqlcompanyinfo=$db->prepare("SELECT * FROM companyi̇nfo");
+             $sqlcompanyinfo->execute();
+             $companyinfolist=$sqlcompanyinfo->fetch(PDO::FETCH_ASSOC);
+
+             ?>
              <div class="row  d-flex justify-content-end align-items-center mt-3 ">
                 <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
                     <div class="d-flex align-items-center justify-content-between w-100 ms-4">
@@ -437,7 +442,7 @@ try {
                             <label for="SendingComName" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adı</label>
                            
                             <input type="text" id="SendingComName"  name="SendingComName" class="form-control ms-5"
-                            value="">
+                            value="<?php echo $companyinfolist["companyName"]==null?"":$companyinfolist["companyName"]; ?>">
                         
                         </div>
 
@@ -454,7 +459,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComAddress" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adresi</label>
                            
-                            <textarea type="text" id="sendingComAddress"  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"></textarea>
+                            <textarea type="text" id="sendingComAddress"  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"> <?php echo $companyinfolist["address"]==null?"":$companyinfolist["address"]; ?></textarea>
                         
                         </div>
 
@@ -471,7 +476,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
                          
-                            <input type="number" id="sendingComPhone"  name="sendingComPhone" class="form-control ms-5">
+                            <input type="number" id="sendingComPhone" value="<?php echo $companyinfolist["phone"]==null?"":$companyinfolist["phone"]; ?>"  name="sendingComPhone" class="form-control ms-5">
                         
                         </div>
 
@@ -488,7 +493,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComEmail" class="form-label w-25 text-nowrap  me-5 pe-4 ps-4">Gönderici Şirket  Email</label>
                            
-                            <input type="email" id="sendingComEmail"  name="sendingComEmail" class="form-control ms-5">
+                            <input type="email" id="sendingComEmail" value="<?php echo $_SESSION["email"]; ?>"  name="sendingComEmail" class="form-control ms-5">
                         
                         </div>
 
@@ -505,7 +510,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComTaxNumber" class="form-label w-25   me-5 pe-4 ps-4">Gönderici Şirket  Vergi Numarası</label>
                            
-                            <input type="number" id="SendingComTaxNumber"  name="SendingComTaxNumber" class="form-control ms-5">
+                            <input type="number" id="SendingComTaxNumber" value="<?php echo $companyinfolist["vergiNum"]==null?"":$companyinfolist["vergiNum"]; ?>"   name="SendingComTaxNumber" class="form-control ms-5">
                         
                         </div>
 
@@ -1047,6 +1052,27 @@ try {
 
     </script>
     <script>
+ $(document).ready(function () {
+
+// Function to generate a random product ID
+function generateRandomProductId() {
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var productId = "";
+    for (var i = 0; i < 11; i++) {
+        productId += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return productId;
+}
+
+// Get a random product ID
+var randomString = generateRandomProductId();
+
+// Set the value of the element with ID "ordernumber"
+$("#invoicenumber").val(randomString);
+$("#invoicenumber_hidden").val(randomString);
+});
+
+
 
         $(document).ready(function () {
             /* Turkish initialisation for the jQuery UI date picker plugin. */

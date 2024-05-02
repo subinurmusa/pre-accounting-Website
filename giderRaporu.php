@@ -116,6 +116,20 @@ require "db.php";
         }
     }
 </style>
+<style>
+    @media print{
+        .navbar, #sidebar {
+            visibility: hidden;
+            display: none;
+        }
+        @page {
+                size: A4;
+                margin-right: 0px;
+            }
+         
+
+    }
+</style>
 
 <body>
 
@@ -220,7 +234,9 @@ require "db.php";
                                                     type="submit">Ara</button>
                                             </form>
      
-               
+                                            <div>
+                                              <button onclick="exportToXLSX()" class="btn btn-secondary">Dışarı Aktar</button>
+                                            </div>
 
                                         </div>
                                     </nav>
@@ -256,14 +272,33 @@ require "db.php";
                                             
                                                $stmt = $db->prepare($sql);
                                                $stmt->execute();
-                                           
+                                               $xlsxDataList = [['Belge Türü', 'Fiş/Fatura no', 'Düzenleme Tarihi', 'Tedarikçi/Çalışan', 'Fatura İsmi',
+                                               'Vade Tarihi','Döviz Tipi','Genel Toplam','Vergi Hariç Toplam','Ödeme Durumu']];
+  ?>
+                                                      <div class="card-body">
+
+                                               <?php
                                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                                      //   echo "222222end";
                                                        // print_r($row);
-
+                                                       $data = [
+                                                        ($row["type"] == "fis_Fatura") ? "fis_Fatura" : (($row["type"] == "maas") ? "maas" : (($row["type"] == "Banka Gideri") ? "Banka Gideri" : "Vergi / SGK Primi")),
+                                                        $row["fisFaturaNum"] != null ? $row["fisFaturaNum"] : "",
+                                                        ($row["type"] == "fis_Fatura") ? $row["fisFaturaDate"] : (($row["type"] == "Banka Gideri") ? $row["issueDate"] : $row["date"]),
+                                                        ($row["type"] == "maas") ? $row["employeeName"] : $row["vendor"],
+                                                        ($row["type"] == "fis_Fatura") ? $row["titleName"] : $row["title"],
+                                                        ($row["type"] == "maas") ? $row["lastPaymentDate"] : $row["dueDate"],
+                                                        ($row["currency"] == null) ? "TL" :$row["currency"],
+                                                        ($row["type"] == "fis_Fatura") ? $row["geneltoplam"]  : (($row["type"] == "maas") ? $row["toplamtutar"]: $row["totalCost"]),
+                                                        ($row["type"] == "fis_Fatura") ?  $row["araToplam"]:  (($row["type"] == "maas") ? $row["toplamtutar"]: $row["totalCost"]),
+                                                        ($row["status"] == 1) ? "Ödendi ":  "Ödenecek",
+                                                    ];
+                                                    $xlsxDataList[] = $data;         
+                                          
                                                 ?>  
+                                            
                                                           <a href="bankDetails.php?id=<?php echo $row['id']; ?>" class="text-decoration-none">
-                    <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
+                    <div class="row bg-light p-1 bg-opacity-50 border rounded  mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
                             <div>
                                
@@ -295,10 +330,16 @@ require "db.php";
                               <i class="fa-solid fa-turkish-lira-sign"></i></p>
                         </div>
                     </div>
+                 
                 </a>
+            
                                                    <?php 
-                                                   }
+                                                   } ?>
+                                                       </div>
+                                                   <?php
                                                 }else{
+                                                    $xlsxDataList = [['Belge Türü', 'Fiş/Fatura no', 'Düzenleme Tarihi', 'Tedarikçi/Çalışan', 'Fatura İsmi',
+                                                    'Vade Tarihi','Döviz Tipi','Genel Toplam','Vergi Hariç Toplam','Ödeme Durumu']];
                                                    ?>
                                                    
                                                    <div class="card-body">
@@ -306,9 +347,25 @@ require "db.php";
         $sqlbank = $db->prepare("SELECT * FROM bankagiderler WHERE dueDate < CURDATE()");
         $sqlbank->execute();
         $bankgiderler = $sqlbank->fetchAll(PDO::FETCH_ASSOC);
+     
+
 
         if ($bankgiderler != null) {
             foreach ($bankgiderler as $bankgider) {
+                $data = [
+                       $bankgider["type"]   ,
+                    " ",
+                    $bankgider["issueDate"],
+                    " ",
+                    $bankgider["title"] ,
+                    $bankgider["dueDate"],
+                    ($bankgider["currency"] == null) ? "TL" :$bankgider["currency"],
+                     $bankgider["totalCost"],
+                    $bankgider["totalCost"],
+                    ($bankgider["status"] == 1) ? "Ödendi ":  "Ödenecek"
+                ];
+                $xlsxDataList[] = $data;         
+      
         ?>
                 <a href="bankDetails.php?id=<?php echo $bankgider['id']; ?>" class="text-decoration-none">
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
@@ -340,6 +397,19 @@ require "db.php";
         $sgklar = $sqlsgk->fetchAll(PDO::FETCH_ASSOC);
         if ($sgklar != null) {
             foreach ($sgklar as $sgkgider) {
+                $data = [
+                     $sgkgider["type"]  ,
+                    " ",
+                    $sgkgider["date"],
+                    " ",
+                     $sgkgider["title"],
+                    $sgkgider["dueDate"],
+                    ($sgkgider["currency"] == null) ? "TL" :$sgkgider["currency"],
+                    $sgkgider["totalCost"],
+                    $sgkgider["totalCost"],
+                    ($sgkgider["status"] == 1) ? "Ödendi ":  "Ödenecek",
+             ];
+             $xlsxDataList[] = $data; 
         ?>
                 <a href="sgkDetails.php?id=<?php echo $sgkgider['id']; ?>" class="text-decoration-none">
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
@@ -371,6 +441,19 @@ require "db.php";
         $maaslar = $sqlmaas->fetchAll(PDO::FETCH_ASSOC);
         if ($maaslar != null) {
             foreach ($maaslar as $maasgider) {
+                $data = [
+                        $maasgider["type"],
+                      "",
+                     $maasgider["date"],
+                     $maasgider["employeeName"] ,
+                     $maasgider["title"],
+                     $maasgider["lastPaymentDate"] ,
+                    ($maasgider["currency"] == null) ? "TL" :$row["currency"],
+                     $maasgider["toplamtutar"],
+                    $maasgider["toplamtutar"],
+                    ($maasgider["status"] == 1) ? "Ödendi ":  "Ödenecek",
+                ];
+                $xlsxDataList[] = $data; 
         ?>
                 <a href="maasDetails.php?id=<?php echo $maasgider['id']; ?>" class="text-decoration-none">
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
@@ -401,6 +484,19 @@ require "db.php";
         $fisFaturalar = $sqlfatura->fetchAll(PDO::FETCH_ASSOC);
         if ($fisFaturalar != null) {
             foreach ($fisFaturalar as $maasgider) {
+                $data = [
+                  $maasgider["type"] ,
+                    $maasgider["fisFaturaNum"] ,
+                    $maasgider["fisFaturaDate"] ,
+                     $maasgider["vendor"],
+                    $maasgider["titleName"] ,
+                    $maasgider["dueDate"],
+                    ($maasgider["currency"] == null) ? "TL" :$maasgider["currency"],
+                     $maasgider["geneltoplam"],
+                      $maasgider["araToplam"],
+                    ($maasgider["status"] == 1) ? "Ödendi ":  "Ödenecek",
+                ];
+                $xlsxDataList[] = $data;        
         ?>
                 <a href="fisFaturaDetails.php?id=<?php echo $maasgider['id']; ?>" class="text-decoration-none">
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
@@ -448,5 +544,36 @@ require "db.php";
     </div>
     </div>
 </body>
+<!-- Include SheetJS library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+
+
+
+<script>
+    function exportToXLSX() {
+        // Example data
+      
+
+        // Create a new workbook
+        var wb = XLSX.utils.book_new();
+
+        // Add a worksheet
+        var ws = XLSX.utils.aoa_to_sheet(<?php echo json_encode($xlsxDataList); ?>);
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+        // Save the workbook as XLSX
+        XLSX.writeFile(wb, 'GiderRaporu.xlsx');
+    } 
+</script>
+
+
+
+
+
+
+
+
 
 </html>

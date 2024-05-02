@@ -39,7 +39,7 @@ try {
         } else {
 
             require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `maas`( `title`, `employeeid`, `hakedisdate`, `toplamtutar`, `lastPaymentDate`, `status`) 
+            $sql = $db->prepare("INSERT INTO `maas`( `title`, `employeeName`, `hakedisdate`, `toplamtutar`, `lastPaymentDate`, `status`) 
                 VALUES (?,?,?,?,?,?)");
 
             $sql->execute([$title, $employee, $hakedisdate, $toplamtutar, $lastPaymentDate, $status]);
