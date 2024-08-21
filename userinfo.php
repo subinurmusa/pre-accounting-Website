@@ -9,8 +9,12 @@ $visitcount = 7;
 //$searchName =null;
 require "db.php";
 
-$userinfoSql = $db->prepare("SELECT * FROM `users` WHERE username=?");
-$userinfoSql->execute([$_SESSION["username"]]);
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
+$userinfoSql = $db->prepare("SELECT * FROM `users` WHERE username=? and id=?");
+$userinfoSql->execute([$_SESSION["username"],$userId["id"]]);
 $userinsolist = $userinfoSql->fetch(PDO::FETCH_ASSOC);
 
 ?>
@@ -140,7 +144,7 @@ $userinsolist = $userinfoSql->fetch(PDO::FETCH_ASSOC);
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 

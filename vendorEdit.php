@@ -15,6 +15,10 @@ error_reporting(E_ALL);
 $vendorid= isset($_GET["id"])? $_GET["id"]:"";
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sql=$db->prepare("SELECT * FROM vendors where id=?");
 $sql->execute([$vendorid]);
 $vendorlist= $sql->fetch(PDO::FETCH_ASSOC);
@@ -171,6 +175,7 @@ $vendorlist= $sql->fetch(PDO::FETCH_ASSOC);
     <div class="">
     <form method="POST" id="form" >
         <input type="hidden" name="id"value="<?php echo $vendorlist["id"] ?>" >
+        <input type="hidden" name="userId"value="<?php echo $userId["id"] ?>" >
     <div class="container">
         <div class="row d-flex justify-content-end align-items-center">
             <div class="col-md-9 d-flex justify-content-around align-items-center me-5 pe-5" id="errorDiv">

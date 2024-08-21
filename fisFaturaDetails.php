@@ -11,7 +11,12 @@ $num = 0;
 $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-require "db.php"; 
+require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $fisfaturaId=$_GET["id"];
 $sql=$db->prepare("select * from  fisfaturagiderler where id = ? ");
 $sql->execute([$_GET["id"]]);
@@ -91,9 +96,9 @@ try {
             // Prepare and execute the SQL statement
             $sql = $db->prepare("UPDATE `fisfaturagiderler` SET `titleName`=? ,`vendor`=?,`fisFaturaNum`=?,`currency`=?
             ,`status`=?,`dueDate`=?,`products`=?,`araToplam`=?,`toplamkdv`=?,
-            `geneltoplam`=?,`fisFaturaDate`=?,`toplamIskonto`=? where id = ?");
+            `geneltoplam`=?,`fisFaturaDate`=?,`toplamIskonto`=? where id = ? and userId=?");
         
-            $sql->execute([$kayitIsmi, $vendor, $fis_fatura_number, $currency, $odeme_durumu, $odenecek_tarih, $productsJson, $gross, $toplamkdv, $toplamtutar,$fis_fatura_tarihi,$toplamiskonto,$fisfaturaId]);
+            $sql->execute([$kayitIsmi, $vendor, $fis_fatura_number, $currency, $odeme_durumu, $odenecek_tarih, $productsJson, $gross, $toplamkdv, $toplamtutar,$fis_fatura_tarihi,$toplamiskonto,$fisfaturaId,$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -229,7 +234,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -295,8 +300,8 @@ try {
                 require "db.php";
 
                 // Fetch the names of employees from the database
-                $vendor = $db->prepare("SELECT `vendorName` FROM `vendors`");
-                $vendor->execute();
+                $vendor = $db->prepare("SELECT `vendorName` FROM `vendors` where userId=?");
+                $vendor->execute([$userId["id"]]);
                 $vendorlist = $vendor->fetchAll(PDO::FETCH_COLUMN);
                 ?>
 
@@ -415,18 +420,18 @@ foreach ($productlist as $row_product) {
                 <label class="form-label pe-2">Hizmet /Ürün</label>
                 <select class="form-select" onchange="productchanged(1)" name="urunhizmet1" id="urunhizmet1">
                     
-                    <?php
-                    require "db.php";
-                    $sql = $db->prepare("select * from products ");
-                    $sql->execute();
-                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-                        ?>
-                        <option value="<?php echo $row["id"];?>" <?php echo $row_product["productname"]==$row["id"]?"selected":""; ?>>
-                            <?php echo $row["productname"];?>
-                        </option>
-                        <?php
-                    }
+                <?php
+                require "db.php";
+                $sql = $db->prepare("SELECT * FROM products WHERE userId = ?");
+                $sql->execute([$userId["id"]]);
+                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                     ?>
+                    <option value="<?php echo $row["id"]; ?>" <?php echo $row_product['productname'] == $row["id"] ? "selected" : "" ?>>
+                        <?php echo $row["productname"]; ?>
+                    </option>
+                    <?php
+                }
+                ?>
                 </select>
             </div>
         </div>
@@ -681,6 +686,7 @@ foreach ($productlist as $row_product) {
             });
             $(function () {
                 $("#fis_fatura_tarihi").datepicker($.datepicker.regional["tr"]);
+                $("#odenecek_tarih").datepicker($.datepicker.regional["tr"]);
 
             });
         }) 
@@ -811,8 +817,8 @@ foreach ($productlist as $row_product) {
                         <option selected value=""></option>
                         <?php
                         require "db.php";
-                        $sql = $db->prepare("select * from products ");
-                        $sql->execute();
+                        $sql = $db->prepare("select * from products where userId=? ");
+                        $sql->execute([$userId["id"]]);
                         while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                             ?>
                             <option value="<?php echo $row["id"]; ?>">

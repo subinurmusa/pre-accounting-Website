@@ -11,7 +11,12 @@ $num = 0;
 $error="";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
 
 
 ?>
@@ -26,11 +31,11 @@ try {
         // Your existing code here
    
         // Your database operations, form processing, etc.
-        $title = isset($_POST['kayitIsmi']) ? $_POST['kayitIsmi'] : null;
+        $title = isset($_POST['kayitIsmi']) ? htmlspecialchars($_POST['kayitIsmi']) : null;
         $vergi_ay = isset($_POST['vergi_ay']) ? $_POST['vergi_ay'] : null;
         $vergi_yil = isset($_POST['vergi_yil']) ? $_POST['vergi_yil'] : 0;
         $toplam_tutar = isset($_POST['toplam_tutar']) ? $_POST['toplam_tutar'] : 0;        
-        $status = isset($_POST['odeme_durumu'])=="Ödenecek"? 0 : 1;
+        $status = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : 0;    
         $vade_tarihi = isset($_POST['vade_tarihi']) ? $_POST['vade_tarihi'] : null;
        //var_dump($_POST);
         if (empty($title)||empty($toplam_tutar)||empty($vade_tarihi)) {
@@ -38,11 +43,11 @@ try {
             
         }        
         else{
-         
-            require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `vergisgkpirimigiderler`(`title`, `vergiDonemiMonth`, `vergiDonemiYear`, `totalCost`, `status`, `dueDate`, `type`)  VALUES (?,?,?,?,?,?,?)");
+         //htmlspecialchars_decode();
+           
+            $sql = $db->prepare("INSERT INTO `vergisgkpirimigiderler`(`title`, `vergiDonemiMonth`, `vergiDonemiYear`, `totalCost`, `status`, `dueDate`, `type`, `userId`)  VALUES (?,?,?,?,?,?,?,?)");
         
-            $sql->execute([$title, $vergi_ay, $vergi_yil, $toplam_tutar, $status,$vade_tarihi,"Vergi / SGK Primi"]);
+            $sql->execute([$title, $vergi_ay, $vergi_yil, $toplam_tutar, $status,$vade_tarihi,"Vergi / SGK Primi",$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -289,11 +294,11 @@ try {
 
     <div id="radioDiv" class="d-flex align-items-center border border-2 p-1">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="Ödenecek" checked>
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="0" <?php echo $sgklist["status"]==0 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odenecek">Ödenecek</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="Ödendi">
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="1" <?php echo $sgklist["status"]==1 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odendi">Ödendi</label>
         </div>
     </div>
@@ -368,7 +373,7 @@ $(document).ready(function () {
 
 
 
-<script>
+<!-- <script>
     function changeBackground() {
         var select = document.getElementById("odeme_durumu");
         var option = select.options[select.selectedIndex];
@@ -380,7 +385,7 @@ $(document).ready(function () {
             dropdown.style.backgroundColor = "#d4edda"; // Light green background
         }
     }
-</script>
+</script> -->
 <script>
 
 $(document).ready(function () {

@@ -12,7 +12,11 @@ $error="";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 ?>
 <?php
@@ -29,7 +33,7 @@ try {
         $title = isset($_POST['kayitIsmi']) ? $_POST['kayitIsmi'] : null;
         $duzenleme_tarihi = isset($_POST['duzenleme_tarihi']) ? $_POST['duzenleme_tarihi'] : null;
         $toplam_tutar = isset($_POST['toplam_tutar']) ? $_POST['toplam_tutar'] : 0;        
-        $status = isset($_POST['odeme_durumu'])=="Ödenecek"? 0 : 1;
+        $status = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : 0;    
         $vade_tarihi = isset($_POST['vade_tarihi']) ? $_POST['vade_tarihi'] : null;
        //var_dump($_POST);
         if (empty($title)||empty($toplam_tutar)||empty($vade_tarihi)) {
@@ -38,10 +42,10 @@ try {
         }        
         else{
          
-            require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `bankagiderler`( `title`, `issueDate`, `totalCost`, `status`, `dueDate`, `type`) VALUES (?,?,?,?,?,?)");
+          
+            $sql = $db->prepare("INSERT INTO `bankagiderler`( `title`, `issueDate`, `totalCost`, `status`, `dueDate`, `type`, `userId`) VALUES (?,?,?,?,?,?,?)");
         
-            $sql->execute([$title, $duzenleme_tarihi, $toplam_tutar, $status,$vade_tarihi,"Banka Gideri"]);
+            $sql->execute([$title, $duzenleme_tarihi, $toplam_tutar, $status,$vade_tarihi,"Banka Gideri",$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -178,7 +182,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -256,11 +260,11 @@ try {
 
     <div id="radioDiv" class="d-flex align-items-center border border-2 p-1">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="Ödenecek" checked>
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="0" <?php echo $sgklist["status"]==0 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odenecek">Ödenecek</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="Ödendi">
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="1" <?php echo $sgklist["status"]==1 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odendi">Ödendi</label>
         </div>
     </div>
@@ -307,7 +311,7 @@ try {
     <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-
+<!-- 
     <script>
 
 
@@ -328,7 +332,7 @@ $(document).ready(function () {
 
 
 
-</script>
+</script> -->
 
 
 

@@ -21,6 +21,11 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 //phpinfo();
+require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 
 try {
@@ -37,11 +42,12 @@ try {
         $birim = isset($_POST['birim']) ? $_POST['birim'] : 0;
         $StokMiktar = isset($_POST['StokMiktar']) ? $_POST['StokMiktar'] : 0;
         $SellMiktar = isset($_POST['SellMiktar']) ? $_POST['SellMiktar'] : 0;
+        $kiritikstokseviyesi = isset($_POST['kiritikstokseviyesi']) ? $_POST['kiritikstokseviyesi'] : 0;
           var_dump($_POST);
         if (!empty($_FILES["photo"]["name"])) {
             $filename = $_FILES["photo"]["name"];
             $tmpname = $_FILES["photo"]["tmp_name"];
-            if (move_uploaded_file($tmpname, '../accountingApp/photoes/' . $filename)) {
+            if (move_uploaded_file($tmpname, '../public_html/photoes/' . $filename)) {
                 $photo = $filename;
             } else {
                 $photo = "";
@@ -56,16 +62,15 @@ try {
         } else if (empty($addedDate) || empty($StokMiktar)) {
             $error = "<div class='alert alert-danger'> Stok miktarı ve Oluşturulma Trihi   doldurulması zorunlu alanlardır </div>";
 
-        } else if (empty($price) || empty($barkod)) {
-            $error = "<div class='alert alert-danger'>Adres , Fiyat  ve Barkod Numarası Gerekli alanlardır </div>";
+        } else if (empty($price)) {
+            $error = "<div class='alert alert-danger'>Adres , Fiyat Gerekli alanlardır </div>";
 
         } else {
 
-            require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `products`(`productcode`, `date-added`, `productname`, `price`, `barkodnumara`, `productphoto`, `alSatBirim`, `stokmiktari`, `miktar`) 
-                VALUES (?,?,?,?,?,?,?,?,?)");
+                $sql = $db->prepare("INSERT INTO `products`(`productcode`, `date-added`, `productname`, `price`, `barkodnumara`, `productphoto`, `alSatBirim`, `stokmiktari`, `miktar`,  `kiritiklevel`, `userId`) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 
-            $sql->execute([$uruncodu, $addedDate, $urunname, $price, $barkod, $photo, $birim, $StokMiktar, $SellMiktar]);
+            $sql->execute([$uruncodu, $addedDate, $urunname, $price, $barkod, $photo, $birim, $StokMiktar, $SellMiktar,$kiritikstokseviyesi,$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -203,7 +208,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 

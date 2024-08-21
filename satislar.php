@@ -6,7 +6,12 @@ if (empty($_SESSION["username"])) {
 }
 
 $visitcount = 7;
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
 
 ?>
 <script>
@@ -251,7 +256,7 @@ $visitcount = 7;
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                require "db.php";
+                                               
 
 
                                                 $searchTerm = isset($_GET["search"]) ? $_GET["search"] : null;
@@ -262,15 +267,15 @@ $visitcount = 7;
                                                     echo "go ".$status;
                                                      switch ($status) {
                                                         case 'all':
-                                                            $stmt = $db->prepare("SELECT * FROM selling");
-                                                            $stmt->execute();
+                                                            $stmt = $db->prepare("SELECT * FROM selling WHERE userId=?");
+                                                            $stmt->execute([$userId["id"]]);
                                                             break;
                                                        
                                                         default:
 
-                                                        $sql = "SELECT * FROM selling WHERE status LIKE :status";
+                                                        $sql = "SELECT * FROM selling WHERE status LIKE :status AND userId = :userid";
                                                         $stmt = $db->prepare($sql);
-                                                        $stmt->execute(array(':status' => '%' . $status . '%'));
+                                                        $stmt->execute(array(':status' => '%' . $status . '%', ':userid' => $userId["id"]));
                                                             break;
                                                     } 
                                                   
@@ -286,10 +291,11 @@ $visitcount = 7;
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
-                                                                $sql_customer->execute();
+                                                                 $sql_customer = $db->prepare("SELECT * FROM customers WHERE id = :customerId AND userId = :userId");
+                                                                $sql_customer->execute(array(':customerId' => $row["costomer"], ':userId' => $userId["id"]));
+                                                                
                                                                 $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
-                                                                echo $customer_row["name"];
+                                                                echo $customer_row["name"]; 
                                                                 ?>
                                                             </td>
                                                             <td class="d-grid ">
@@ -347,29 +353,41 @@ $visitcount = 7;
                                                  }
                                                 else if  (!empty($searchTerm) && !empty($category)) {
                                                     // Prepare the SQL query based on the selected category
-                                                    echo"else if";
+                                                    echo"else if".$searchTerm."userid".$userId["id"];
                                                     switch ($category) {
                                                         case 'name':
-                                                            $sql_customerid = $db->prepare("SELECT id FROM customers WHERE name LIKE ?");
-                                                            $sql_customerid->execute(["%" . $searchTerm . "%"]);
+                                                            $sql_customerid = $db->prepare("SELECT * FROM customers WHERE name LIKE :searchTerm AND userId = :userid");
+    $sql_customerid->execute(array(':searchTerm' => '%' . $searchTerm . '%', ':userid' => $userId["id"]));
+    
+                                                            // Fetch the customer ID
                                                             $searchTermRow = $sql_customerid->fetch(PDO::FETCH_ASSOC);
-                                                            echo $searchTermRow["id"];
-
-                                                            $stmt = $db->prepare("SELECT * FROM selling WHERE costomer = ?");
-                                                            $stmt->execute([$searchTermRow["id"]]);
+                                                            if ($searchTermRow) {
+                                                                echo $searchTermRow["id"];
+                                                                
+                                                                // Second prepared statement
+                                                                $stmt = $db->prepare("SELECT * FROM selling WHERE costomer = ? AND userId=?");
+                                                                $stmt->execute([$searchTermRow["id"], $userId["id"]]);
+                                                                if(!$stmt){
+                                                                    echo"no selling row";
+                                                                }
+                                                                
+                                                                // Fetch data or do something else
+                                                            } else {
+                                                                echo "No customer found.";
+                                                            }
                                                           /*   $ghgh = $stmt->fetch(PDO::FETCH_ASSOC);
                                                             echo $ghgh["name"]; */
                                                             //   $searchTerm = $stm->fetch(PDO::FETCH_ASSOC);
                                                             break;
                                                         case 'orderNumber':
-                                                            $sql = "SELECT * FROM selling WHERE productcode LIKE :searchTerm";
+                                                            $sql = "SELECT * FROM selling WHERE productcode LIKE :searchTerm and userId= :userid";
                                                             $stmt = $db->prepare($sql);
-                                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%', ':userid' => $userId["id"]));
                                                             break;
 
                                                         default:
 
-                                                            $sql = "SELECT * FROM selling ";
+                                                            $sql = "SELECT * FROM selling where userId=".$userId["id"];
                                                             break;
                                                     }
 
@@ -377,7 +395,7 @@ $visitcount = 7;
                                                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                                         //   echo "222222end";
                                                         // print_r($row);
-                                                
+                                                if(!$row){echo"no row ";}
                                                         ?>
                                                         <tr>
                                                             <td>
@@ -385,8 +403,9 @@ $visitcount = 7;
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
-                                                                $sql_customer->execute();
+                                                               $sql_customer = $db->prepare("SELECT * FROM customers WHERE id = :customerId AND userId = :userId");
+                                                              $sql_customer->execute(array(':customerId' => $row["costomer"], ':userId' => $userId["id"]));
+                                                              
                                                                 $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
                                                                 echo $customer_row["name"];
                                                                 ?>
@@ -444,8 +463,8 @@ $visitcount = 7;
                                                     <?php
                                                     }
                                                 } else {
-                                                    $sql = $db->prepare("SELECT * FROM selling");
-                                                    $sql->execute();
+                                                    $sql = $db->prepare("SELECT * FROM selling where userId=?");
+                                                    $sql->execute([$userId["id"]]);
                                                     // echo "1111111111111111111";
                                                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 
@@ -456,10 +475,11 @@ $visitcount = 7;
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                $sql_customer = $db->prepare("select * from customers where id=" . $row["costomer"]);
-                                                                $sql_customer->execute();
+                                                               $sql_customer = $db->prepare("SELECT * FROM customers WHERE id = :customerId AND userId = :userId");
+                                                               $sql_customer->execute(array(':customerId' => $row["costomer"], ':userId' => $userId["id"]));
+                                                               
                                                                 $customer_row = $sql_customer->fetch(PDO::FETCH_ASSOC);
-                                                                echo $customer_row["name"];
+                                                                echo $customer_row["name"]; 
                                                                 ?>
                                                             </td>
                                                             <td class="d-grid ">

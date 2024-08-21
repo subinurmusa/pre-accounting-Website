@@ -13,6 +13,11 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
+
 $invoiceid = isset($_GET["id"]) ? $_GET["id"] : null;
 //invoice
 $sqld = $db->prepare("SELECT * FROM invoice where id = ? ");
@@ -147,7 +152,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -261,6 +266,11 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
 
 
             </div>
+            <?php $sqlcompanyinfo=$db->prepare("SELECT * FROM companyinfo where userId=?");
+             $sqlcompanyinfo->execute([$userId["id"]]);
+             $companyinfolist=$sqlcompanyinfo->fetch(PDO::FETCH_ASSOC);
+
+             ?>
             <hr>
             <div class="row  d-flex justify-content-end align-items-center mt-3 ">
                 <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
@@ -270,7 +280,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                             <label for="SendingComName" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adı</label>
                            
                             <input type="text" id="SendingComName" disabled  name="SendingComName" class="form-control ms-5"
-                            value="<?php  echo $invoicerow["sendingComName"]?>">
+                            value="<?php  echo $companyinfolist["companyName"]?>">
                         
                         </div>
 
@@ -287,7 +297,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComAddress" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adresi</label>
                            
-                            <textarea type="text" id="sendingComAddress" disabled  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"><?php  echo $invoicerow["sendingComAddress"]?></textarea>
+                            <textarea type="text" id="sendingComAddress" disabled  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"><?php  echo $companyinfolist["address"]?></textarea>
                         
                         </div>
 
@@ -304,7 +314,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
                            
-                            <input type="number" id="sendingComPhone" disabled name="sendingComPhone" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComPhone"]?>">
+                            <input type="number" id="sendingComPhone" disabled name="sendingComPhone" class="form-control ms-5" value="<?php  echo $companyinfolist["phone"]?>">
                         
                         </div>
 
@@ -321,7 +331,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComEmail" class="form-label w-25 text-nowrap  me-5 pe-4 ps-4">Gönderici Şirket  Email</label>
                            
-                            <input type="email" id="sendingComEmail"  disabled name="sendingComEmail" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComEmail"]?>">
+                            <input type="email" id="sendingComEmail"  disabled name="sendingComEmail" class="form-control ms-5" value="<?php echo $_SESSION["email"]; ?>">
                         
                         </div>
 
@@ -338,7 +348,7 @@ $customers = $sqlcus->fetch(PDO::FETCH_ASSOC);
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComTaxNumber" class="form-label w-25   me-5 pe-4 ps-4">Gönderici Şirket  Vergi Numarası</label>
                            
-                            <input type="number" id="SendingComTaxNumber" disabled name="SendingComTaxNumber" class="form-control ms-5" value="<?php  echo $invoicerow["SendingComTaxNumber"]?>">
+                            <input type="number" id="SendingComTaxNumber" disabled name="SendingComTaxNumber" class="form-control ms-5" value="<?php  echo $companyinfolist["vergiNum"]?>">
                         
                         </div>
 

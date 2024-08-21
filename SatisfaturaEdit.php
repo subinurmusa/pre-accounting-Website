@@ -1,5 +1,5 @@
 <?php
-// require "db.php";
+//!!!!!!!!!---->>> i did some changes on this page but i realised this page is unnessesary so i decided not to use it and didn't send the updates with file zilla
 session_start();
 
 if (empty($_SESSION["username"])) {
@@ -12,6 +12,10 @@ $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 $invoiceid = isset($_GET["id"]) ? $_GET["id"] : null;
 //invoice
@@ -42,8 +46,8 @@ ini_set('log_errors', 1);
 
 try {
     if (isset($_POST['submit'])) {
-        $invoicenumber = isset($_POST['invoicenumber']) ? $_POST['invoicenumber'] : null;
-        $invoiceDate = isset($_POST['invoiceDate']) ? $_POST['invoiceDate'] : null;
+        $invoicenumber = isset($_POST['invoicenumber_hidden']) ? $_POST['invoicenumber_hidden'] : null;
+        $invoiceDate = isset($_POST['invoiceDate_hidden']) ? $_POST['invoiceDate_hidden'] : null;
         $SendingComName = isset($_POST['SendingComName']) ? $_POST['SendingComName'] : null;
 
         $sendingComAddress = isset($_POST['sendingComAddress']) ? $_POST['sendingComAddress'] : null;
@@ -55,14 +59,12 @@ try {
         if (empty($invoicenumber)||empty($invoiceDate)) {
             $error = "<div class='alert alert-danger'>Fatura Bilgileri Doldurulmalıdır </div>";
 
-        } else if (empty($SendingComName)||empty($sendingComAddress)||empty($sendingComPhone)||empty($sendingComEmail)||empty($SendingComTaxNumber)) {
-            $error = "<div class='alert alert-danger'>Gönderici Bilgilerini Doldurulması zorunludur</div>";
-        } else {
+        }  else {
             //  var_dump($_POST);
           
-            $sql = $db->prepare("UPDATE `invoice` SET `sellingId`=?, `InvoiceDate`=?, `InvoiceNumber`=?, `sendingComName`=?, `sendingComAddress`=?, `sendingComPhone`=?, `sendingComEmail`=?, `SendingComTaxNumber`=?,`customerid`=? where id=?");
+            $sql = $db->prepare("UPDATE `invoice` SET `sellingId`=?, `InvoiceDate`=?, `InvoiceNumber`=?, `sendingComName`=?,`customerid`=? where id=?and userId=?");
 
-            $sql->execute([$sellingid, $invoiceDate, $invoicenumber, $SendingComName, $sendingComAddress, $sendingComPhone, $sendingComEmail, $SendingComTaxNumber,$sellings["costomer"],$invoiceid]);
+            $sql->execute([$sellingid, $invoiceDate, $invoicenumber, $SendingComName,$sellings["costomer"],$invoiceid,$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -202,7 +204,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -271,10 +273,10 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="invoicenumber" class="form-label w-25  me-5 pe-4 ps-4">Fatura Numarası </label>
                            
-                            <input type="text" id="invoicenumber"  name="invoicenumber"  class="form-control ms-5"
+                            <input type="text" id="invoicenumber" disabled name="invoicenumber"  class="form-control ms-5"
                             value="<?php  echo $invoicerow["InvoiceNumber"]?>">
                         <input type="hidden" id="invoicenumber_hidden" name="invoicenumber_hidden"
-                            value="">
+                            value="<?php  echo $invoicerow["InvoiceNumber"]?>">
                         </div>
 
                     </div>
@@ -290,10 +292,10 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="invoiceDate" class="form-label w-25 text-nowrap me-5 pe-4 ps-4">Fatura Oluşturma Tarihi </label>
                            
-                            <input type="text" id="invoiceDate"  name="invoiceDate" class="form-control ms-5" value="<?php  echo $invoicerow["InvoiceDate"]?>"
+                            <input type="text" id="invoiceDate" disabled name="invoiceDate" class="form-control ms-5" value="<?php  echo $invoicerow["InvoiceDate"]?>"
                             >
                         <input type="hidden" id="invoiceDate_hidden" name="invoiceDate_hidden"
-                            value="">
+                        value="<?php  echo $invoicerow["InvoiceDate"]?>">
                         </div>
 
                     </div>
@@ -317,6 +319,11 @@ try {
 
 
             </div>
+            <?php $sqlcompanyinfo=$db->prepare("SELECT * FROM companyinfo where userId=?");
+             $sqlcompanyinfo->execute([$userId["id"]]);
+             $companyinfolist=$sqlcompanyinfo->fetch(PDO::FETCH_ASSOC);
+
+             ?>
             <hr>
             <div class="row  d-flex justify-content-end align-items-center mt-3 ">
                 <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
@@ -325,8 +332,8 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComName" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adı</label>
                            
-                            <input type="text" id="SendingComName"  name="SendingComName" class="form-control ms-5"
-                            value="<?php  echo $invoicerow["sendingComName"]?>">
+                            <input type="text" id="SendingComName" disabled name="SendingComName" class="form-control ms-5"
+                            value="<?php  echo $companyinfolist["companyName"]?>">
                         
                         </div>
 
@@ -343,7 +350,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComAddress" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adresi</label>
                            
-                            <textarea type="text" id="sendingComAddress"  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"><?php  echo $invoicerow["sendingComAddress"]?></textarea>
+                            <textarea type="text" id="sendingComAddress" disabled name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"><?php  echo $companyinfolist["address"]?></textarea>
                         
                         </div>
 
@@ -360,7 +367,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
                            
-                            <input type="number" id="sendingComPhone"  name="sendingComPhone" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComPhone"]?>">
+                            <input type="number" id="sendingComPhone" disabled name="sendingComPhone" class="form-control ms-5" value="<?php  echo $companyinfolist["phone"]?>">
                         
                         </div>
 
@@ -377,7 +384,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComEmail" class="form-label w-25 text-nowrap  me-5 pe-4 ps-4">Gönderici Şirket  Email</label>
                            
-                            <input type="email" id="sendingComEmail"  name="sendingComEmail" class="form-control ms-5" value="<?php  echo $invoicerow["sendingComEmail"]?>">
+                            <input type="email" id="sendingComEmail" disabled name="sendingComEmail" class="form-control ms-5" value="<?php echo $_SESSION["email"]; ?>">
                         
                         </div>
 
@@ -394,7 +401,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComTaxNumber" class="form-label w-25   me-5 pe-4 ps-4">Gönderici Şirket  Vergi Numarası</label>
                            
-                            <input type="number" id="SendingComTaxNumber"  name="SendingComTaxNumber" class="form-control ms-5" value="<?php  echo $invoicerow["SendingComTaxNumber"]?>">
+                            <input type="number" id="SendingComTaxNumber"disabled  name="SendingComTaxNumber" class="form-control ms-5" value="<?php  echo $companyinfolist["vergiNum"]?>">
                         
                         </div>
 
@@ -679,7 +686,7 @@ try {
                             <div class="col-md-1 me-5">
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5 text-nowrap">Hizmet /Ürün</label>
-                                    <select class="form-select" disabled onchange="productchanged(<?php echo $i ?>)"
+                                    <select class="form-select"  onchange="productchanged(<?php echo $i ?>)"
                                         name="urunhizmet[]" id="urunhizmet1">
 
                                         <?php
@@ -701,7 +708,7 @@ try {
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Birim</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="birim[]" id="birim1" disabled
+                                        <input type="text" class="form-control" name="birim[]" id="birim1" 
                                             value="<?php echo $row_product["birim"]; ?>">
                                         <input type="hidden" class="form-control" name="birim[]" id="hiddenbirim1"
                                             value="<?php echo $row_product["birim"]; ?>">
@@ -712,7 +719,7 @@ try {
                             <div class="col-md-1">
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Miktar</label>
-                                    <input type="number" disabled class="form-control" id="miktar1"
+                                    <input type="number"  class="form-control" id="miktar1"
                                         onchange="productchanged(<?php echo $i ?>)" name="miktar[]"
                                         value="<?php echo $v = $row_product["miktar"] == "" ? "1" : $row_product["miktar"] ?>">
                                 </div>
@@ -729,7 +736,7 @@ try {
                             <div class="col-md-1">
                                 <div class="d-grid align-items-center">
                                     <label class="form-label pe-5 me-5">Iskonto</label>
-                                    <select class="form-select" disabled name="iskonto[]" onchange="productchanged(<?php echo $i ?>)"
+                                    <select class="form-select"  name="iskonto[]" onchange="productchanged(<?php echo $i ?>)"
                                         id="iskonto1">
                                         <option value="0" <?php echo $tv = $row_product["iskonto"] == "0" ? "selected" : "" ?>>
                                             %0</option>
@@ -756,7 +763,7 @@ try {
                                     <label class="form-label pe-5 me-5">Vergi</label>
                                     <div class="input-group">
                                         <label class="input-group-text" for="kdv">KDV</label>
-                                        <select class="form-select" disabled name="kdv[]" onchange="productchanged(<?php echo $i ?>)"
+                                        <select class="form-select"  name="kdv[]" onchange="productchanged(<?php echo $i ?>)"
                                             id="kdv1">
                                             <option value="20" <?php echo $tv = $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
                                             <option value="18" <?php echo $tv = $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
@@ -1221,6 +1228,5 @@ try {
 
 
 </body>
-
 
 </html>

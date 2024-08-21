@@ -15,6 +15,10 @@ error_reporting(E_ALL);
 $employeeid= isset($_GET["id"])? $_GET["id"]:null;
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sql=$db->prepare("SELECT * FROM employees where id=? ");
 $sql->execute([$employeeid]);
 $employeesInfo=$sql->fetch(PDO::FETCH_ASSOC);
@@ -45,9 +49,9 @@ try {
         else{
          
             require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("UPDATE `employees` SET `nameSurname`=?, `Email`=?, `TCno`=?, `ibanNumber`=?, `position`=?, `phoneNumber`=? where id= ?");
+            $sql = $db->prepare("UPDATE `employees` SET `nameSurname`=?, `Email`=?, `TCno`=?, `ibanNumber`=?, `position`=?, `phoneNumber`=? where id= ? and userId=?");
         
-            $sql->execute([$nameSurname, $email, $tc, $iban, $pozisyon, $phonenumber,$employeeid]);
+            $sql->execute([$nameSurname, $email, $tc, $iban, $pozisyon, $phonenumber,$employeeid,$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {

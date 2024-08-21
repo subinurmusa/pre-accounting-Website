@@ -1,123 +1,19 @@
+
 <?php
-// require "db.php";
 session_start();
 
 if (empty($_SESSION["username"])) {
     header("location:login.php");
+    exit;
 }
 
-$visitcount = 7;
-$num = 0;
-$error = "";
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require "db.php";
 
-
+$userIdQuery = $db->prepare("SELECT id FROM users WHERE username = ?");
+$userIdQuery->execute([$_SESSION["username"]]);
+$userId = $userIdQuery->fetch(PDO::FETCH_ASSOC);
 
 ?>
-<?php
-
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-
-try {
-    if (isset($_POST['submit'])) {
-        // Your existing code here
-
-        // Your database operations, form processing, etc.
-        $kayitIsmi = isset($_POST['kayitIsmi']) ? $_POST['kayitIsmi'] : null;
-        $vendor = isset($_POST['vendor']) ? $_POST['vendor'] : null;
-        $fis_fatura_tarihi = isset($_POST['fis_fatura_tarihi']) ? $_POST['fis_fatura_tarihi'] : 0;
-        $fis_fatura_number = isset($_POST['fis_fatura_number']) ? $_POST['fis_fatura_number'] : 0;
-        $currency = isset($_POST['currency']) ? $_POST['currency'] : null;
-        $odeme_durumu = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : null;
-        $odenecek_tarih = isset($_POST['odenecek_tarih']) ? $_POST['odenecek_tarih'] : null;
-        $gross = isset($_POST['gross']) ? $_POST['gross'] : null;
-        $toplamkdv = isset($_POST['toplamkdv']) ? $_POST['toplamkdv'] : null;
-        $toplamtutar = isset($_POST['toplamtutar']) ? $_POST['toplamtutar'] : null;
-        $toplamiskonto = isset($_POST['toplamiskonto']) ? $_POST['toplamiskonto'] : null;
-      
-        //var_dump($_POST);
-        if (empty($kayitIsmi) || empty($vendor) || empty($fis_fatura_number)) {
-            $error = "<div class='alert alert-danger'> Kayıt ismi / tedarikçi / fiş fatura alanları gereklidir  Gereklidir</div>";
-
-        } else {
-
-            $products = [];
-            
-            // Iterate through products
-            for ($index = 1; $index < 50; $index++) {
-                if (!isset($_POST['urunhizmet' . $index])) {
-                    break;
-                }
-              
-    
-                // Retrieve product details from POST data
-                $productname = $_POST['urunhizmet' . $index];
-                
-             //   $miktar = isset($_POST['miktar' . $index]) && strval($_POST['miktar' . $index]) !== "" ? strval($_POST['miktar' . $index]) : "1";
-        
-     
-        $iskonto = isset($_POST['iskonto' . $index]) ? $_POST['iskonto' . $index] : null;
-        $miktar = isset($_POST['miktar' . $index]) ? $_POST['miktar' . $index] : 0;
-        $kdv = isset($_POST['kdv' . $index]) ? $_POST['kdv' . $index] : null;
-        $birim = isset($_POST['hiddenbirim' . $index]) ? $_POST['hiddenbirim' . $index] : null;
-        $birimfiyat = isset($_POST['hiddenbirimfiyat' . $index]) ? $_POST['hiddenbirimfiyat' . $index] : null;
-        $urunfiyat = isset($_POST['hiddenurunfiyat' . $index]) ? $_POST['hiddenurunfiyat' . $index] : null;
-    
-                // Create an array for the current product
-                $currentProduct = [
-                    'productname' => $productname,
-                    'iskonto' => $iskonto,
-                    'miktar' => $miktar,
-                    'kdv' => $kdv,
-                    'birim' => $birim,
-                    'birimfiyat' => $birimfiyat,
-                    'urunfiyat' => $urunfiyat
-                ];
-        
-                // Push the current product to the products array
-                $products[] = $currentProduct;
-            }        
-            // Include the database connection file
-            require "db.php";        
-            // Convert the products array to JSON
-            $productsJson = json_encode($products);
-        
-            // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `fisfaturagiderler`(`titleName`, `vendor`, `fisFaturaNum`, `currency`, `status`, `dueDate`, `products`, `araToplam`, `toplamkdv`, `geneltoplam`,`fisFaturaDate`, `toplamIskonto` )  VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-        
-            $sql->execute([$kayitIsmi, $vendor, $fis_fatura_number, $currency, $odeme_durumu, $odenecek_tarih, $productsJson, $gross, $toplamkdv, $toplamtutar,$fis_fatura_tarihi,$toplamiskonto]);
-        
-            // Check if the SQL statement was executed successfully
-            if ($sql) {
-                // Redirect to satislar.php
-                header("location: giderler.php");
-                 // Make sure to exit after header to prevent further code execution
-            } else {
-                $error = "<div class='alert alert-danger'>An error occurred while saving data.</div>";
-             //   echo json_encode(['error' => $error]);
-                return;
-            }
-        }
-
-
-        // If everything is successful, redirect to satislar.php
-    }
-} catch (Exception $e) {
-    // Log the exception details
-    error_log("Caught exception: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-
-    // Optionally, display a generic error message to the user
-    $error = "$e";
-    echo json_encode(['error' => $error]);
-    return;
-}
-
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -224,7 +120,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -267,10 +163,10 @@ try {
 
             <div class="container ps-5 ms-5 ">
             <form method="POST" id="form" enctype="multipart/form-data">
-            <div class="row mt-3  d-flex justify-content-center align-items-center ps-5 ms-5">
+            <div class="row mt-3  d-flex justify-content-center align-items-center ps-5 ms-5"  >
                     
-                       <div class="w-75 ps-5 ms-5">
-                       <?php echo $error==""?"": $error; ?>
+                       <div class="w-75 ps-5 ms-5"  id="errordive">
+                       
                        </div>
                     
                     </div>
@@ -291,8 +187,8 @@ try {
                 require "db.php";
 
                 // Fetch the names of employees from the database
-                $vendor = $db->prepare("SELECT `vendorName` FROM `vendors`");
-                $vendor->execute();
+                $vendor = $db->prepare("SELECT `vendorName` FROM `vendors` where userId=?");
+                $vendor->execute([$userId["id"]]);
                 $vendorlist = $vendor->fetchAll(PDO::FETCH_COLUMN);
                 ?>
 
@@ -406,8 +302,8 @@ try {
                     <option selected value=""></option>
                     <?php
                     require "db.php";
-                    $sql = $db->prepare("select * from products ");
-                    $sql->execute();
+                    $sql = $db->prepare("SELECT * FROM products WHERE userId=? ");
+                    $sql->execute([$userId["id"]]);
                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                         ?>
                         <option value="<?php echo $row["id"];?>">
@@ -506,8 +402,8 @@ try {
                     <div class="d-flex align-items-center justify-content-end w-100 ms-4">
                         <div class="bottons">
                             <a href="giderler.php" class="btn btn-secondary">Vazgeç</a>
-                            <button type="submit" name="submit" id="submit"
-                                class="btn btn-primary opacity-75">Kaydet</button>
+                            <button type="submit" name="submit" id="submit" class="btn btn-primary opacity-75"> Kaydet</button>
+
                         </div>
                     </div>
                 </div>
@@ -793,8 +689,8 @@ try {
                         <option selected value=""></option>
                         <?php
                         require "db.php";
-                        $sql = $db->prepare("select * from products ");
-                        $sql->execute();
+                        $sql = $db->prepare("select * from products where userId=?");
+                        $sql->execute([$userId["id"]]);
                         while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                             ?>
                             <option value="<?php echo $row["id"]; ?>">
@@ -893,6 +789,60 @@ try {
 
     </script>
 
+<!-- <script>
+   $(document).ready(function(){
+      $('#form').on('submit', function(event){
+         event.preventDefault(); // Prevent the form from refreshing the page
+         var formData = $(this).serialize(); // Serialize the form data
+
+         $.ajax({
+            type: 'POST',
+            url: 'fisFaturaPhpCode.php',
+            data: formData,
+            dataType: 'json',
+            success: function(response){
+                if (response.success) {
+                  window.location.href = 'giderler.php'; 
+               } else {
+                console.log("response.message"+response.message+"-response.success:"+response.success);
+                  $('#errordive').html("<div class='alert alert-danger'>" + response.message + "</div>"); // Display the error message
+               }
+            
+            },
+            error: function(){
+               alert('There was an error!');
+            }
+         });
+      });
+   });
+</script> -->
+<script>
+   $(document).ready(function(){
+      $('#form').on('submit', function(event){
+         event.preventDefault(); // Prevent the form from refreshing the page
+         var formData = $(this).serialize(); // Serialize the form data
+         formData += '&submit=submit'; 
+         $.ajax({
+            type: 'POST',
+            url: 'fisFaturaPhpCode.php',
+            data: formData,
+            dataType: 'json', // Expect JSON response from the server
+            success: function(response){
+               if (response.success) {
+                  window.location.href = 'giderler.php'; 
+               } else {
+                  console.log("response.message: " + response.message + " - response.success: " + response.success);
+                  $('#errordive').html("<div class='alert alert-danger'>" + response.message + "</div>"); // Display the error message
+               }
+            },
+            error: function(xhr, status, error){
+               console.error("AJAX error: ", status, error);
+               $('#errordive').html("<div class='alert alert-danger'>There was an error!</div>"); // Display a generic error message
+            }
+         });
+      });
+   });
+</script>
 
 </body>
 

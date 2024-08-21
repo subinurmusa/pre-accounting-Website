@@ -11,7 +11,12 @@ $num = 0;
 $error="";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
 
 
 ?>
@@ -40,10 +45,10 @@ try {
         else{
          
             require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `employees`( `nameSurname`, `Email`, `TCno`, `ibanNumber`, `position`, `phoneNumber`) 
-                VALUES (?,?,?,?,?,?)");
+            $sql = $db->prepare("INSERT INTO `employees`( `nameSurname`, `Email`, `TCno`, `ibanNumber`, `position`, `phoneNumber`, `userId`) 
+                VALUES (?,?,?,?,?,?,?)");
         
-            $sql->execute([$nameSurname, $email, $tc, $iban, $pozisyon, $phonenumber]);
+            $sql->execute([$nameSurname, $email, $tc, $iban, $pozisyon, $phonenumber,$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {

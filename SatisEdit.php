@@ -12,6 +12,10 @@ $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
+// current user id on the system
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 $sellingid = isset($_GET["id"]) ? $_GET["id"] : null;
 
@@ -39,7 +43,7 @@ try {
         $musteri = isset($_POST['musteri']) ? $_POST['musteri'] : 0;
         $date = isset($_POST['hiddentarih']) ? $_POST['hiddentarih'] : null;
         $productname = isset($_POST['urunhizmet']) ? $_POST['urunhizmet'] : null;
-        var_dump($_POST);
+       // var_dump($_POST);
         if (empty($musteri)) {
             $error = "<div class='alert alert-danger'>Müşteriler doldurulması zorunlu alanlardır </div>";
 
@@ -82,7 +86,7 @@ try {
                     'iskonto' => $_POST['iskonto'][$key],
                     'miktar' => $_POST['miktar'][$key],
                     'kdv' => $_POST['kdv'][$key],
-                    'birim' => $_POST['birim'][$key],
+                    'birim' => $_POST['hiddenbirim'][$key],
                     'birimfiyat' => $_POST['hiddenbirimfiyat'][$key],
                     'urunfiyat' => $_POST['hiddenurunfiyat'][$key]
                 ];
@@ -239,7 +243,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -320,8 +324,8 @@ try {
                                 <option selected value="">Muşteri seç..</option>
                                 <?php
 
-                                $sql = $db->prepare("select * from customers ");
-                                $sql->execute();
+                                $sql = $db->prepare("select * from customers where userId=? ");
+                                $sql->execute([$userId["id"]]);
                                 while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
 
@@ -411,139 +415,93 @@ try {
 
 
             <div class="container mt-3 mb-5 me-1">
-                <div class="row addnewrow justify-content-center " id="addnewrow">
-                    <!--  if there is one row add one  -->
+    <div class="row justify-content-center">
+       
+        <div class="col-lg-10 col-md-11 border p-3"id="addnewrow"><i class="fa-solid fa-asterisk fs-6 text-danger"></i>      <!--  if there is one row add one  -->
 
                  
                     <?php
-
-
-
-                    $i = 1;
-                    foreach ($productsArray as $row_product) {
-
-                        ?>
-                        <div class="d-flex justify-content-center gap-5 ms-5 dive<?php echo $i; ?> ">
-                            <div class="col-md-1 me-5">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5 text-nowrap">Hizmet /Ürün</label>
-                                    <select class="form-select" onchange="productchanged(<?php echo $i ?>)"
-                                        name="urunhizmet[]" id="urunhizmet<?php echo $i;?>">
-
-                                        <?php
-
-                                        $sql = $db->prepare("select * from products ");
-                                        $sql->execute();
-                                        while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-                                            ?>
-                                            <option value="<?php echo $row["id"] ?>" <?php echo $u = $row_product['productname'] == $row["id"] ? "selected" : "" ?>>
-                                                <?php echo $row["productname"] ?>
-                                            </option>
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Birim</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="birim[]" id="birim<?php echo $i;?>" disabled
-                                            value="<?php echo $row_product["birim"]; ?>">
-                                        <input type="hidden" class="form-control" name="birim[]" id="hiddenbirim<?php echo $i;?>"
-                                            value="<?php echo $row_product["birim"]; ?>">
-                                        <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Miktar</label>
-                                    <input type="number" class="form-control" id="miktar<?php echo $i;?>"
-                                        onchange="productchanged(<?php echo $i ?>)" name="miktar[]"
-                                        value="<?php echo $v = $row_product["miktar"] == "" ? "1" : $row_product["miktar"] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">BR.fiyat</label>
-                                    <input type="number" class="form-control" disabled id="birimfiyat<?php echo $i;?>" name="birimfiyat[]"
-                                        placeholder="0,00" value="<?php echo $row_product["birimfiyat"] ?>">
-                                    <input type="hidden" class="form-control" id="hiddenbirimfiyat<?php echo $i;?>"
-                                        name="hiddenbirimfiyat[]" value="<?php echo $row_product["birimfiyat"] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Iskonto</label>
-                                    <select class="form-select" name="iskonto[]" onchange="productchanged(<?php echo $i ?>)"
-                                        id="iskonto<?php echo $i;?>">
-                                        <option value="0" <?php echo $tv = $row_product["iskonto"] == "0" ? "selected" : "" ?>>
-                                            %0</option>
-                                        <option value="1" <?php echo $tv = $row_product["iskonto"] == "1" ? "selected" : "" ?>>
-                                            %1</option>
-                                        <option value="3" <?php echo $tv = $row_product["iskonto"] == "3" ? "selected" : "" ?>>
-                                            %3</option>
-                                        <option value="5" <?php echo $tv = $row_product["iskonto"] == "5" ? "selected" : "" ?>>
-                                            %5</option>
-                                        <option value="8" <?php echo $tv = $row_product["iskonto"] == "8" ? "selected" : "" ?>>
-                                            %8</option>
-                                        <option value="10" <?php echo $tv = $row_product["iskonto"] == "10" ? "selected" : "" ?>>%10</option>
-                                        <option value="15" <?php echo $tv = $row_product["iskonto"] == "15" ? "selected" : "" ?>>%15</option>
-                                        <option value="17" <?php echo $tv = $row_product["iskonto"] == "17" ? "selected" : "" ?>>%17</option>
-                                        <option value="20" <?php echo $tv = $row_product["iskonto"] == "20" ? "selected" : "" ?>>%20</option>
-                                        <option value="25" <?php echo $tv = $row_product["iskonto"] == "25" ? "selected" : "" ?>>%25</option>
-                                        <option value="28" <?php echo $tv = $row_product["iskonto"] == "28" ? "selected" : "" ?>>%28</option>
-                                        <option value="30" <?php echo $tv = $row_product["iskonto"] == "30" ? "selected" : "" ?>>%30</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Vergi</label>
-                                    <div class="input-group">
-                                        <label class="input-group-text" for="kdv">KDV</label>
-                                        <select class="form-select" name="kdv[]" onchange="productchanged(<?php echo $i ?>)"
-                                            id="kdv<?php echo $i;?>">
-                                            <option value="20" <?php echo $tv = $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
-                                            <option value="18" <?php echo $tv = $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
-                                            <option value="10" <?php echo $tv = $row_product["kdv"] == "10" ? "selected" : "" ?>>%10</option>
-                                            <option value="8" <?php echo $tv = $row_product["kdv"] == "8" ? "selected" : "" ?>>
-                                                %8</option>
-                                            <option value="1" <?php echo $tv = $row_product["kdv"] == "1" ? "selected" : "" ?>>
-                                                %1</option>
-                                            <option value="0" <?php echo $tv = $row_product["kdv"] == "0" ? "selected" : "" ?>>0
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Fiyat</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" disabled id="fiyat<?php echo $i;?>" name="urunfiyat[]"
-                                            value="<?php echo $row_product["urunfiyat"] ?>">
-                                        <input type="hidden" class="form-control" id="hiddenfiyat<?php echo $i;?>"  name="hiddenurunfiyat[]"
-                                            value="<?php echo $row_product["urunfiyat"] ?>">
-                                        <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1 d-flex justify-content-bottom align-items-end align-self-end "
-                                style="width: 50px;">
-                                <div> <button class="btn btn-outline-secondary" type="button" id="delete"
-                                        onclick="deleterow(<?php echo $i; ?>)"><i class="fa-solid fa-trash-can"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <?php
-                        $i++;
-                    }
-
+$i = 1;
+foreach ($productsArray as $row_product) {
+    ?>
+    <div class="row addnewrow ll mb-3">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Hizmet / Ürün</label>
+            <select class="form-select" onchange="productchanged(<?php echo $i; ?>)" name="urunhizmet[]" id="urunhizmet<?php echo $i; ?>">
+                <option selected value=""></option>
+                <?php
+                require "db.php";
+                $sql = $db->prepare("SELECT * FROM products WHERE userId = ?");
+                $sql->execute([$userId["id"]]);
+                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                     ?>
+                    <option value="<?php echo $row["id"]; ?>" <?php echo $row_product['productname'] == $row["id"] ? "selected" : "" ?>>
+                        <?php echo $row["productname"]; ?>
+                    </option>
+                    <?php
+                }
+                ?>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Birim</label>
+            <div class="input-group">
+                <input type="text" class="form-control" name="birim[]" id="birim<?php echo $i; ?>" disabled value="<?php echo $row_product["birim"]; ?>">
+                <input type="hidden" name="hiddenbirim[]" id="hiddenbirim<?php echo $i; ?>" value="<?php echo $row_product["birim"]; ?>">
+                <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Miktar</label>
+            <input type="number" class="form-control" id="miktar<?php echo $i; ?>" onchange="productchanged(<?php echo $i; ?>)" name="miktar[]" value="<?php echo $row_product["miktar"] == "" ? "1" : $row_product["miktar"]; ?>">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">BR.fiyat</label>
+            <input type="number" class="form-control" disabled id="birimfiyat<?php echo $i; ?>" name="birimfiyat[]" placeholder="0,00" value="<?php echo $row_product["birimfiyat"]; ?>">
+            <input type="hidden" id="hiddenbirimfiyat<?php echo $i; ?>" name="hiddenbirimfiyat[]" value="<?php echo $row_product["birimfiyat"]; ?>">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Iskonto</label>
+            <select class="form-select" name="iskonto[]" onchange="productchanged(<?php echo $i; ?>)" id="iskonto<?php echo $i; ?>">
+                <option value="0" <?php echo $row_product["iskonto"] == "0" ? "selected" : "" ?>>%0</option>
+                <option value="1" <?php echo $row_product["iskonto"] == "1" ? "selected" : "" ?>>%1</option>
+                <option value="3" <?php echo $row_product["iskonto"] == "3" ? "selected" : "" ?>>%3</option>
+                <option value="5" <?php echo $row_product["iskonto"] == "5" ? "selected" : "" ?>>%5</option>
+                <option value="8" <?php echo $row_product["iskonto"] == "8" ? "selected" : "" ?>>%8</option>
+                <option value="10" <?php echo $row_product["iskonto"] == "10" ? "selected" : "" ?>>%10</option>
+                <option value="15" <?php echo $row_product["iskonto"] == "15" ? "selected" : "" ?>>%15</option>
+                <option value="17" <?php echo $row_product["iskonto"] == "17" ? "selected" : "" ?>>%17</option>
+                <option value="20" <?php echo $row_product["iskonto"] == "20" ? "selected" : "" ?>>%20</option>
+                <option value="25" <?php echo $row_product["iskonto"] == "25" ? "selected" : "" ?>>%25</option>
+                <option value="28" <?php echo $row_product["iskonto"] == "28" ? "selected" : "" ?>>%28</option>
+                <option value="30" <?php echo $row_product["iskonto"] == "30" ? "selected" : "" ?>>%30</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Vergi(KDV)</label>
+            <select class="form-select" name="kdv[]" onchange="productchanged(<?php echo $i; ?>)" id="kdv<?php echo $i; ?>">
+                <option value="20" <?php echo $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
+                <option value="18" <?php echo $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
+                <option value="10" <?php echo $row_product["kdv"] == "10" ? "selected" : "" ?>>%10</option>
+                <option value="8" <?php echo $row_product["kdv"] == "8" ? "selected" : "" ?>>%8</option>
+                <option value="1" <?php echo $row_product["kdv"] == "1" ? "selected" : "" ?>>%1</option>
+                <option value="0" <?php echo $row_product["kdv"] == "0" ? "selected" : "" ?>>0</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Fiyat</label>
+            <div class="input-group">
+                <input type="hidden" class="form-control" id="hiddenfiyat<?php echo $i; ?>" name="hiddenurunfiyat[]" placeholder="0,00" value="<?php echo $row_product["urunfiyat"]; ?>">
+                <input type="number" class="form-control" disabled id="fiyat<?php echo $i; ?>" name="urunfiyat[]" placeholder="0,00" value="<?php echo $row_product["urunfiyat"]; ?>">
+                <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
+            </div>
+        </div>
+    </div>
+    <?php
+    $i++;
+}
+?>
+ </div>
                 </div>
             </div>
 
@@ -757,15 +715,19 @@ try {
                         if (dataarray) {
                             var price = dataarray["price"];
                             var alSatBirim = dataarray["alSatBirim"];
+                            var miktarnumber = dataarray["miktar"];
 
                             var priceInput = $("#birimfiyat" + index);
                             var hiddenpriceInput = $("#hiddenbirimfiyat" + index);
                             var birimInput = $("#birim" + index);
                             var hiddenbirimInput = $("#hiddenbirim" + index);
                             var miktarInput = $("#miktar" + index);
+                            
                             var toplamtutarbox = $("#toplamtutar");
                             var toplamtutarbox = $("#hiddentoplamtutar");
-
+                            // miktar 0 ise 1 yap yoksa kend,isini yansıt kı hesaplama yanlış olmasın 
+                            
+                           console.log(miktarnumber+"miktarnumber-------------------");
                             birimInput.val(alSatBirim);
                             hiddenbirimInput.val(alSatBirim);
                             priceInput.val(price);
@@ -775,6 +737,8 @@ try {
                             if (changeprice > 0) {
                                 price = price * changeprice;
 
+                            }else{
+                                miktarInput.val(miktarnumber);
                             }
 
                             grossPrice += parseFloat(price);
@@ -830,7 +794,7 @@ try {
 
         }
         //3th function
-        function loadDoc() {
+       /*  function loadDoc() {
 
             dycnum++;
             console.log(dycnum + "dynmuneber ");
@@ -845,8 +809,8 @@ try {
                     <option selected value=""></option>
                     <?php
                     require "db.php";
-                    $sql = $db->prepare("select * from products ");
-                    $sql->execute();
+                    $sql = $db->prepare("select * from products WHERE userId=?");
+                    $sql->execute([$userId["id"]]);
                     while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                         ?>
                                                     <option value="<?php echo $row["id"]; ?>">
@@ -922,11 +886,22 @@ try {
                 <label class="form-label pe-5 me-5">Fiyat</label>
                 <div class="input-group">
                     <input type="number" class="form-control" disabled id="fiyat`+ dycnum + `" name="urunfiyat[]" placeholder="0,00">
-                    <input type="hidden"  id="hiddenfiyat`+ dycnum + `" name="hiddenurunfiyat` + dycnum + `" >
+                    <input type="hidden"  id="hiddenfiyat`+ dycnum + `" name="hiddenurunfiyat[]` + dycnum + `" >
                     <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
                 </div>
             </div>
+              <div class="d-grid align-items-center">
+                                    <label class="form-label pe-5 me-5">Fiyat</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" disabled id="fiyat`+ dycnum + `" name="urunfiyat[]"
+                                            >
+                                        <input type="hidden" class="form-control" id="hiddenfiyat`+ dycnum + `"  name="hiddenurunfiyat[]"
+                                            >
+                                        <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
+                                    </div>
+                                </div>
         </div>
+        
    <div class="col-md-1 d-flex justify-content-bottom align-items-end align-self-end " style="width: 50px;">
               <div>   <button class="btn btn-outline-secondary" type="button" id="delete" onclick="deleterow(`+ dycnum + `)"><i class="fa-solid fa-trash-can"></i></button>
           </div>   </div>
@@ -944,7 +919,109 @@ try {
 
 
         }
+ */
 
+ function loadDoc() {
+    dycnum = dycnum + 1; // Increment the row index
+    console.log(dycnum + "dynmuneber ");
+
+    // Create new div element for the row
+    var newContent = document.createElement("div");
+    newContent.className = "row addnewrow dive" + dycnum;
+
+    // Construct the HTML for the new row
+    newContent.innerHTML =
+        `
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Hizmet / Ürün</label>
+            <select class="form-select" onchange="productchanged(${dycnum})" name="urunhizmet[]" id="urunhizmet${dycnum}">
+                <option selected value=""></option>
+                <?php
+                // PHP code for generating options
+                require "db.php";
+                $sql = $db->prepare("select * from products where userId=?");
+                $sql->execute([$userId["id"]]);
+                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+                    ?>
+                    <option value="<?php echo $row["id"]; ?>">
+                        <?php echo $row["productname"]; ?>
+                    </option>
+                    <?php
+                }
+                ?>
+            </select>
+        </div>
+      
+         <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Birim</label>
+            <div class="input-group">
+                <input type="text" class="form-control" name="birim[]" id="birim${dycnum}" disabled >
+                <input type="hidden" name="hiddenbirim[]" id="hiddenbirim${dycnum}">
+                <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Miktar</label>
+            <input type="number" class="form-control" id="miktar${dycnum}" onchange="productchanged(${dycnum})" name="miktar[]" placeholder="0,00">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">BR.fiyat</label>
+            <input type="number" class="form-control" disabled id="birimfiyat${dycnum}" name="birimfiyat[]" placeholder="0,00">
+            <input type="hidden" id="hiddenbirimfiyat${dycnum}" name="hiddenbirimfiyat[]">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Iskonto</label>
+            <select class="form-select" name="iskonto[]" onchange="productchanged(${dycnum})" id="iskonto${dycnum}">
+                <option selected value="0">%0</option>
+                <option value="1">%1</option>
+                <option value="3">%3</option>
+                <option value="5">%5</option>
+                <option value="8">%8</option>
+                <option value="10">%10</option>
+                <option value="15">%15</option>
+                <option value="17">%17</option>
+                <option value="20">%20</option>
+                <option value="25">%25</option>
+                <option value="28">%28</option>
+                <option value="30">%30</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Vergi</label>
+            <div class="input-group">
+                <label class="input-group-text" for="kdv">KDV</label>
+                <select class="form-select" name="kdv[]" onchange="productchanged(${dycnum})" id="kdv${dycnum}">
+                    <option selected value="20">%20</option>
+                    <option value="18">%18</option>
+                    <option value="10">%10</option>
+                    <option value="8">%8</option>
+                    <option value="1">%1</option>
+                    <option value="0">0</option>
+                </select>
+            </div>
+        </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Fiyat</label>
+            <div class="input-group">
+                    <input type="hidden" class="form-control"  id="hiddenfiyat${dycnum}" name="hiddenurunfiyat[]"
+                    placeholder="0,00">
+                        <input type="number" class="form-control" disabled id="fiyat${dycnum}" name="urunfiyat[]" placeholder="0,00">
+                        <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
+                   
+            </div>
+        </div>
+        <div class="col-lg-1 d-flex align-items-center">
+            <button class="btn btn-outline-secondary" type="button" onclick="deleterow(${dycnum})"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+        `;
+
+    // Append the new row content to the container
+    document.getElementById("addnewrow").append(newContent);
+
+    // Rebind event handlers for new elements if needed
+    // Ensure any logic or calculations dependent on the added rows are updated here
+
+}
         //calculateAllPrice function
 
 

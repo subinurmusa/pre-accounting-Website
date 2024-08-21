@@ -8,6 +8,10 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 //$searchName =null;
 require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
  
 
 ?>
@@ -136,7 +140,7 @@ require "db.php";
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -232,19 +236,19 @@ require "db.php";
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
                                                    case 'nameSurname':
-                                                       $sql = "SELECT * FROM employees WHERE nameSurname LIKE :searchTerm";
+                                                       $sql = "SELECT * FROM employees WHERE nameSurname LIKE :searchTerm AND userId = :userid ";
                                                        break;
                                                    case 'TC':
-                                                       $sql = "SELECT * FROM employees WHERE TCno LIKE :searchTerm";
+                                                       $sql = "SELECT * FROM employees WHERE TCno LIKE :searchTerm AND userId = :userid";
                                                        break;
                                                   
                                                    default:
                                                        // Default to search by name
-                                                       $sql = "SELECT * FROM employees ";
+                                                       $sql = "SELECT * FROM employees where  userId = :userid ";
                                                        break;
                                                }
                                                $stmt = $db->prepare($sql);
-                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%', ':userid' => $userId["id"]));
                                            
                                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                                      //   echo "222222end";
@@ -273,8 +277,8 @@ require "db.php";
                                                 
 
                                                 else{
-                                                    $sql = $db->prepare("SELECT * FROM employees");                                               
-                                                    $sql->execute();
+                                                    $sql = $db->prepare("SELECT * FROM employees where userId=?");                                               
+                                                    $sql->execute([$userId["id"]]);
                                                    // echo "1111111111111111111";
                                                     while ($row =  $sql ->fetch(PDO::FETCH_ASSOC)) { 
     

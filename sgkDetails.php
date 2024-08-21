@@ -19,7 +19,12 @@ error_reporting(E_ALL);
 
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-require "db.php"; // Prepare and execute the SQL statement
+require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sql=$db->prepare("SELECT * FROM `vergisgkpirimigiderler` where id=?");
 $sql->execute([$_GET["id"]]);
 $sgklist=$sql->fetch(PDO::FETCH_ASSOC);
@@ -44,9 +49,9 @@ try {
         else{
          
       
-            $sql = $db->prepare("UPDATE `vergisgkpirimigiderler` SET `title`=?,`vergiDonemiMonth`=?,`vergiDonemiYear`=?,`totalCost`=?,`status`=?,`dueDate`=?,`type`=? WHERE id=?");
+            $sql = $db->prepare("UPDATE `vergisgkpirimigiderler` SET `title`=?,`vergiDonemiMonth`=?,`vergiDonemiYear`=?,`totalCost`=?,`status`=?,`dueDate`=?,`type`=? WHERE id=? and userId=?");
         
-            $sql->execute([$title, $vergi_ay, $vergi_yil, $toplam_tutar, $status,$vade_tarihi,"Vergi / SGK Primi",$_GET["id"]]);
+            $sql->execute([$title, $vergi_ay, $vergi_yil, $toplam_tutar, $status,$vade_tarihi,"Vergi / SGK Primi",$_GET["id"],$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {

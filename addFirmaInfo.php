@@ -12,10 +12,15 @@ $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require "db.php"; 
+require "db.php";
 
-$firmainfosql=$db->prepare("SELECT  * FROM `companyinfo` ");
-$firmainfosql->execute();
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
+
+$firmainfosql=$db->prepare("SELECT  * FROM `companyinfo` where userId=?");
+$firmainfosql->execute([$userId["id"]]);
 $firmainfo=$firmainfosql->fetch(PDO::FETCH_ASSOC);
 
 ?>
@@ -41,12 +46,9 @@ try {
         
         $unvan = isset($_POST['unvan']) ? $_POST['unvan'] : null;
         $sektor = isset($_POST['sektor']) ? $_POST['sektor'] : null;
-        if(isset($trimedadres)){
-            $trimedadres=trim($_POST['acikAdres']);
-            $acikAdres = !empty($trimedadres) ? $trimedadres : null;
-        }
-      
-;
+        $acikAdres = isset($_POST['acikAdres']) ? trim($_POST['acikAdres']) : null;
+        $vkn = isset($_POST['vkn']) ? trim($_POST['vkn']) : null;
+
         $il = isset($_POST['il']) ? $_POST['il'] : null;
         $ilce = isset($_POST['ilce']) ? $_POST['ilce'] : null;
         $phone = isset($_POST['phone']) ? $_POST['phone'] : null;
@@ -59,31 +61,39 @@ try {
       
         if (empty($firmaAdi)) {
             $error = "<div class='alert alert-danger'>Firma Adı Zorunlu Alandır</div>";
+        }
+         else if (empty($vkn)){
+            $error = "<div class='alert alert-danger'>VKN Zorunlu Alandır</div>";
+
+
         } else {
             if ($logo_temp && move_uploaded_file($logo_temp, "photoes/$logo")) {
                 // File uploaded successfully, proceed with saving the filename to the database
                 $logo_filename = "photoes/$logo";
-                $sql = $db->prepare("UPDATE `companyinfo` SET  `logo`=? where id=1 ;");
+                $sql = $db->prepare("UPDATE `companyinfo` SET  `logo`=? where userId=? ;");
 
-                $sql->execute([$logo_filename]);
+                $sql->execute([$logo_filename,$userId["id"]]);
             } 
             
             if ($imza_temp && move_uploaded_file($imza_temp, "photoes/$imza")) {
                 // File uploaded successfully, proceed with saving the filename to the database
                 $imza_filename = "photoes/$imza";
-                $sql = $db->prepare("UPDATE `companyinfo` SET `imza`=? where id=1;");
+                $sql = $db->prepare("UPDATE `companyinfo` SET `imza`=? where userId=?;");
 
-            $sql->execute([ $imza_filename]);
+            $sql->execute([ $imza_filename,$userId["id"]]);
         
             }
+            $sql = $db->prepare("UPDATE `companyinfo` SET `companyName`=?,  `ticariUnvan`=?, `vkn`=?, `sektor`=?, `address`=?, `province`=?, `district`=?, `phone`=?, `fax`=?, `vergiDairesi`=?, `vergiNum`=?, `mersisNum`=?, `ticaretSicilNum`=? where userId=?");
 
-            try {
+            $sql->execute([$firmaAdi,  $unvan, $vkn, $sektor, $acikAdres, $il, $ilce, $phone, $fax, $vergidairesi, $vergiNum, $mersisNum, $ticaretSicilNum,$userId["id"]]);
+        
+          /*   try {
                 $testdata = $db->prepare("SELECT * FROM `companyinfo` ");
                 
                 if ($testdata->execute()) {
-                    $sql = $db->prepare("UPDATE `companyinfo` SET `companyName`=?,  `ticariUnvan`=?, `sektor`=?, `address`=?, `province`=?, `district`=?, `phone`=?, `fax`=?, `vergiDairesi`=?, `vergiNum`=?, `mersisNum`=?, `ticaretSicilNum`=? where id=1");
+                    $sql = $db->prepare("UPDATE `companyinfo` SET `companyName`=?,  `ticariUnvan`=?, `sektor`=?, `address`=?, `province`=?, `district`=?, `phone`=?, `fax`=?, `vergiDairesi`=?, `vergiNum`=?, `mersisNum`=?, `ticaretSicilNum`=? where userId=");
 
-                    $sql->execute([$firmaAdi,  $unvan, $sektor, $acikAdres, $il, $ilce, $phone, $fax, $vergidairesi, $vergiNum, $mersisNum, $ticaretSicilNum]);
+                    $sql->execute([$firmaAdi,  $unvan, $sektor, $acikAdres, $il, $ilce, $phone, $fax, $vergidairesi, $vergiNum, $mersisNum, $ticaretSicilNum,$userId["id"]]);
                 
                 } 
             } catch (PDOException $e) {
@@ -94,7 +104,7 @@ try {
                 $sql->execute([$firmaAdi,  $unvan, $sektor, $acikAdres, $il, $ilce, $phone, $fax, $vergidairesi, $vergiNum, $mersisNum, $ticaretSicilNum]);
       
             }
-           
+            */
               
             
            
@@ -228,7 +238,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -286,8 +296,8 @@ try {
                         <div class="d-flex align-items-center justify-content-between w-100 ms-4">
                             <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                                 <i class="fa-solid fa-building fs-5"></i>
-                                <?php $firmaAdisql=$db->prepare("SELECT  companyName FROM users WHERE username= ?");
-                                $firmaAdisql->execute([$_SESSION["username"]]);
+                                <?php $firmaAdisql=$db->prepare("SELECT  companyName FROM users WHERE username= ? and Id=?");
+                                $firmaAdisql->execute([$_SESSION["username"],$userId["id"]]);
                                 $firmaAdi=$firmaAdisql->fetch(PDO::FETCH_COLUMN);?>
                                 <label for="firmaAdi" class="form-label w-25  me-5 pe-4 ps-4">Firma Adı</label>
                                 <input class="form-control" type="text" value="<?php 
@@ -376,7 +386,7 @@ echo isset($firmainfo["companyName"])
                                 <i class="fas fa-coins fs-5"></i>
                                 <label for="price" class="form-label w-25  me-5 pe-4 ps-4">TİCARİ UNVAN</label>
                                 <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
-                                <input class="form-control" type="text" id="unvan" name="unvan" value="<?php isset($firmainfo["ticariUnvan"]) ? $firmainfo["ticariUnvan"] : "";?>">
+                                <input class="form-control" type="text" id="unvan" name="unvan" value="<?php echo isset($firmainfo["ticariUnvan"]) ? $firmainfo["ticariUnvan"] : "";?>">
 
                             </div>
 
@@ -547,7 +557,23 @@ echo isset($firmainfo["companyName"])
 
 
                 </div>
+                <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                    <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                        <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                            <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                                <i class="fas fa-shopping-basket fs-5"></i>
 
+                                <label for="vkn" class="form-label w-25  me-5 pe-4 ps-4">VKN</label>
+                                <input class="form-control" type="number" id="vkn" placeholder="Vergi Kimlik Numarası" value="<?php echo isset($firmainfo["vkn"])?$firmainfo["vkn"]:""; ?>" name="vkn">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
                 <div class="row  d-flex justify-content-end align-items-center mt-3 ">
                     <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
                         <div class="d-flex align-items-center justify-content-between w-100 ms-4">

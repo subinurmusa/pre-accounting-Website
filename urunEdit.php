@@ -44,12 +44,13 @@ try {
         $birim = isset($_POST['birim']) ? $_POST['birim'] : 0;
         $StokMiktar = isset($_POST['StokMiktar']) ? $_POST['StokMiktar'] : 0;
         $SellMiktar = isset($_POST['SellMiktar']) ? $_POST['SellMiktar'] : 0;
+        $kiritikstokseviyesi = isset($_POST['kiritikstokseviyesi']) ? $_POST['kiritikstokseviyesi'] : 0;
        // var_dump($_POST);
 
         if (!empty($_FILES["photo"]["name"])) {
             $filename = $_FILES["photo"]["name"];
             $tmpname = $_FILES["photo"]["tmp_name"];
-            if (move_uploaded_file($tmpname, '../accountingApp/photoes/' . $filename)) {
+            if (move_uploaded_file($tmpname, '../public_html/photoes/' . $filename)) {
                 $photo = $filename;
             } else {
                 $photo = "";
@@ -69,10 +70,20 @@ try {
         } else {
 
             require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("UPDATE `products` SET `productcode`=?,`date-added`=?,`productname`=?,`price`=?,`barkodnumara`=?,`productphoto`=?,`alSatBirim`=?,`stokmiktari`=?,`miktar`=? WHERE id=?");
+            if($photo!=""){
+                $sql = $db->prepare("UPDATE `products` SET `productcode`=?,`date-added`=?,`productname`=?,`price`=?,`barkodnumara`=?,`productphoto`=?,`alSatBirim`=?,`stokmiktari`=?,`miktar`=? ,`kiritiklevel`=? WHERE id=?");
 
-            $sql->execute([$uruncodu, $addedDate, $urunname, $price, $barkod, $photo, $birim, $StokMiktar, $SellMiktar,$productid]);
+                $sql->execute([$uruncodu, $addedDate, $urunname, $price, $barkod, $photo, $birim, $StokMiktar, $SellMiktar,$kiritikstokseviyesi,$productid]);
+    
 
+            }
+            else{
+                $sql = $db->prepare("UPDATE `products` SET `productcode`=?,`date-added`=?,`productname`=?,`price`=?,`barkodnumara`=?,`alSatBirim`=?,`stokmiktari`=?,`miktar`=?,`kiritiklevel`=?  WHERE id=?");
+
+                $sql->execute([$uruncodu, $addedDate, $urunname, $price, $barkod, $birim, $StokMiktar, $SellMiktar,$kiritikstokseviyesi,$productid]);
+    
+            }
+           
             // Check if the SQL statement was executed successfully
             if ($sql) {
                 // Redirect to satislar.php
@@ -209,7 +220,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -356,7 +367,7 @@ try {
                                 <!-- <input class="form-control" type="file" id="photo" name="photo"> -->
                                 <div class="d-flex justify-content-between align-items-center w-100">
     <input class="form-control" type="file" id="photo" name="photo" onchange="previewImage()">   
-    <img id="imagePreview" src="../accountingApp/photoes/<?php echo $products['productphoto'] ? $products['productphoto'] : '#' ?>" alt="Preview" style="<?php echo $products['productphoto'] ? 'display:block;' : 'display:none;' ?> max-width: 80px; max-height: 80px;" class="p-1 ms-1 border rounded">
+    <img id="imagePreview" src="photoes/<?php echo $products['productphoto'] ? $products['productphoto'] : '#' ?>" alt="Preview" style="<?php echo $products['productphoto'] ? 'display:block;' : 'display:none;' ?> max-width: 80px; max-height: 80px;" class="p-1 ms-1 border rounded">
 </div>
 
 
@@ -441,6 +452,22 @@ try {
 
                     </div>
 
+
+                </div>
+                <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                    <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                        <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                            <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                                <i class="fas fa-cubes fs-5"></i>
+
+                                <label for="kiritikstokseviyesi" class="form-label w-25  me-5 pe-4 ps-4">Kritik stok seviyesi</label>
+                                <input class="form-control" type="number" id="kiritikstokseviyesi"value="<?php echo $products["kiritiklevel"];?>" name="kiritikstokseviyesi"> 
+                               
+                            </div>
+                         
+                        </div>
+                       
+                    </div>
 
                 </div>
                 <div class="row  d-flex justify-content-end align-items-center mt-3 ">

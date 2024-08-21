@@ -11,11 +11,14 @@ $num = 0;
 $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
 require "db.php";
 
-$userinfosql = $db->prepare("SELECT  * FROM `users` where username=? ");
-$userinfosql->execute([$_SESSION["username"]]);
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
+$userinfosql = $db->prepare("SELECT  * FROM `users` where username=? and id=?");
+$userinfosql->execute([$_SESSION["username"],$userId["id"]]);
 $users = $userinfosql->fetch(PDO::FETCH_ASSOC);
 
 ?>
@@ -46,9 +49,9 @@ try {
           
 
            
-            $sql = $db->prepare("UPDATE `users` SET `name`=?,`lastname`=?,`username`=?,`email`=? WHERE username=?");
+            $sql = $db->prepare("UPDATE `users` SET `name`=?,`lastname`=?,`username`=?,`email`=? WHERE username=? and id=?");
 
-            $sql->execute([$name, $lastname, $username, $email, $_SESSION["username"]]);
+            $sql->execute([$name, $lastname, $username, $email, $_SESSION["username"],$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {

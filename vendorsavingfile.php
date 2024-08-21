@@ -12,15 +12,16 @@ $ibanNum = isset($formData['ibanNum']) ? $formData['ibanNum'] : null;
 $address = isset($formData['address']) ? $formData['address'] : null;
 $postakodu = isset($formData['postakodu']) ? $formData['postakodu'] : null;
 $notes = isset($formData['notes']) ? $formData['notes'] : null;
+$userId = isset($formData['userId']) ? $formData['userId'] : null;
 
 if (empty($vendorName) || empty($phoneNum)) {
     echo "<div class='alert alert-danger'> Tadarikçi Adı ve İletişim numarası Gereklidir </div>";
 } else {
     require "db.php"; // Prepare and execute the SQL statement
-    $sql = $db->prepare("INSERT INTO `vendors`(`vendorName`, `category`, `email`, `phoneNum`, `FaxNum`, `ibanNum`, `address`, `postakodu`, `notes`, `TCKNorVKN`)
-    VALUES (?,?,?,?,?,?,?,?,?,?)");
+    $sql = $db->prepare("INSERT INTO `vendors`(`vendorName`, `category`, `email`, `phoneNum`, `FaxNum`, `ibanNum`, `address`, `postakodu`, `notes`, `TCKNorVKN`, `userId`)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 
-    $sql->execute([$vendorName, $category, $email, $phoneNum, $FaxNum, $ibanNum,$address,$postakodu,$notes,$TCKNorVKN]);
+    $sql->execute([$vendorName, $category, $email, $phoneNum, $FaxNum, $ibanNum,$address,$postakodu,$notes,$TCKNorVKN,$userId]);
 
     if ($sql) {
         // Redirect to vendors.php

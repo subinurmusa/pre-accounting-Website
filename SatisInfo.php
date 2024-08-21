@@ -13,9 +13,13 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sellingid = isset($_GET["id"]) ? $_GET["id"] : null;
 
-$sqld = $db->prepare("SELECT * FROM selling where id = ? ");
+$sqld = $db->prepare("SELECT * FROM selling where id = ?");
 $sqld->execute([$sellingid]);
 $sellings = $sqld->fetch(PDO::FETCH_ASSOC);
 $jsonData = $sellings["products"];
@@ -239,6 +243,7 @@ ini_set('log_errors', 1);
                                 ?>
                             </select>
                         </div>
+                      
 
                     </div>
 
@@ -315,137 +320,98 @@ ini_set('log_errors', 1);
             <hr class="h-auto">
 
 
-            <div class="container mt-3 mb-5 me-1">
-                <div class="row addnewrow justify-content-center " id="addnewrow">
+            <div class="container  mt-3 mb-5">
+            <div class="row justify-content-end">
+       
+       <div class="col-lg-10 col-md-11 border p-3"id="addnewrow"><i class="fa-solid fa-asterisk fs-6 text-danger"></i>
+     
                     <!--  if there is one row add one  -->
 
                     <?php
-
-
-
-                    $i = 1;
-                    foreach ($productsArray as $row_product) {
-
-                        ?>
-                        <div class="d-flex justify-content-center gap-5 ms-5 dive<?php echo $i; ?> ">
-                            <div class="col-md-1 me-5">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5 text-nowrap">Hizmet /Ürün</label>
-                                    <select class="form-select" disabled onchange="productchanged(<?php echo $i ?>)"
-                                        name="urunhizmet[]" id="urunhizmet1">
-
-                                        <?php
-
-                                        $sql = $db->prepare("select * from products ");
-                                        $sql->execute();
-                                        while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-                                            ?>
-                                            <option value="<?php echo $row["id"] ?>" <?php echo $u = $row_product['productname'] == $row["id"] ? "selected" : "" ?>>
-                                                <?php echo $row["productname"] ?>
-                                            </option>
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Birim</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" name="birim[]" id="birim1" disabled
-                                            value="<?php echo $row_product["birim"]; ?>">
-                                        <input type="hidden"  name="birim[]" id="hiddenbirim1"
-                                            value="<?php echo $row_product["birim"]; ?>">
-                                        <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Miktar</label>
-                                    <input type="number" disabled class="form-control" id="miktar1"
-                                        onchange="productchanged(<?php echo $i ?>)" name="miktar[]"
-                                        value="<?php echo $v = $row_product["miktar"] == "" ? "1" : $row_product["miktar"] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">BR.fiyat</label>
-                                    <input type="number" class="form-control" disabled id="birimfiyat1" name="birimfiyat[]"
-                                        placeholder="0,00" value="<?php echo $row_product["birimfiyat"] ?>">
-                                    <input type="hidden" class="form-control" id="hiddenbirimfiyat1"
-                                        name="hiddenbirimfiyat[]" value="<?php echo $row_product["birimfiyat"] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Iskonto</label>
-                                    <select class="form-select" name="iskonto[]" disabled onchange="productchanged(<?php echo $i ?>)"
-                                        id="iskonto1">
-                                        <option value="0" <?php echo $tv = $row_product["iskonto"] == "0" ? "selected" : "" ?>>
-                                            %0</option>
-                                        <option value="1" <?php echo $tv = $row_product["iskonto"] == "1" ? "selected" : "" ?>>
-                                            %1</option>
-                                        <option value="3" <?php echo $tv = $row_product["iskonto"] == "3" ? "selected" : "" ?>>
-                                            %3</option>
-                                        <option value="5" <?php echo $tv = $row_product["iskonto"] == "5" ? "selected" : "" ?>>
-                                            %5</option>
-                                        <option value="8" <?php echo $tv = $row_product["iskonto"] == "8" ? "selected" : "" ?>>
-                                            %8</option>
-                                        <option value="10" <?php echo $tv = $row_product["iskonto"] == "10" ? "selected" : "" ?>>%10</option>
-                                        <option value="15" <?php echo $tv = $row_product["iskonto"] == "15" ? "selected" : "" ?>>%15</option>
-                                        <option value="17" <?php echo $tv = $row_product["iskonto"] == "17" ? "selected" : "" ?>>%17</option>
-                                        <option value="20" <?php echo $tv = $row_product["iskonto"] == "20" ? "selected" : "" ?>>%20</option>
-                                        <option value="25" <?php echo $tv = $row_product["iskonto"] == "25" ? "selected" : "" ?>>%25</option>
-                                        <option value="28" <?php echo $tv = $row_product["iskonto"] == "28" ? "selected" : "" ?>>%28</option>
-                                        <option value="30" <?php echo $tv = $row_product["iskonto"] == "30" ? "selected" : "" ?>>%30</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Vergi</label>
-                                    <div class="input-group">
-                                        <label class="input-group-text" for="kdv">KDV</label>
-                                        <select class="form-select" name="kdv[]" disabled onchange="productchanged(<?php echo $i ?>)"
-                                            id="kdv1">
-                                            <option value="20" <?php echo $tv = $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
-                                            <option value="18" <?php echo $tv = $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
-                                            <option value="10" <?php echo $tv = $row_product["kdv"] == "10" ? "selected" : "" ?>>%10</option>
-                                            <option value="8" <?php echo $tv = $row_product["kdv"] == "8" ? "selected" : "" ?>>
-                                                %8</option>
-                                            <option value="1" <?php echo $tv = $row_product["kdv"] == "1" ? "selected" : "" ?>>
-                                                %1</option>
-                                            <option value="0" <?php echo $tv = $row_product["kdv"] == "0" ? "selected" : "" ?>>0
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="d-grid align-items-center">
-                                    <label class="form-label pe-5 me-5">Fiyat</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" disabled id="fiyat1" name="urunfiyat[]"
-                                            value="<?php echo $row_product["urunfiyat"] ?>">
-                                        <input type="hidden" class="form-control" id="hiddenfiyat1" name="hiddenurunfiyat[]"
-                                            value="<?php echo $row_product["urunfiyat"] ?>">
-                                        <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                          
-                        </div>
-
-                        <?php
-                        $i++;
-                    }
-
+$i = 1;
+foreach ($productsArray as $row_product) {
+    ?>
+    <div class="row addnewrow ll mb-3">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Hizmet / Ürün</label>
+            <select class="form-select" onchange="productchanged(<?php echo $i; ?>)" name="urunhizmet[]" id="urunhizmet<?php echo $i; ?>">
+                <option selected value=""></option>
+                <?php
+                require "db.php";
+                $sql = $db->prepare("SELECT * FROM products WHERE userId = ?");
+                $sql->execute([$userId["id"]]);
+                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
                     ?>
+                    <option value="<?php echo $row["id"]; ?>" <?php echo $row_product['productname'] == $row["id"] ? "selected" : "" ?>>
+                        <?php echo $row["productname"]; ?>
+                    </option>
+                    <?php
+                }
+                ?>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Birim</label>
+            <div class="input-group">
+                <input type="text" class="form-control" name="birim[]" id="birim<?php echo $i; ?>" disabled value="<?php echo $row_product["birim"]; ?>">
+                <input type="hidden" name="hiddenbirim[]" id="hiddenbirim<?php echo $i; ?>" value="<?php echo $row_product["birim"]; ?>">
+                <span class="input-group-text"><i class="fa-solid fa-box-open"></i></span>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Miktar</label>
+            <input type="number" class="form-control" id="miktar<?php echo $i; ?>" onchange="productchanged(<?php echo $i; ?>)" name="miktar[]" value="<?php echo $row_product["miktar"] == "" ? "1" : $row_product["miktar"]; ?>">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">BR.fiyat</label>
+            <input type="number" class="form-control" disabled id="birimfiyat<?php echo $i; ?>" name="birimfiyat[]" placeholder="0,00" value="<?php echo $row_product["birimfiyat"]; ?>">
+            <input type="hidden" id="hiddenbirimfiyat<?php echo $i; ?>" name="hiddenbirimfiyat[]" value="<?php echo $row_product["birimfiyat"]; ?>">
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Iskonto</label>
+            <select class="form-select" name="iskonto[]" onchange="productchanged(<?php echo $i; ?>)" id="iskonto<?php echo $i; ?>">
+                <option value="0" <?php echo $row_product["iskonto"] == "0" ? "selected" : "" ?>>%0</option>
+                <option value="1" <?php echo $row_product["iskonto"] == "1" ? "selected" : "" ?>>%1</option>
+                <option value="3" <?php echo $row_product["iskonto"] == "3" ? "selected" : "" ?>>%3</option>
+                <option value="5" <?php echo $row_product["iskonto"] == "5" ? "selected" : "" ?>>%5</option>
+                <option value="8" <?php echo $row_product["iskonto"] == "8" ? "selected" : "" ?>>%8</option>
+                <option value="10" <?php echo $row_product["iskonto"] == "10" ? "selected" : "" ?>>%10</option>
+                <option value="15" <?php echo $row_product["iskonto"] == "15" ? "selected" : "" ?>>%15</option>
+                <option value="17" <?php echo $row_product["iskonto"] == "17" ? "selected" : "" ?>>%17</option>
+                <option value="20" <?php echo $row_product["iskonto"] == "20" ? "selected" : "" ?>>%20</option>
+                <option value="25" <?php echo $row_product["iskonto"] == "25" ? "selected" : "" ?>>%25</option>
+                <option value="28" <?php echo $row_product["iskonto"] == "28" ? "selected" : "" ?>>%28</option>
+                <option value="30" <?php echo $row_product["iskonto"] == "30" ? "selected" : "" ?>>%30</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Vergi(KDV)</label>
+            <select class="form-select" name="kdv[]" onchange="productchanged(<?php echo $i; ?>)" id="kdv<?php echo $i; ?>">
+                <option value="20" <?php echo $row_product["kdv"] == "20" ? "selected" : "" ?>>%20</option>
+                <option value="18" <?php echo $row_product["kdv"] == "18" ? "selected" : "" ?>>%18</option>
+                <option value="10" <?php echo $row_product["kdv"] == "10" ? "selected" : "" ?>>%10</option>
+                <option value="8" <?php echo $row_product["kdv"] == "8" ? "selected" : "" ?>>%8</option>
+                <option value="1" <?php echo $row_product["kdv"] == "1" ? "selected" : "" ?>>%1</option>
+                <option value="0" <?php echo $row_product["kdv"] == "0" ? "selected" : "" ?>>0</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 mb-3 mb-sm-0">
+            <label class="form-label">Fiyat</label>
+            <div class="input-group">
+                <input type="hidden" class="form-control" id="hiddenfiyat<?php echo $i; ?>" name="hiddenurunfiyat[]" placeholder="0,00" value="<?php echo $row_product["urunfiyat"]; ?>">
+                <input type="number" class="form-control" disabled id="fiyat<?php echo $i; ?>" name="urunfiyat[]" placeholder="0,00" value="<?php echo $row_product["urunfiyat"]; ?>">
+                <span class="input-group-text"><i class="fa-solid fa-turkish-lira-sign"></i></span>
+            </div>
+        </div>
+    </div>
+    <?php
+    $i++;
+}
+?>
+
                 </div>
             </div>
-
+            </div>
             <hr class="h-auto w-100">
 
             <div class="row  d-flex justify-content-center align-items-center mt-3  ">

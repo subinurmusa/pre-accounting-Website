@@ -8,7 +8,12 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 
    
-       
+require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+  
 
 
 ?>
@@ -137,7 +142,7 @@ $visitcount = 7;
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -236,16 +241,16 @@ $visitcount = 7;
                                             if($searchname){
                                                 switch ($category){
                                                     case 'pro-name':
-                                                        $sql="SELECT * From products where productname = :searchingname";
+                                                        $sql="SELECT * From products where productname = :searchingname and userId =:userid";
                                                      break;
 
                                                         case 'pro-code': 
-                                                            $sql="SELECT * From products where productcode   = :searchingname";
+                                                            $sql="SELECT * From products where productcode   = :searchingname and userId =:userid";
                                                          break;
 
                                                 }
                                                 $sqlstm=$db->prepare($sql);
-                                                $sqlstm->execute(array(":searchingname"=> $searchname));
+                                                $sqlstm->execute(array(":searchingname"=> $searchname, ':userid' => $userId["id"]));
                                                 while ($row = $sqlstm->fetch(PDO::FETCH_ASSOC)) { 
                                                  ?> 
                                                   <tr>
@@ -276,8 +281,8 @@ $visitcount = 7;
                                                 </tr>
            
                                   <?php  } } else{ 
-                                      $sql = $db->prepare("select * from products ");
-                                      $sql->execute();
+                                      $sql = $db->prepare("SELECT * FROM products WHERE userId= ?  ");
+                                      $sql->execute([$userId["id"]]);
   
                                       while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { 
                                         $stokmessage=null;
@@ -334,13 +339,13 @@ $visitcount = 7;
     <script>
     function confirmDelete(customerId) {
         // Display confirmation popup
-        if (confirm("Bu müşteriyi sistemden çıkarmak istediğinize emin misiniz?")) {
+        if (confirm("Bu ürünü listeden çıkarmak istediğinize emin misiniz?")) {
     // Onaylandıysa, silme bağlantısına yönlendir
-    window.location.href = "musteridelete.php?id=" + customerId;
+    window.location.href = "urunvehizmetdelete.php?id=" + customerId;
 } else {
     // İptal edildiyse, bir işlem yapma
     // İsteğe bağlı olarak kullanıcıya bir geri bildirim verebilirsiniz
-    console.log("Müşteri silme işlemi iptal edildi.");
+    console.log("ürün  silme işlemi iptal edildi.");
 }
     }
 </script>

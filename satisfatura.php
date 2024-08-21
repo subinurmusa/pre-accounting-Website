@@ -8,7 +8,12 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 
 // send email
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
 
 
 ?>
@@ -148,7 +153,7 @@ $visitcount = 7;
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -239,16 +244,16 @@ $visitcount = 7;
                                             if($searchname){
                                                 switch ($category){
                                                     case 'invoiceNo':
-                                                        $sql="SELECT * From invoice where InvoiceNumber = :searchingname";
+                                                        $sql="SELECT * From invoice where InvoiceNumber = :searchingname AND userId = :userid";
                                                      break;
 
                                                         case 'companyAd': 
-                                                            $sql="SELECT * From invoice where sendingComName   = :searchingname";
+                                                            $sql="SELECT * From invoice where sendingComName   = :searchingname AND userId = :userid";
                                                          break;
 
                                                 }
                                                 $sqlstm=$db->prepare($sql);
-                                                $sqlstm->execute(array(":searchingname"=> $searchname));
+                                                $sqlstm->execute(array(":searchingname"=> $searchname,':userid' => $userId["id"]));
                                                 while ($row = $sqlstm->fetch(PDO::FETCH_ASSOC)) { 
                                                  ?>     
                                                  <tr>
@@ -277,7 +282,7 @@ $visitcount = 7;
                                                                                      ?></td>
                                                                                      <td>
                                                                                      <div class="d-flex align-items-center gap-3">
-                                                                                      <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                                     <!--  <a href="SatisfaturaEdit.php?id=<?php /*  echo $row["id"] ; */?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a> -->
                                                                                       <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
                                                                                       <a href="printSatis.php?invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
                                                                                      </div>
@@ -289,8 +294,8 @@ $visitcount = 7;
                                                     <?php
                                                 }
                                             } else{
-                                                $sql = $db->prepare("select * from invoice ");
-                                                $sql->execute();
+                                                $sql = $db->prepare("select * from invoice where userId=?");
+                                                $sql->execute([$userId["id"]]);
             
                                                 while ($row = $sql->fetch(PDO::FETCH_ASSOC)) { ?>
             
@@ -335,7 +340,7 @@ $visitcount = 7;
                                                                 ?></td>
                                                                 <td>
                                                                 <div class="d-flex align-items-center gap-3">
-                                                                 <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a>
+                                                                 <!-- <a href="SatisfaturaEdit.php?id=<?php  echo $row["id"] ;?>" ><i class="fa-regular fa-pen-to-square fs-3 text-success"></i></a> -->
                                                                  <a href="SatisfaturaInfo.php?id=<?php  echo $row["id"] ;?>"> <i class="fa-solid fa-circle-info fs-3 detay text-primary"> </i> </a>
                                                                  <a href="printSatis.php?invoiceId=<?php  echo $row["id"] ;?>" id="print"> <i class="fa-solid fa-print fs-3 "></i> </a>
                                                                 </div>

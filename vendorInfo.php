@@ -313,8 +313,7 @@ $vendorlist= $sql->fetch(PDO::FETCH_ASSOC);
         <div class="col-md-9 d-flex align-items-center justify-content-end me-5 pe-5">
             <div class="buttons">
                 <a href="vendors.php" class="btn btn-secondary">İptal</a>
-                <button type="submit" name="submit" id="submit"  class="btn btn-primary opacity-75">Kaydet</button>
-            </div>
+                </div>
         </div>
     </div>
 </form>

@@ -13,15 +13,16 @@ $address = isset($formData['address']) ? $formData['address'] : null;
 $postakodu = isset($formData['postakodu']) ? $formData['postakodu'] : 0;
 $notes = isset($formData['notes']) ? $formData['notes'] : null;
 $id = isset($formData['id']) ? $formData['id'] : 0;
+$userId = isset($formData['userId']) ? $formData['userId'] : 0;
 
 if (empty($vendorName) || $phoneNum==0) {
     echo "<div class='alert alert-danger'> Tadarikçi Adı ve İletişim numarası Gereklidir </div>";
 } else {
     require "db.php"; // Prepare and execute the SQL statement
     $sql = $db->prepare("UPDATE `vendors` SET `vendorName`=?, `category`=?, `email`=?, `phoneNum`=?, `FaxNum`=?, `ibanNum`=?, `address`=?, `postakodu`=?, `notes`=?, `TCKNorVKN`=?
-    where id=?");
+    where id=? and userId=?");
 
-    $sql->execute([$vendorName, $category, $email, $phoneNum, $FaxNum, $ibanNum,$address,$postakodu,$notes,$TCKNorVKN,$id]);
+    $sql->execute([$vendorName, $category, $email, $phoneNum, $FaxNum, $ibanNum,$address,$postakodu,$notes,$TCKNorVKN,$id,$userId]);
 
     if ($sql) {
         // Redirect to vendors.php

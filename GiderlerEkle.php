@@ -18,11 +18,12 @@ $sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
 $sqluserid->execute([$_SESSION["username"]]);
 $userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
-$fisfaturaId=$_GET["id"];
-$sql=$db->prepare("SELECT * FROM `bankagiderler` where id = ? ");
-$sql->execute([$_GET["id"]]);
-$bankagiderlerlist=$sql->fetch(PDO::FETCH_ASSOC);
+if($_GET["id"]){
 
+    $sqlgiderler=$db->prepare("SELECT *  FROM `allGiderler` WHERE userId = ? and id=?;");
+$sqlgiderler->execute([$userId["id"],$_GET["id"]]);
+$oldgiderlerlist=$sqlgiderler->fetch(PDO::FETCH_ASSOC);
+}
 ?>
 <?php
 
@@ -30,7 +31,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 
-try {
+/* try {
     if (isset($_POST['submit'])) {
         // Your existing code here
    
@@ -38,19 +39,20 @@ try {
         $title = isset($_POST['kayitIsmi']) ? $_POST['kayitIsmi'] : null;
         $duzenleme_tarihi = isset($_POST['duzenleme_tarihi']) ? $_POST['duzenleme_tarihi'] : null;
         $toplam_tutar = isset($_POST['toplam_tutar']) ? $_POST['toplam_tutar'] : 0;        
-        $status = isset($_POST['odeme_durumu'])? $_POST['odeme_durumu'] : 0;    
+        $status = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : 0;    
         $vade_tarihi = isset($_POST['vade_tarihi']) ? $_POST['vade_tarihi'] : null;
+        $category = isset($_POST['category']) ? $_POST['category'] : null;
        //var_dump($_POST);
-        if (empty($title)||empty($toplam_tutar)||empty($vade_tarihi)) {
+        if (empty($title)||empty($toplam_tutar)||empty($vade_tarihi)||empty($category)) {
             $error = "<div class='alert alert-danger'> Kayıt ismi /vade tarihi/ toplam tutar alanları  Gereklidir</div>";
             
         }        
         else{
          
-            
-            $sql = $db->prepare("UPDATE `bankagiderler` SET `title`=?,`issueDate`=?,`totalCost`=?,`status`=?,`dueDate`=?,`type`=? WHERE id =? and userId=?");
+          
+            $sql = $db->prepare("INSERT INTO `allGiderler`( `title`, `category`, `issueDate`, `totalCost`, `status`, `dueDate`, `type`, `userId`) VALUES (?,?,?,?,?,?,?,?)");
         
-            $sql->execute([$title, $duzenleme_tarihi, $toplam_tutar, $status,$vade_tarihi,"Banka Gideri",$_GET["id"],$userId["id"]]);
+            $sql->execute([$title, $category, $duzenleme_tarihi, $toplam_tutar, $status,$vade_tarihi,"Şirket Giderleri",$userId["id"]]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -77,7 +79,7 @@ try {
     $error = "$e";
     echo json_encode(['error' => $error]);
     return;
- }
+ } */
 
 ?>
 
@@ -231,23 +233,45 @@ try {
             <!-- Content area -->
             <div class="container mt-3">
                 <form method="POST" id="form" enctype="multipart/form-data">
+                    <input type="text" hidden  name="editId" value="<?php echo $_GET["id"]==null?0:$_GET["id"]; ?>">
                 <div class="row mt-3">
-                       <?php echo $error==""?"": $error; ?>
+                <div class="w-75 ps-5 ms-5"  id="errordive">
+                       
+                       </div>
                     
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="kayitIsmi" class="form-label">Kayıt İsmi</label>
-                                <input class="form-control" value="<?php echo $bankagiderlerlist["title"] ?>" type="text" id="kayitIsmi" name="kayitIsmi">
+                                <input class="form-control" type="text" id="kayitIsmi" value="<?php  echo is_null($oldgiderlerlist["title"])?"":$oldgiderlerlist["title"];?>" name="kayitIsmi">
                             </div>
                         </div>
                        
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="duzenleme_tarihi" class="form-label">DÜZENLEME TARİHİ</label>
-                                <input class="form-control" value="<?php echo $bankagiderlerlist["issueDate"] ?>" type="text" id="duzenleme_tarihi" name="duzenleme_tarihi" value="<?php echo date("d.m.Y") ?>" data-date-format="dd.mm.yyyy" autocomplete="off">
+                                <input class="form-control" type="text" id="duzenleme_tarihi" name="duzenleme_tarihi" value="<?php  echo $oldgiderlerlist["issueDate"]==null? date("d.m.Y") :$oldgiderlerlist["issueDate"];?>" data-date-format="dd.mm.yyyy" autocomplete="off">
                             </div>
+                    </div>
+                    
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Kategori</label>
+                                <input class="form-control" type="text" id="category" name="category" value="<?php  echo $oldgiderlerlist["category"]==null? "" :$oldgiderlerlist["category"];?>">
+                            </div>
+                        </div>
+                       
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="vade_tarihi" class="form-label">Vade Tarihi</label>
+                                <input class="form-control" type="text" id="vade_tarihi" name="vade_tarihi"  value="<?php  echo $oldgiderlerlist["dueDate"]==null? date("d.m.Y") :$oldgiderlerlist["dueDate"];?>" data-date-format="dd.mm.yyyy" autocomplete="off">
+                            </div>
+                        </div>
+                   
                     </div>
                     
                     </div>
@@ -255,7 +279,7 @@ try {
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="toplam_tutar" class="form-label">Toplam Tutar</label>
-                                <input class="form-control"value="<?php echo $bankagiderlerlist["totalCost"] ?>" type="number" id="toplam_tutar" name="toplam_tutar" placeholder="0.00" step="0.01" inputmode="numeric">
+                                <input class="form-control" type="number" id="toplam_tutar" name="toplam_tutar"  value="<?php  echo $oldgiderlerlist["totalCost"]==null? 0 :$oldgiderlerlist["totalCost"];?>" placeholder="0.00" step="0.01" inputmode="numeric">
 
                             </div>
                         </div>
@@ -265,11 +289,11 @@ try {
 
     <div id="radioDiv" class="d-flex align-items-center border border-2 p-1">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="0" <?php echo $bankagiderlerlist["status"]== 0 ? "checked":""; ?> >
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odenecek" value="0" <?php echo $oldgiderlerlist["status"]==0 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odenecek">Ödenecek</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="1" <?php echo $bankagiderlerlist["status"]==1?"checked":""; ?>>
+            <input class="form-check-input" type="radio" name="odeme_durumu" id="odeme_durumu_odendi" value="1" <?php echo $oldgiderlerlist["status"]==1 ?"checked":"" ;?>>
             <label class="form-check-label" for="odeme_durumu_odendi">Ödendi</label>
         </div>
     </div>
@@ -277,21 +301,14 @@ try {
                         </div>
                     </div>
 
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="vade_tarihi" class="form-label">Vade Tarihi</label>
-                                <input class="form-control" type="text" id="vade_tarihi" name="vade_tarihi" value="<?php echo $bankagiderlerlist["dueDate"] ;?>" data-date-format="dd.mm.yyyy" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
+                 
 
                     <!-- Buttons -->
                     <div class="row mt-3">
                         <div class="col-md-12 text-end">
                             <div class="mb-3">
                                 <a href="giderler.php" class="btn btn-secondary">Vazgeç</a>
-                                <button type="submit" name="submit" id="submit" class="btn btn-primary">Düzenle</button>
+                                <button type="submit" name="submit" id="submit" class="btn btn-primary">Kaydet</button>
                             </div>
                         </div>
                     </div>
@@ -344,19 +361,19 @@ $(document).ready(function () {
 
 
 
-<script>
+<!-- <script>
     function changeBackground() {
         var select = document.getElementById("odeme_durumu");
         var option = select.options[select.selectedIndex];
         var dropdown = select;
 
-        if (option.value === "0") {
+        if (option.value === "Ödenecek") {
             dropdown.style.backgroundColor = "#f8f9fa"; // Light gray background
-        } else if (option.value === "1") {
+        } else if (option.value === "Ödendi") {
             dropdown.style.backgroundColor = "#d4edda"; // Light green background
         }
     }
-</script>
+</script> -->
 <script>
 
 $(document).ready(function () {
@@ -430,7 +447,34 @@ $(document).ready(function () {
     // Initially set the background color based on the default selected radio button
     changeBackgroundColor();
 </script>
-
+<script>
+   $(document).ready(function(){
+      $('#form').on('submit', function(event){
+        <?php  //var_dump($_POST);?>
+         event.preventDefault(); // Prevent the form from refreshing the page
+         var formData = $(this).serialize(); // Serialize the form data
+         formData += '&submit=submit'; 
+         $.ajax({
+            type: 'POST',
+            url: 'giderlereklecode.php',
+            data: formData,
+            dataType: 'json', // Expect JSON response from the server
+            success: function(response){
+               if (response.success) {
+                  window.location.href = 'giderler.php'; 
+               } else {
+                  console.log("response.message: " + response.message + " - response.success: " + response.success);
+                  $('#errordive').html("<div class='alert alert-danger'>" + response.message + "</div>"); // Display the error message
+               }
+            },
+            error: function(xhr, status, error){
+               console.error("AJAX error: ", status, error);
+               $('#errordive').html("<div class='alert alert-danger'>There was an error!</div>"); // Display a generic error message
+            }
+         });
+      });
+   });
+</script>
 </body>
 
 

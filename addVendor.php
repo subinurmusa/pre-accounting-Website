@@ -12,7 +12,11 @@ $error="";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -123,7 +127,7 @@ error_reporting(E_ALL);
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -162,6 +166,7 @@ error_reporting(E_ALL);
     <hr>
     <div class="">
     <form method="POST" id="form" >
+        <input type="text" hidden name="userId" value="<?php echo $userId['id']?>">
     <div class="container">
         <div class="row d-flex justify-content-end align-items-center">
             <div class="col-md-9 d-flex justify-content-around align-items-center me-5 pe-5" id="errorDiv">
@@ -291,7 +296,7 @@ error_reporting(E_ALL);
                     <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                         <i class="fa-solid fa-id-card fs-5"></i>
                         <label for="VKNorTCKN" class="form-label w-25 me-5 pe-4 ps-4">VKN/TCKN</label>
-                        <input class="form-control" type="text" id="VKNorTCKN" name="VKNorTCKN">
+                        <input class="form-control" type="number" id="VKNorTCKN" name="VKNorTCKN">
                     </div>
                 </div>
             </div>

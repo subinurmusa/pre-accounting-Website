@@ -7,7 +7,13 @@ if (empty($_SESSION["username"])) {
 
 $visitcount = 7;
 
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
+ 
 ?>
 <script>
     if (localStorage.getItem("startdate")) {
@@ -176,7 +182,7 @@ $visitcount = 7;
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -316,30 +322,32 @@ $visitcount = 7;
                                                    
                                                     switch ($category) {
                                                         case 'name':
-                                                            $sql_customerid = $db->prepare("SELECT id FROM customers WHERE name LIKE ?");
-                                                            $sql_customerid->execute(["%" . $searchTerm . "%"]);
+                                                            $sql_customerid = $db->prepare("SELECT id FROM customers WHERE name LIKE ? and userId=?");
+                                                            $sql_customerid->execute(["%" . $searchTerm . "%",$userId["id"]]);
                                                             $searchTermRow = $sql_customerid->fetch(PDO::FETCH_ASSOC);
                                                             echo $searchTermRow["id"];
 
-                                                            $stmt = $db->prepare("SELECT * FROM selling WHERE costomer = ? and status = 'true'");
-                                                            $stmt->execute([$searchTermRow["id"]]);
+                                                            $stmt = $db->prepare("SELECT * FROM selling WHERE costomer = ? and status = 'true' and userId=?");
+                                                            $stmt->execute([$searchTermRow["id"],$userId["id"]]);
                                                           /*   $ghgh = $stmt->fetch(PDO::FETCH_ASSOC);
                                                             echo $ghgh["name"]; */
                                                             //   $searchTerm = $stm->fetch(PDO::FETCH_ASSOC);
                                                             break;
                                                         case 'orderNumber':
-                                                            $sql = "SELECT * FROM selling WHERE productcode LIKE :searchTerm and status = 'true';";
+                                                            $sql = "SELECT * FROM selling WHERE productcode LIKE :searchTerm and status = 'true' and userId=?;";
                                                             $stmt = $db->prepare($sql);
-                                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%',$userId["id"]));
                                                             break;
                                                         case 'date':
-                                                                $sql = "SELECT * FROM selling WHERE  `date-added` LIKE :searchTerm and status = 'true' ;";
+                                                                $sql = "SELECT * FROM selling WHERE  `date-added` LIKE :searchTerm and status = 'true' and userId=? ;";
                                                                 $stmt = $db->prepare($sql);
-                                                                $stmt->execute(array(':searchTerm' => '%' . $dateinput . '%'));
+                                                                $stmt->execute(array(':searchTerm' => '%' . $dateinput . '%' ,$userId["id"]));
                                                                 break;
                                                         default:
 
-                                                            $sql = "SELECT * FROM selling  where status = 'true' ";
+                                                            $sql = "SELECT * FROM selling  where status = 'true' and userId=?";
+                                                            $stmt = $db->prepare($sql);
+                                                            $stmt->execute([$userId["id"]]);
                                                             break;
                                                     }
                                                     $xlsxDataList = [['Sipariş Kodu', 'Muşteri', 'Fatura Durumu', 'oluşturma tarihi ', 'hizmet ve ürünler', 'toplam sıpariş tutarı']];
@@ -435,8 +443,8 @@ $visitcount = 7;
                                                     <?php
                                                     }
                                                 } else {
-                                                    $sql = $db->prepare("SELECT * FROM selling where status = 'true'");
-                                                    $sql->execute();
+                                                    $sql = $db->prepare("SELECT * FROM selling where status = 'true' and userId=?");
+                                                    $sql->execute($userId["id"]);
                                                     // echo "1111111111111111111";
                                                     $xlsxDataList = [['Sipariş Kodu', 'Muşteri', 'Fatura Durumu', 'oluşturma tarihi ', 'hizmet ve ürünler', 'toplam sıpariş tutarı']];
 

@@ -19,6 +19,10 @@ $visitcount=7;
 </script>
 <?php
 require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 error_reporting(E_ALL);
 
 // Get current week's start and end dates
@@ -27,87 +31,101 @@ $currentWeekStartDate = date('Y-m-d', strtotime('monday this week'));
 $currentWeekEndDate = date('Y-m-d', strtotime('sunday this week'));
 
 // Function to fetch expenses from bankagiderler table for the current week
-function getBankaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
-    $sql = "SELECT DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y')) AS day, SUM(totalCost) AS total_expense FROM bankagiderler WHERE STR_TO_DATE(issueDate, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y'))";
-    $result = $db->query($sql);
+function getBankaGiderlerExpenses($db, $startOfWeek, $endOfWeek, $userId) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y')) AS day, SUM(totalCost) AS total_expense FROM bankagiderler WHERE STR_TO_DATE(issueDate, '%d.%m.%Y') BETWEEN :startOfWeek AND :endOfWeek AND userId = :userId GROUP BY DAYNAME(STR_TO_DATE(issueDate, '%d.%m.%Y'))";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':startOfWeek', $startOfWeek);
+    $stmt->bindParam(':endOfWeek', $endOfWeek);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-
-    if($result!=null){
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $expenses[$row['day']] = $row['total_expense'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
     }
-   
 
     return $expenses;
 }
+
 
 // Function to fetch expenses from fisfaturagiderler table for the current week
-function getFisFaturaGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
-    $sql = "SELECT DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y')) AS day, SUM(geneltoplam) AS total_expense FROM fisfaturagiderler WHERE STR_TO_DATE(fisFaturaDate, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y'))";
-    $result = $db->query($sql);
+function getFisFaturaGiderlerExpenses($db, $startOfWeek, $endOfWeek, $userId) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y')) AS day, SUM(geneltoplam) AS total_expense FROM fisfaturagiderler WHERE STR_TO_DATE(fisFaturaDate, '%d.%m.%Y') BETWEEN :startOfWeek AND :endOfWeek AND userId = :userId GROUP BY DAYNAME(STR_TO_DATE(fisFaturaDate, '%d.%m.%Y'))";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':startOfWeek', $startOfWeek);
+    $stmt->bindParam(':endOfWeek', $endOfWeek);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    if($result!=null){
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $expenses[$row['day']] = $row['total_expense'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
     }
 
     return $expenses;
 }
+
 
 // Function to fetch expenses from maas table for the current week
-function getMaasExpenses($db, $startOfWeek, $endOfWeek) {
-    $sql = "SELECT DAYNAME(date) AS day, SUM(toplamtutar) AS total_expense FROM maas WHERE date BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(date)";
-    $result = $db->query($sql);
+function getMaasExpenses($db, $startOfWeek, $endOfWeek,$userId) {
+    $sql = "SELECT DAYNAME(date) AS day, SUM(toplamtutar) AS total_expense FROM maas WHERE date BETWEEN :startOfWeek AND :endOfWeek AND userId = :userId GROUP BY DAYNAME(date)";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':startOfWeek', $startOfWeek);
+    $stmt->bindParam(':endOfWeek', $endOfWeek);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    if($result!=null){
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $expenses[$row['day']] = $row['total_expense'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
     }
 
     return $expenses;
 }
+
 
 // Function to fetch expenses from vergisgkpirimigiderler table for the current week
-function getVergisGkPirimGiderlerExpenses($db, $startOfWeek, $endOfWeek) {
-    $sql = "SELECT DAYNAME(date) AS day, SUM(totalCost) AS total_expense FROM vergisgkpirimigiderler WHERE date BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(date)";
-    $result = $db->query($sql);
+function getVergisGkPirimGiderlerExpenses($db, $startOfWeek, $endOfWeek, $userId) {
+    $sql = "SELECT DAYNAME(date) AS day, SUM(totalCost) AS total_expense FROM vergisgkpirimigiderler WHERE date BETWEEN :startOfWeek AND :endOfWeek AND userId = :userId GROUP BY DAYNAME(date)";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':startOfWeek', $startOfWeek);
+    $stmt->bindParam(':endOfWeek', $endOfWeek);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
 
     $expenses = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    if($result!=null){
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $expenses[$row['day']] = $row['total_expense'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $expenses[$row['day']] = $row['total_expense'];
     }
 
     return $expenses;
 }
+
 
 // Function to fetch income from selling table for the current week
 
-function getIncome($db, $startOfWeek, $endOfWeek) {
-    $sql = "SELECT DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y')) AS day, SUM(totalPrice) AS total_income FROM selling WHERE STR_TO_DATE(`date-added`, '%d.%m.%Y') BETWEEN '$startOfWeek' AND '$endOfWeek' GROUP BY DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y'))";
-    $result = $db->query($sql);
+function getIncome($db, $startOfWeek, $endOfWeek, $userId) {
+    $sql = "SELECT DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y')) AS day, SUM(totalPrice) AS total_income FROM selling WHERE STR_TO_DATE(`date-added`, '%d.%m.%Y') BETWEEN :startOfWeek AND :endOfWeek AND userId = :userId GROUP BY DAYNAME(STR_TO_DATE(`date-added`, '%d.%m.%Y'))";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':startOfWeek', $startOfWeek);
+    $stmt->bindParam(':endOfWeek', $endOfWeek);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
 
     $income = array_fill_keys(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 0);
 
-    if($result!=null){
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $expenses[$row['day']] = $row['total_expense'];
-        }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $income[$row['day']] = $row['total_income']; // Corrected variable name from $expenses to $income
     }
 
     return $income;
 }
+
+
 
 function generateWeekLabels($startOfWeek, $endOfWeek) {
     setlocale(LC_TIME, 'tr_TR.UTF-8'); // Set locale to Turkish
@@ -136,11 +154,11 @@ function generateWeekLabels($startOfWeek, $endOfWeek) {
 $weekData = generateWeekLabels($currentWeekStartDate, $currentWeekEndDate);
 
 // Get current week's expenses and income
-$bankaGiderlerExpenses = getBankaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
-$fisFaturaGiderlerExpenses = getFisFaturaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
-$maasExpenses = getMaasExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
-$vergisGkPirimGiderlerExpenses = getVergisGkPirimGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate);
-$income = getIncome($db, $currentWeekStartDate, $currentWeekEndDate);
+$bankaGiderlerExpenses = getBankaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate,$userId["id"]);
+$fisFaturaGiderlerExpenses = getFisFaturaGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate,$userId["id"]);
+$maasExpenses = getMaasExpenses($db, $currentWeekStartDate, $currentWeekEndDate,$userId["id"]);
+$vergisGkPirimGiderlerExpenses = getVergisGkPirimGiderlerExpenses($db, $currentWeekStartDate, $currentWeekEndDate,$userId["id"]);
+$income = getIncome($db, $currentWeekStartDate, $currentWeekEndDate,$userId["id"]);
 
 
 // Close connection
@@ -262,7 +280,7 @@ $db = null;
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -317,8 +335,9 @@ $db = null;
 
                         require "db.php"; // Assuming db.php contains your database connection code
                         
-                        $sql1 = $db->query("SELECT `id`, `productcode`, `costomer`, `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = '$dateToday';");
-                        $sql1->execute();
+                        $sql1 = $db->prepare("SELECT `id`, `productcode`, `costomer`, `date-added`, `totalPrice` FROM `selling` WHERE `date-added` = :dateToday AND userId = :userId");
+                        $sql1->execute([':dateToday' => $dateToday, ':userId' => $userId["id"]]);
+                        
                         $count1 = 0;
                         while ($result = $sql1->fetch(PDO::FETCH_ASSOC)) {
 
@@ -360,35 +379,35 @@ $db = null;
                         $count = 0;
                         require "db.php"; // Assuming db.php contains your database connection code
                         //bank giderler
-                        $sqlbank = $db->prepare("SELECT `totalCost`FROM `bankagiderler` WHERE `issueDate` = '" . date("d.m.Y") . "';");
-                        // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sqlbank->execute();
+                        $sqlbank = $db->prepare("SELECT `totalCost` FROM `bankagiderler` WHERE `issueDate` = :issueDate AND userId = :userId");
+$sqlbank->execute([':issueDate' => date("d.m.Y"), ':userId' => $userId["id"]]);
+
                         while ($result = $sqlbank->fetch(PDO::FETCH_ASSOC)) {
                             $count += $result["totalCost"];
                         }
                         
                         //fisfaturagiderler
-                        $sqlfatura = $db->prepare("SELECT `geneltoplam`FROM `fisfaturagiderler` WHERE `fisFaturaDate` = '" . date("d.m.Y") . "';");
+                        $sqlfatura = $db->prepare("SELECT `geneltoplam`FROM `fisfaturagiderler` WHERE `fisFaturaDate` = '" . date("d.m.Y") . "'AND userId=?;");
                         // $sql->bindParam(':date_added', date("Y-m-d"));
-                        $sqlfatura->execute();
+                        $sqlfatura->execute([$userId["id"]]);
 
                         
                         while ($result = $sqlfatura->fetch(PDO::FETCH_ASSOC)) {
                             $count += $result["geneltoplam"];
                         }
                           //maas
-                          $sqlmaas = $db->prepare("SELECT `toplamtutar`FROM `maas` WHERE `date` = '" . date("y-m-d") . "';");
+                          $sqlmaas = $db->prepare("SELECT `toplamtutar`FROM `maas` WHERE `date` = '" . date("y-m-d") . "' and userId=? ;");
                           // $sql->bindParam(':date_added', date("Y-m-d"));
-                          $sqlmaas->execute();
+                          $sqlmaas->execute([$userId["id"]]);
   
                           
                           while ($result = $sqlmaas->fetch(PDO::FETCH_ASSOC)) {
                               $count += $result["toplamtutar"];
                           }
                                    //vergisgkpirimigiderler
-                                   $sqlsgk = $db->prepare("SELECT `totalCost`FROM `vergisgkpirimigiderler` WHERE `date` = '" . date("y-m-d") . "';");
+                                   $sqlsgk = $db->prepare("SELECT `totalCost`FROM `vergisgkpirimigiderler` WHERE `date` = '" . date("y-m-d") . "' and userId=?;");
                                    // $sql->bindParam(':date_added', date("Y-m-d"));
-                                   $sqlsgk->execute();
+                                   $sqlsgk->execute([$userId["id"]]);
            
                                    
                                    while ($result = $sqlsgk->fetch(PDO::FETCH_ASSOC)) {

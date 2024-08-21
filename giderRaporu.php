@@ -8,6 +8,10 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 ?>
 <script>
     if (localStorage.getItem("startdate")) {
@@ -169,7 +173,7 @@ require "db.php";
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -257,21 +261,21 @@ require "db.php";
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
                                                 case 'devletKurumu':
-                                                    $sql = "SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE()";
+                                                    $sql = "SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE() AND userId = :userid ";
                                                     break;
                                                 case 'bank':
-                                                    $sql = "SELECT * FROM bankagiderler WHERE dueDate < CURDATE()";
+                                                    $sql = "SELECT * FROM bankagiderler WHERE dueDate < CURDATE() AND userId = :userid";
                                                     break;
                                                 case 'fisfatura':
-                                                    $sql = "SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE()";
+                                                    $sql = "SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE() AND userId = :userid";
                                                     break;
                                                 case 'maas':
-                                                    $sql = "SELECT * FROM maas WHERE lastPaymentDate < CURDATE()";
+                                                    $sql = "SELECT * FROM maas WHERE lastPaymentDate < CURDATE() AND userId = :userid";
                                                     break;
                                             }
                                             
                                                $stmt = $db->prepare($sql);
-                                               $stmt->execute();
+                                               $stmt->execute(array( ':userid' => $userId["id"]));
                                                $xlsxDataList = [['Belge Türü', 'Fiş/Fatura no', 'Düzenleme Tarihi', 'Tedarikçi/Çalışan', 'Fatura İsmi',
                                                'Vade Tarihi','Döviz Tipi','Genel Toplam','Vergi Hariç Toplam','Ödeme Durumu']];
   ?>
@@ -344,8 +348,8 @@ require "db.php";
                                                    
                                                    <div class="card-body">
         <?php
-        $sqlbank = $db->prepare("SELECT * FROM bankagiderler WHERE dueDate < CURDATE()");
-        $sqlbank->execute();
+        $sqlbank = $db->prepare("SELECT * FROM bankagiderler WHERE dueDate < CURDATE() and userId=?");
+        $sqlbank->execute([$userId["id"]]);
         $bankgiderler = $sqlbank->fetchAll(PDO::FETCH_ASSOC);
      
 
@@ -392,8 +396,8 @@ require "db.php";
             }
         }
 
-        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE()");
-        $sqlsgk->execute();
+        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler WHERE dueDate < CURDATE() and userId=?");
+        $sqlsgk->execute([$userId["id"]]);
         $sgklar = $sqlsgk->fetchAll(PDO::FETCH_ASSOC);
         if ($sgklar != null) {
             foreach ($sgklar as $sgkgider) {
@@ -436,8 +440,8 @@ require "db.php";
             }
         }
 
-        $sqlmaas = $db->prepare("SELECT * FROM maas where lastPaymentDate < CURDATE()");
-        $sqlmaas->execute();
+        $sqlmaas = $db->prepare("SELECT * FROM maas where lastPaymentDate < CURDATE() and userId=?");
+        $sqlmaas->execute([$userId["id"]]);
         $maaslar = $sqlmaas->fetchAll(PDO::FETCH_ASSOC);
         if ($maaslar != null) {
             foreach ($maaslar as $maasgider) {
@@ -479,8 +483,8 @@ require "db.php";
         <?php
             }
         }
-        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE()");
-        $sqlfatura->execute();
+        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler WHERE dueDate < CURDATE() and userId=?");
+        $sqlfatura->execute([$userId["id"]]);
         $fisFaturalar = $sqlfatura->fetchAll(PDO::FETCH_ASSOC);
         if ($fisFaturalar != null) {
             foreach ($fisFaturalar as $maasgider) {

@@ -8,6 +8,10 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 ?>
 <script>
     if (localStorage.getItem("startdate")) {
@@ -155,7 +159,7 @@ require "db.php";
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -213,6 +217,7 @@ require "db.php";
                                                     <option value="devletKurumu">Devlet kurumu </option>
                                                     <option value="maas">Çalışan maaşları </option>
                                                     <option value="fisfatura">Fiş Fatura  </option>
+                                                    <option value="yanGiderler">Yan Giderler  </option>
                                                    
                                                 </select>
                                                
@@ -223,6 +228,7 @@ require "db.php";
                                 <div class="d-flex justify-content-center align-items-center">
    
     <a href="fisFatura.php?status=true" class="btn bg-success bg-opacity-25  text-dark">Fiş/Fatura Oluşturma</a>    
+    <a href="GiderlerEkle.php?status=true" class="btn bg-success bg-opacity-25  text-dark">Giderler Ekle</a>    
     
     <div class="dropdown">
         <button class="btn bg-success bg-opacity-25 text-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -257,36 +263,47 @@ require "db.php";
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
                                                    case 'devletKurumu':
-                                                       $sql = "SELECT * FROM vergisgkpirimigiderler ";
+                                                       $sql = "SELECT * FROM vergisgkpirimigiderler where userId=? ";
                                                        break;
                                                    case 'bank':
-                                                       $sql = "SELECT * FROM bankagiderler ";
+                                                       $sql = "SELECT * FROM bankagiderler where userId=? ";
                                                        break;
-                                                       case 'fisfatura':
-                                                        $sql = "SELECT * FROM fisfaturagiderler ";
+                                                   case 'fisfatura':
+                                                        $sql = "SELECT * FROM fisfaturagiderler  where userId=?";
                                                         break;
-                                                        case 'maas':
-                                                            $sql = "SELECT * FROM maas ";
+                                                  case 'maas':
+                                                            $sql = "SELECT * FROM maas  where userId=?";
+                                                            break;
+                                                            case 'yanGiderler':
+                                                            $sql = "SELECT * FROM allGiderler  where userId=?";
                                                             break;
                                                   
                                                   
                                                }
                                                $stmt = $db->prepare($sql);
-                                               $stmt->execute();
+                                               $stmt->execute([$userId["id"]]);
                                            
                                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                                      //   echo "222222end";
                                                        // print_r($row);
 
                                                 ?>  
-                                                          <a href="bankDetails.php?id=<?php echo $row['id']; ?>" class="text-decoration-none">
+                                                         <a <?php if($row["type"] == "Banka Gideri"){echo 'href="bankDetails.php?id=' . $row["id"] . '"';}
+    else if ($row["type"] == "maas"){echo 'href="maasDetails.php?id=' . $row["id"] . '"';}
+    else if ($row["type"] == "fis_Fatura"){echo 'href="fisFaturaDetails.php?id=' . $row["id"] . '"';}
+    else if ($row["type"] == "Şirket Giderleri"){echo 'href="GiderlerEkle.php?id=' . $row["id"] . '"';}
+    else{echo 'href="sgkDetails.php?id=' . $row["id"] . '"';}
+?>
+class="text-decoration-none">
+
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
-                            <div>
+                            <div class="<?php echo $row["status"]==0?"":"text-danger"; ?>">
                                
                                 <?php if($row["type"]=="fis_Fatura"){echo '<i class="fa-regular fa-file-lines fs-1"></i>';}
-                                else if ($row["type"]=="maas"){echo '<i class="fa-solid fa-user fs-1 text-danger"></i>';}
-                               else{echo ' <i class="fa-solid fa-building-columns fs-1 text-danger"></i>';}
+                                else if ($row["type"]=="maas"){echo '<i class="fa-solid fa-user fs-1 "></i>';}
+                                else if ($row["type"]=="Şirket Giderleri"){echo '<i class="fa-solid fa-money-bill fs-1"></i>';}
+                               else{echo ' <i class="fa-solid fa-building-columns fs-1 "></i>';}
                                 
                                 ?>
                             </div>
@@ -295,7 +312,14 @@ require "db.php";
                                 else {echo $row["title"];}
                                 
                                 ?></h5>
-                                <p class="mb-0 text-secondary">Banka</p>
+                                <p class="mb-0 text-secondary">
+                                <?php if($row["type"]=="Banka Gideri"){echo 'Banka';}
+                                else if ($row["type"]=="maas"){echo $row["employeeName"];}
+                                else if ($row["type"]=="fis_Fatura"){echo $row["vendor"];}
+                                else if ($row["type"]=="Şirket Giderleri"){echo $row["category"];}
+                                else{echo 'Devlet Kurumu';}
+                                ?>
+                                </p>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -320,8 +344,8 @@ require "db.php";
                                                    
                                                    <div class="card-body">
         <?php
-        $sqlbank = $db->prepare("SELECT * FROM bankagiderler");
-        $sqlbank->execute();
+        $sqlbank = $db->prepare("SELECT * FROM bankagiderler where userId=?");
+        $sqlbank->execute([$userId["id"]]);
         $bankgiderler = $sqlbank->fetchAll(PDO::FETCH_ASSOC);
 
         if ($bankgiderler != null) {
@@ -331,7 +355,7 @@ require "db.php";
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
                             <div>
-                                <i class="fa-solid fa-building-columns fs-1 text-danger"></i>
+                                <i class="fa-solid fa-building-columns fs-1 <?php echo $bankgider["status"]==0?"":"text-danger"; ?>"></i>
                             </div>
                             <div>
                                 <h5 class="mb-0 fs-5 text-dark"><?php echo $bankgider["title"] ?></h5>
@@ -352,17 +376,19 @@ require "db.php";
             }
         }
 
-        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler");
-        $sqlsgk->execute();
+        $sqlsgk = $db->prepare("SELECT * FROM vergisgkpirimigiderler where userId=?");
+        $sqlsgk->execute([$userId["id"]]);
         $sgklar = $sqlsgk->fetchAll(PDO::FETCH_ASSOC);
+        
         if ($sgklar != null) {
+           
             foreach ($sgklar as $sgkgider) {
         ?>
                 <a href="sgkDetails.php?id=<?php echo $sgkgider['id']; ?>" class="text-decoration-none">
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
                             <div>
-                                <i class="fa-solid fa-building-columns fs-1 text-danger"></i>
+                                <i class="fa-solid fa-building-columns fs-1 <?php echo $sgkgider["status"]==0?"":"text-danger"; ?> "></i>
                             </div>
                             <div>
                                 <h5 class="mb-0 fs-5 text-dark"><?php echo $sgkgider["title"] ?></h5>
@@ -383,8 +409,8 @@ require "db.php";
             }
         }
 
-        $sqlmaas = $db->prepare("SELECT * FROM maas");
-        $sqlmaas->execute();
+        $sqlmaas = $db->prepare("SELECT * FROM maas where userId=?");
+        $sqlmaas->execute([$userId["id"]]);
         $maaslar = $sqlmaas->fetchAll(PDO::FETCH_ASSOC);
         if ($maaslar != null) {
             foreach ($maaslar as $maasgider) {
@@ -393,7 +419,7 @@ require "db.php";
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
                             <div>
-                            <i class="fa-solid fa-user fs-1 text-danger"></i>
+                            <i class="fa-solid fa-user fs-1 <?php echo $maasgider["status"]==0?"":"text-danger"; ?> "></i>
                             </div>
                             <div>
                                 <h5 class="mb-0 fs-5 text-dark"><?php echo $maasgider["title"] ?></h5>
@@ -413,8 +439,8 @@ require "db.php";
         <?php
             }
         }
-        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler");
-        $sqlfatura->execute();
+        $sqlfatura = $db->prepare("SELECT * FROM fisfaturagiderler where userId=?");
+        $sqlfatura->execute([$userId["id"]]);
         $fisFaturalar = $sqlfatura->fetchAll(PDO::FETCH_ASSOC);
         if ($fisFaturalar != null) {
             foreach ($fisFaturalar as $maasgider) {
@@ -423,7 +449,7 @@ require "db.php";
                     <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
                         <div class="col-md-4 d-flex align-items-center gap-2">
                             <div>
-                            <i class="fa-regular fa-file-lines fs-1"></i>
+                            <i class="fa-regular fa-file-lines fs-1  <?php echo $maasgider["status"]==0?"":"text-danger"; ?>"></i>
                             </div>
                             <div>
                                 <h5 class="mb-0 fs-5 text-dark"><?php echo $maasgider["titleName"] ?></h5>
@@ -438,6 +464,37 @@ require "db.php";
                         <div class="col-md-4">
                             <p class="mb-0"><?php echo $maasgider["geneltoplam"] ?> <i class="fa-solid fa-turkish-lira-sign"></i></p>
                             <p class="mb-0">Genel Toplam <?php echo $maasgider["geneltoplam"] ?> <i class="fa-solid fa-turkish-lira-sign"></i></p>
+                        </div>
+                    </div>
+                </a>
+        <?php
+            }
+        }
+        $sqlfatura = $db->prepare("SELECT * FROM allGiderler where userId=?");
+        $sqlfatura->execute([$userId["id"]]);
+        $fisFaturalar = $sqlfatura->fetchAll(PDO::FETCH_ASSOC);
+        if ($fisFaturalar != null) {
+            foreach ($fisFaturalar as $maasgider) {
+        ?>
+         <a href="GiderlerEkle.php?id=<?php echo $maasgider['id']; ?>" class="text-decoration-none">
+                    <div class="row bg-light p-1 bg-opacity-50 border rounded mb-2 justify-content-around align-items-center">
+                        <div class="col-md-4 d-flex align-items-center gap-2">
+                            <div>
+                            <i class="fa-regular fa-file-lines fs-1 <?php echo $maasgider["status"]==0?"":"text-danger"; ?> "></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 fs-5 text-dark"><?php echo $maasgider["title"] ?></h5>
+                                <p class="mb-0 text-secondary"><?php echo $maasgider["category"] ?></p>
+                             
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-0"><?php echo $maasgider["issueDate"] ?></p>
+                            <p class="mb-0"><?php echo $maasgider["type"] ?></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-0"><?php echo $maasgider["totalCost"] ?> <i class="fa-solid fa-turkish-lira-sign"></i></p>
+                            <p class="mb-0">Genel Toplam <?php echo $maasgider["totalCost"] ?> <i class="fa-solid fa-turkish-lira-sign"></i></p>
                         </div>
                     </div>
                 </a>

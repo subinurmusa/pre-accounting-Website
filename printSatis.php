@@ -1,17 +1,64 @@
 <?php
 
 require "db.php";
+session_start();
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
+
+
+
+
 $invoiceid = isset($_GET["invoiceId"]) ? $_GET["invoiceId"] : null;
-$sql = $db->prepare("SELECT * FROM invoice WHERE id=?");
-$sql->execute([$invoiceid]);
+
+$sql = $db->prepare("SELECT * FROM invoice WHERE id=? and userId=?");
+$sql->execute([$invoiceid,$userId["id"]]);
 
 $invoicelist = $sql->fetch(PDO::FETCH_ASSOC);
+if(!$invoicelist){
+  echo'<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>geçersiz bilgi</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+  <link href="css\app.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/0a431f04f0.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+      <div class="row   d-flex justify-content-center align-items-center mt-5 ">
+          <div class="col-md-6">
+              <div class="card p-3 shadow d-flex align-items-center justify-content-center">
+              <div>
+                  <p class="text-danger">
+                      yanlış veya geçersiz sayfa ya yönlendirildiniz
+                  </p>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+  </body>
+  </html>';
+  exit;
+}
 //selling items
 $customergid = $invoicelist["customerid"];
 $sqlcus = $db->prepare("SELECT * FROM customers WHERE id=?");
 $sqlcus->execute([$customergid]);
 
 $customerlist = $sqlcus->fetch(PDO::FETCH_ASSOC);
+// getting the company info about current user of this system 
+$sqlcomInfo = $db->prepare("SELECT * FROM `companyinfo` WHERE userId=? ; ");
+$sqlcomInfo->execute([$userId["id"]]);
+$urrentCompanyInfo=$sqlcomInfo->fetch(PDO::FETCH_ASSOC);
 
 // selling , items 
 $sellingid = $invoicelist["sellingId"];
@@ -99,16 +146,18 @@ $productsArray = json_decode($jsonproduct, true);
             <div class="col-md-10 mt-1 d-grid  justify-content-start">
                
                 <p>
-                    <?php echo $invoicelist["sendingComName"] ?> Sanayi İç ve Dış Ticaret Limited Şirketi <br>
-                    <?php echo $invoicelist["sendingComAddress"] ?>
+                    <?php echo $urrentCompanyInfo["companyName"]." ".$urrentCompanyInfo["ticariUnvan"] ?>  <br>
+                    <?php echo $urrentCompanyInfo["address"] ?>
                     <br>
                         <!-- SK. Giyim SAN.TİC.MRK.sit B blok NO: 3B 216 kapın No: <br> 34490 Başakşehir İstanbul turkiye
                         <br> -->
-                        Tel:  <?php echo $invoicelist["sendingComPhone"] ?> Fax: <br>
+                        Tel:  <?php echo $urrentCompanyInfo["phone"] ?> Fax: <br>
                         Web Sitesi:<br>
-                        E-Posta:  <?php echo $invoicelist["sendingComEmail"] ?> <br>
-                        Vergi dairesi:  <?php echo $invoicelist["vergidairesi"] ?><br>
-                        VKN: 4610822597
+                        E-Posta:  <?php echo $_SESSION["email"]?> <br>
+                        Vergi dairesi:  <?php echo $urrentCompanyInfo["vergiDairesi"] ?><br>
+                        <?php echo $urrentCompanyInfo["vergiNum"]==null?"":"Vergi Numarası: ".$urrentCompanyInfo["vergiNum"]."<br>"; ?>
+                        <?php echo $urrentCompanyInfo["vkn"]==null?"":"VKN: ".$urrentCompanyInfo["vkn"]."<br>"; ?>
+
                 </p>
                
             </div>
@@ -123,13 +172,15 @@ $productsArray = json_decode($jsonproduct, true);
                <div class="text">
                <p >
                    <b> SAYIN </b> <br>
-                   <?php echo $customerlist["companyName"] ?><!-- NAFİA GIDA KOZMETİK TEMİZLİK İNŞAAT TURİZM  -->SANAYİ VETİCARET LİMİTED ŞİRKETİ<br>
+                   <?php echo $customerlist["companyName"].$customerlist["unvan"] ?><br>
                    <?php echo $customerlist["companyAddress"] ?> <br>
                     Web Sitesi:<br>
                     E-Posta: <?php echo $customerlist["email"] ?><br>
                     Tel: <?php echo $customerlist["phoneNumber"] ?>Fax: <br>
-                    Vergi Dairesi: <?php echo $customerlist["vergiNumber"] ?><br>
-                    VKN: 6270362527
+                    Vergi Dairesi: <?php echo $customerlist["vergidairesi"] ?><br>
+                    <?php echo $customerlist["vkn"]==null?"":" Vergi Numarası: ".$customerlist["vergiNumber"]."<br>"; ?>
+
+                    <?php echo $customerlist["vkn"]==null?"":"VKN: ".$customerlist["vkn"]."<br>"; ?>
                 </p>
                </div>
               

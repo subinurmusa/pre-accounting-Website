@@ -131,7 +131,7 @@ $products = $sqld->fetch(PDO::FETCH_ASSOC);
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -278,7 +278,7 @@ $products = $sqld->fetch(PDO::FETCH_ASSOC);
                                 <!-- <input class="form-control" type="file" id="photo" name="photo"> -->
                                 <div class="d-flex justify-content-between align-items-center w-100">
     <input class="form-control" type="text" disabled id="photo" name="photo" value="<?php echo $products['productphoto'] ? $products['productphoto'] : 'Bu ürün için resim eklenmemiştir' ?>">   
-    <img id="imagePreview" src="../accountingApp/photoes/<?php echo $products['productphoto'] ? $products['productphoto'] : '#' ?>" alt="Preview" style="<?php echo $products['productphoto'] ? 'display:block;' : 'display:none;' ?> max-width: 80px; max-height: 80px;" class="p-1 ms-1 border rounded">
+    <img id="imagePreview" src="photoes/<?php echo $products['productphoto'] ? $products['productphoto'] : '#' ?>" alt="Preview" style="<?php echo $products['productphoto'] ? 'display:block;' : 'display:none;' ?> max-width: 80px; max-height: 80px;" class="p-1 ms-1 border rounded">
 </div>
 
 
@@ -369,6 +369,22 @@ $products = $sqld->fetch(PDO::FETCH_ASSOC);
                     <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
                         <div class="d-flex align-items-center justify-content-between w-100 ms-4">
                             <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                                <i class="fas fa-cubes fs-5"></i>
+
+                                <label for="kiritikstokseviyesi" class="form-label w-25  me-5 pe-4 ps-4">Kritik stok seviyesi</label>
+                                <input class="form-control" type="number" disabled id="kiritikstokseviyesi"value="<?php echo $products["kiritiklevel"]?>" name="kiritikstokseviyesi"> 
+                               
+                            </div>
+                         
+                        </div>
+                       
+                    </div>
+
+                </div>
+                <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                    <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                        <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                            <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                             <i class="fas fa-shopping-basket fs-5"></i>
 
                                 <label for="SellMiktar" class="form-label w-25  me-5 pe-4 ps-4">Satış Miktarı</label>
@@ -382,6 +398,7 @@ $products = $sqld->fetch(PDO::FETCH_ASSOC);
 
 
                 </div>
+
 
                 <div class="row  d-flex justify-content-end align-items-center mt-3 ">
                     <div class="col-md-9  d-flex  align-items-center  me-5 pe-5">

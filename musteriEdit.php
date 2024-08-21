@@ -32,6 +32,9 @@ try {
         // Your database operations, form processing, etc.
         $customername = isset($_POST['customername']) ? $_POST['customername'] : null;
         $companyname = isset($_POST['companyname']) ? $_POST['companyname'] : null;
+        $unvan = isset($_POST['unvan']) ? $_POST['unvan'] : null;
+        $vkn = isset($_POST['vkn']) ? trim($_POST['vkn']) : null;
+
         $taxnumber = isset($_POST['taxnumber']) ? $_POST['taxnumber'] : 0;
         $tc = isset($_POST['tc']) ? $_POST['tc'] : 0;
         $address = isset($_POST['address']) ? $_POST['address'] : null;
@@ -40,8 +43,8 @@ try {
         $vergidairesi = isset($_POST['vergidairesi']) ? $_POST['vergidairesi'] : null;
         $musterinumarasıhidden = isset($_POST['musterinumarasıhidden']) ? $_POST['musterinumarasıhidden'] : 0;
         //var_dump($_POST);
-        if (empty($customername)||empty($companyname)) {
-            $error = "<div class='alert alert-danger'> Şirket Adı / müşteri Adı alanlarda yanlış veya eksik bilgi vardır </div>";
+        if (empty($customername)||empty($companyname)||empty($unvan)) {
+            $error = "<div class='alert alert-danger'> Şirket Adı , unvanı/ müşteri Adı alanlarda yanlış veya eksik bilgi vardır </div>";
             
         }
         else if(empty($email)||empty($tc)||empty($vergidairesi)){
@@ -54,9 +57,9 @@ try {
         }else{
          
             require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("UPDATE `customers` SET `name`=?,`companyName`=?,`vergiNumber`=?,`IDnumber`=?,`companyAddress`=?,`email`=?,`phoneNumber`=?,`vergidairesi`=?,`musterinumara`=? WHERE id=?");
+            $sql = $db->prepare("UPDATE `customers` SET `name`=?,`companyName`=?,`unvan`=?,`vkn`=?,`vergiNumber`=?,`IDnumber`=?,`companyAddress`=?,`email`=?,`phoneNumber`=?,`vergidairesi`=?,`musterinumara`=? WHERE id=?");
         
-            $sql->execute([$customername, $companyname, $taxnumber, $tc, $address, $email, $phoneNumber,$vergidairesi,$musterinumarasıhidden,$musteriId]);
+            $sql->execute([$customername, $companyname, $unvan ,$vkn,$taxnumber, $tc, $address, $email, $phoneNumber,$vergidairesi,$musterinumarasıhidden,$musteriId]);
         
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -193,7 +196,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -299,10 +302,44 @@ try {
                 <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
                     <div class="d-flex align-items-center justify-content-between w-100 ms-4">
                         <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                        <i class="fa-solid fa-heading fs-5"></i>
+                            <label for="unvan" class="form-label w-25  me-5 pe-4 ps-4">Şirket ünvanı </label>
+                            <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
+                             <input class="form-control" type="text" id="unvan" name="unvan" value="<?php echo $customers["unvan"]==null?"":$customers["unvan"]?>" placeholder="Elmas Yazılım ve Danışmanlık Hizmetleri Sanayi ve Ticaret Anonim Şirketi">
+                          
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                         <i class="fa-solid fa-rectangle-list fs-5"></i>
                             <label for="taxnumber" class="form-label w-25  me-5 pe-4 ps-4">Vergi Numarası </label>
                             <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
                              <input class="form-control" type="text" id="taxnumber" name="taxnumber" value="<?php echo $customers["vergiNumber"]?>">
+                          
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                        <i class="fa-solid fa-rectangle-list fs-5"></i>
+                            <label for="vkn" class="form-label w-25  me-5 pe-4 ps-4">VKN </label>
+                            <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
+                             <input class="form-control" type="text" id="vkn" name="vkn" value="<?php echo $customers["vkn"]?>">
                           
                         </div>
 

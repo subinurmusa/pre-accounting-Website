@@ -12,7 +12,11 @@ $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require "db.php";
 
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 ?>
 <?php
@@ -31,18 +35,18 @@ try {
         $hakedisdate = isset($_POST['hakedis_tarihi']) ? $_POST['hakedis_tarihi'] : 0;
         $toplamtutar = isset($_POST['toplam_tutar']) ? $_POST['toplam_tutar'] : 0;
         $lastPaymentDate = isset($_POST['odenecek_tarih']) ? $_POST['odenecek_tarih'] : null;
-        $status = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : null;
+        $status = isset($_POST['odeme_durumu']) ? $_POST['odeme_durumu'] : 0;    
         //var_dump($_POST);
         if (empty($title) || empty($employee) || empty($toplamtutar)) {
             $error = "<div class='alert alert-danger'> Kayıt ismi / Çalışan / toplam tutar alanları  Gereklidir</div>";
 
         } else {
 
-            require "db.php"; // Prepare and execute the SQL statement
-            $sql = $db->prepare("INSERT INTO `maas`( `title`, `employeeName`, `hakedisdate`, `toplamtutar`, `lastPaymentDate`, `status`) 
-                VALUES (?,?,?,?,?,?)");
+            
+            $sql = $db->prepare("INSERT INTO `maas`( `title`, `employeeName`, `hakedisdate`, `toplamtutar`, `lastPaymentDate`, `status`, `userId`) 
+                VALUES (?,?,?,?,?,?,?)");
 
-            $sql->execute([$title, $employee, $hakedisdate, $toplamtutar, $lastPaymentDate, $status]);
+            $sql->execute([$title, $employee, $hakedisdate, $toplamtutar, $lastPaymentDate, $status,$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -245,8 +249,8 @@ try {
                 require "db.php";
 
                 // Fetch the names of employees from the database
-                $statement = $db->prepare("SELECT `nameSurname` FROM `employees`");
-                $statement->execute();
+                $statement = $db->prepare("SELECT `nameSurname` FROM `employees` where userId=?");
+                $statement->execute([$userId["id"]]);
                 $employees = $statement->fetchAll(PDO::FETCH_COLUMN);
                 ?>
 
@@ -279,7 +283,7 @@ try {
                                 <label for="hakedis_tarihi" class="form-label w-25 me-5 pe-4 ps-4">Hakediş
                                     Tarihi</label>
                                 <input class="form-control" type="text" id="hakedis_tarihi" name="hakedis_tarihi"
-                                    value="05.03.2024">
+                                    value="<?php echo date("d.m.Y") ?>" data-date-format="dd.mm.yyyy">
                             </div>
                         </div>
                     </div>
@@ -290,7 +294,7 @@ try {
                             <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                                 <i class="fa-solid fa-money-bill fs-5"></i>
                                 <label for="toplam_tutar" class="form-label w-25 me-5 pe-4 ps-4">Toplam Tutar</label>
-                                <input class="form-control" type="number" id="toplam_tutar" name="toplam_tutar"
+                                <input class="form-control" type="number"  step="0.01" id="toplam_tutar" name="toplam_tutar"
                                     value="0,00">
                             </div>
                         </div>
@@ -306,8 +310,8 @@ try {
                                 <label for="odeme_durumu" class="form-label w-25 me-5 pe-4 ps-4">Ödeme Durumu</label>
                                 <select class="form-select" id="odeme_durumu" name="odeme_durumu"
                                     onchange="changeBackground()">
-                                    <option value="Ödenecek" selected>Ödenecek</option>
-                                    <option value="Ödendi">Ödendi</option>
+                                    <option value="0"  <?php echo $maaslist["status"]==0?"selected":""?> >Ödenecek</option>
+                                    <option value="1" <?php echo $maaslist["status"]==1?"selected":""?> >Ödendi</option>
                                 </select>
                             </div>
                         </div>
@@ -326,7 +330,7 @@ try {
                                 <label for="odenecek_tarih" class="form-label w-25 me-5 pe-4 ps-4">Ödenecek
                                     Tarih</label>
                                 <input class="form-control" type="text" id="odenecek_tarih" name="odenecek_tarih"
-                                    value="05.03.2024">
+                                    value="<?php echo date("d.m.Y") ?>">
                             </div>
                         </div>
                     </div>
@@ -389,16 +393,15 @@ try {
 
 
 
-
-    <script>
+<script>
         function changeBackground() {
             var select = document.getElementById("odeme_durumu");
             var option = select.options[select.selectedIndex];
             var dropdown = select;
 
-            if (option.value === "Ödenecek") {
+            if (option.value === "0") {
                 dropdown.style.backgroundColor = "#e6e8eb"; // Light gray background
-            } else if (option.value === "Ödendi") {
+            } else if (option.value === "1") {
                 dropdown.style.backgroundColor = "#d4edda"; // Light green background
             }
         }

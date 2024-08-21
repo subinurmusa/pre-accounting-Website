@@ -7,8 +7,12 @@ if (empty($_SESSION["username"])) {
 
 $visitcount = 7;
 //$searchName =null;
+
 require "db.php";
- 
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
 
 ?>
 <script>
@@ -223,7 +227,7 @@ require "db.php";
                                             </thead>
                                             <tbody>
                                             <?php
-                                            require "db.php";
+                                           
                                            
                                              
                                            $searchTerm = isset($_GET["search"]) ? $_GET["search"] : null;
@@ -233,19 +237,19 @@ require "db.php";
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
                                                    case 'vendorname':
-                                                       $sql = "SELECT * FROM vendors WHERE vendorName LIKE :searchTerm";
+                                                       $sql = "SELECT * FROM vendors WHERE vendorName LIKE :searchTerm AND userId = :userid";
                                                        break;
                                                    case 'category':
-                                                       $sql = "SELECT * FROM vendors WHERE category LIKE :searchTerm";
+                                                       $sql = "SELECT * FROM vendors WHERE category LIKE :searchTerm  AND userId = :userid";
                                                        break;
                                                   
                                                    default:
                                                        // Default to search by name
-                                                       $sql = "SELECT * FROM vendors ";
+                                                       $sql = "SELECT * FROM vendors where  userId = :userid";
                                                        break;
                                                }
                                                $stmt = $db->prepare($sql);
-                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
+                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%',':userid' => $userId["id"]));
                                            
                                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                                      //   echo "222222end";
@@ -254,7 +258,7 @@ require "db.php";
                                                 ?>  
                                                         <tr>
                                                         <td> <?php echo $row["vendorName"]; ?></td>
-                                                      <td> <?php echo $row["TCKNorVKN"]==0? "---":$row["TCKNorVKN"]; ?></td>
+                                                      <td> <?php echo $row["TCKNorVKN"]==null? "---":$row["TCKNorVKN"]; ?></td>
                                                       
                                                       
                                                       <td class="text-bold-500"><?php  echo $row["email"]; ?></td>
@@ -276,15 +280,15 @@ require "db.php";
                                                 
 
                                                 else{
-                                                    $sql = $db->prepare("SELECT * FROM vendors");                                               
-                                                    $sql->execute();
+                                                    $sql = $db->prepare("SELECT * FROM vendors where userId=?");                                               
+                                                    $sql->execute([$userId["id"]]);
                                                    // echo "1111111111111111111";
                                                     while ($row =  $sql ->fetch(PDO::FETCH_ASSOC)) { 
     
                                                   ?>  
                                                    <tr>
                                                    <td> <?php echo $row["vendorName"]; ?></td>
-                                                      <td> <?php echo $row["TCKNorVKN"]==0 ? "---":$row["TCKNorVKN"]; ?></td>
+                                                      <td> <?php echo $row["TCKNorVKN"]==null? "---":$row["TCKNorVKN"]; ?></td>
                                                       <td > <?php echo $row["email"]==null? "---":$row["email"]; ?></td>
                                                       <td> <?php echo $row["notes"]==null? "---":$row["notes"]; ?></td>
                                                       

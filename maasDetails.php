@@ -12,7 +12,12 @@ $error = "";
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require "db.php"; // Prepare and execute the SQL statement
+require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sql=$db->prepare("select * from maas where id=?");
 $sql->execute([$_GET["id"]]);
 $maaslist=$sql->fetch(PDO::FETCH_ASSOC);
@@ -44,9 +49,9 @@ try {
 
           
             $sql = $db->prepare("UPDATE `maas` SET `title`=?,`employeeName`=?,`hakedisdate`=?,
-            `toplamtutar`=?,`lastPaymentDate`=?,`status`=? WHERE id=?");
+            `toplamtutar`=?,`lastPaymentDate`=?,`status`=? WHERE id=? and userId=?");
 
-            $sql->execute([$title, $employee, $hakedisdate, $toplamtutar, $lastPaymentDate, $status,$_GET["id"]]);
+            $sql->execute([$title, $employee, $hakedisdate, $toplamtutar, $lastPaymentDate, $status,$_GET["id"],$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -182,7 +187,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -249,8 +254,8 @@ try {
                 require "db.php";
 
                 // Fetch the names of employees from the database
-                $statement = $db->prepare("SELECT `nameSurname` FROM `employees`");
-                $statement->execute();
+                $statement = $db->prepare("SELECT `nameSurname` FROM `employees` where userId=?");
+                $statement->execute([$userId["id"]]);
                 $employees = $statement->fetchAll(PDO::FETCH_COLUMN);
                 ?>
 

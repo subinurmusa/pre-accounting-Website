@@ -13,10 +13,15 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require "db.php";
 
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 $sellingid = isset($_GET["id"]) ? $_GET["id"] : null;
 
-$sqld = $db->prepare("SELECT * FROM selling where id = ? ");
-$sqld->execute([$sellingid]);
+$sqld = $db->prepare("SELECT * FROM selling where id = ? and userId=? ");
+$sqld->execute([$sellingid,$userId["id"]]);
 $sellings = $sqld->fetch(PDO::FETCH_ASSOC);
 $jsonData = $sellings["products"];
 $productsArray = json_decode($jsonData, true);
@@ -49,14 +54,12 @@ try {
         if (empty($invoicenumber)||empty($invoiceDate)) {
             $error = "<div class='alert alert-danger'>Fatura Bilgileri Doldurulmalıdır </div>";
 
-        } else if (empty($SendingComName)||empty($sendingComAddress)||empty($sendingComPhone)||empty($sendingComEmail)||empty($SendingComTaxNumber)) {
-            $error = "<div class='alert alert-danger'>Gönderici Bilgilerini Doldurulması zorunludur</div>";
-        } else {
+        }  else {
             //  var_dump($_POST);
           
-            $sql = $db->prepare("INSERT INTO `invoice`( `sellingId`, `InvoiceDate`, `InvoiceNumber`, `sendingComName`, `sendingComAddress`, `sendingComPhone`, `sendingComEmail`, `SendingComTaxNumber`,`customerid`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $sql = $db->prepare("INSERT INTO `invoice`( `sellingId`, `InvoiceDate`, `InvoiceNumber`, `sendingComName`,`customerid`,`userId`) VALUES (?,?,?,?,?,?)");
 
-            $sql->execute([$sellingid, $invoiceDate, $invoicenumber, $SendingComName, $sendingComAddress, $sendingComPhone, $sendingComEmail, $SendingComTaxNumber,$sellings["costomer"]]);
+            $sql->execute([$sellingid, $invoiceDate, $invoicenumber, $SendingComName,$sellings["costomer"],$userId["id"]]);
 
             // Check if the SQL statement was executed successfully
             if ($sql) {
@@ -64,8 +67,8 @@ try {
                 // urun stok miktarından urunleri çıkart
                
                 foreach ($productsArray as $productlist) {
-                    $sqlpro=$db->prepare("SELECT *  from  products where id=?");
-                    $sqlpro->execute([$productlist["productname"]]);
+                    $sqlpro=$db->prepare("SELECT *  from  products where id=? and userId=?");
+                    $sqlpro->execute([$productlist["productname"],$userId["id"]]);
                     $stokamount=$sqlpro->fetch(PDO::FETCH_ASSOC);
                     $calculation= $stokamount["stokmiktari"]-$productlist["miktar"];
 
@@ -76,15 +79,16 @@ try {
 
                
                 }
-                $sqlproducts = $db->prepare("SELECT * FROM products");
-                $sqlproducts->execute();
+                $sqlproducts = $db->prepare("SELECT * FROM products where userId=?");
+                $sqlproducts->execute([$userId["id"]]);
                 $allproducts = $sqlproducts->fetchAll(PDO::FETCH_ASSOC);
                 
                 $productarray = []; // Corrected variable name
                 
                 foreach ($allproducts as $product) {
                     echo $product["stokmiktari"];
-                    if ($product["stokmiktari"] < 5) {
+                    $kiritikseviye= $product["kiritiklevel"]==0?5:$product["kiritiklevel"];
+                    if ($product["stokmiktari"] < $kiritikseviye) {
                         echo "11111";
                         $Productdetailsformail = [
                             'productname' => $product["productname"],
@@ -97,7 +101,7 @@ try {
                 }
                 
                 
-                
+                //send email if  product level decresed under 5 
                 if (!empty($productarray)) {
                   
                     $textmessage = ""; // Initialize variable correctly
@@ -111,7 +115,7 @@ try {
                     }
                     
                     require "mailsender.php";
-                
+                   
                     $mail->addAddress($_SESSION["email"], $_SESSION["name"]); // Add a recipient
                     $mail->addReplyTo('info@example.com', 'Information');
                 
@@ -169,15 +173,16 @@ try {
                     // Plain text version of the email
                     $mail->AltBody = 'Depo Lardaki Ürünlerin Stok Miktarları Güncellenmesi Gerekiyor. Seviyesi Kritik Olan:' . $textmessage . '. Lütfen stok seviyelerini güncelleyin.';
                 
-                    $mail->send();
+                  $mail->send();
                 }
                 
+
                 
 
 
 
                
-               header("location: satisfatura.php");
+          header("location: satisfatura.php");
                 // Make sure to exit after header to prevent further code execution
             } else {
                 $error = "<div class='alert alert-danger'>An error occurred while editing data.</div>";
@@ -312,7 +317,7 @@ try {
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -415,8 +420,8 @@ try {
             </div>
             <hr>
              <!--gönderici bilgileri-->
-             <?php $sqlcompanyinfo=$db->prepare("SELECT * FROM companyi̇nfo");
-             $sqlcompanyinfo->execute();
+             <?php $sqlcompanyinfo=$db->prepare("SELECT * FROM companyinfo where userId=?");
+             $sqlcompanyinfo->execute([$userId["id"]]);
              $companyinfolist=$sqlcompanyinfo->fetch(PDO::FETCH_ASSOC);
 
              ?>
@@ -441,8 +446,8 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComName" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adı</label>
                            
-                            <input type="text" id="SendingComName"  name="SendingComName" class="form-control ms-5"
-                            value="<?php echo $companyinfolist["companyName"]==null?"":$companyinfolist["companyName"]; ?>">
+                            <input type="text" id="SendingComName"  disabled name="SendingComName" class="form-control ms-5"
+                            value="<?php echo  $companyinfolist["companyName"]==null?"": $companyinfolist["companyName"]; ?>">
                         
                         </div>
 
@@ -459,7 +464,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComAddress" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket Adresi</label>
                            
-                            <textarea type="text" id="sendingComAddress"  name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"> <?php echo $companyinfolist["address"]==null?"":$companyinfolist["address"]; ?></textarea>
+                            <textarea type="text" id="sendingComAddress"  disabled name="sendingComAddress" class="form-control ms-5" cols="10" rows="5"> <?php echo $companyinfolist["address"]==null?"":$companyinfolist["address"]; ?></textarea>
                         
                         </div>
 
@@ -476,7 +481,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComPhone" class="form-label w-25  me-5 pe-4 ps-4">Gönderici Şirket İletişim numarası</label>
                          
-                            <input type="number" id="sendingComPhone" value="<?php echo $companyinfolist["phone"]==null?"":$companyinfolist["phone"]; ?>"  name="sendingComPhone" class="form-control ms-5">
+                            <input type="number" id="sendingComPhone" disabled value="<?php echo $companyinfolist["phone"]==null?"":$companyinfolist["phone"]; ?>"  name="sendingComPhone" class="form-control ms-5">
                         
                         </div>
 
@@ -493,7 +498,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="sendingComEmail" class="form-label w-25 text-nowrap  me-5 pe-4 ps-4">Gönderici Şirket  Email</label>
                            
-                            <input type="email" id="sendingComEmail" value="<?php echo $_SESSION["email"]; ?>"  name="sendingComEmail" class="form-control ms-5">
+                            <input type="email" id="sendingComEmail" disabled value="<?php echo $_SESSION["email"]; ?>"  name="sendingComEmail" class="form-control ms-5">
                         
                         </div>
 
@@ -510,7 +515,7 @@ try {
                         <i class="fa-solid fa-hashtag fs-5"></i>
                             <label for="SendingComTaxNumber" class="form-label w-25   me-5 pe-4 ps-4">Gönderici Şirket  Vergi Numarası</label>
                            
-                            <input type="number" id="SendingComTaxNumber" value="<?php echo $companyinfolist["vergiNum"]==null?"":$companyinfolist["vergiNum"]; ?>"   name="SendingComTaxNumber" class="form-control ms-5">
+                            <input type="number" id="SendingComTaxNumber" disabled value="<?php echo $companyinfolist["vergiNum"]==null?"":$companyinfolist["vergiNum"]; ?>"   name="SendingComTaxNumber" class="form-control ms-5">
                         
                         </div>
 

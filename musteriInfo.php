@@ -127,7 +127,7 @@ $customers = $sqld->fetch(PDO::FETCH_ASSOC);
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -233,10 +233,44 @@ $customers = $sqld->fetch(PDO::FETCH_ASSOC);
                 <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
                     <div class="d-flex align-items-center justify-content-between w-100 ms-4">
                         <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                            <i class="fa-regular fa-address-book fs-5"></i>
+                            <label for="companyname" class="form-label w-25  me-5 pe-4 ps-4">Şirket ünvanı </label>
+                            <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
+                             <input class="form-control" type="text" id="companyname" disabled name="companyname" value="<?php echo $customers["unvan"]?>">
+                          
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
                         <i class="fa-solid fa-rectangle-list fs-5"></i>
                             <label for="taxnumber" class="form-label w-25  me-5 pe-4 ps-4">Vergi Numarası </label>
                             <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
                              <input class="form-control" type="text" id="taxnumber" name="taxnumber" disabled value="<?php echo $customers["vergiNumber"]?>">
+                          
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row  d-flex justify-content-end align-items-center mt-3 ">
+                <div class="col-md-9  d-flex justify-content-around align-items-center  me-5 pe-5">
+                    <div class="d-flex align-items-center justify-content-between w-100 ms-4">
+                        <div class="d-flex align-items-center justify-content-center w-100 gap-4">
+                        <i class="fa-solid fa-rectangle-list fs-5"></i>
+                            <label for="vkn" class="form-label w-25  me-5 pe-4 ps-4">VKN </label>
+                            <!-- <input type="text" id="costomer" name="musteri" class="form-control w-100 ms-5 ps-5"> -->
+                             <input class="form-control" type="text" id="vkn" disabled name="vkn" value="<?php echo $customers["vkn"]?>">
                           
                         </div>
 

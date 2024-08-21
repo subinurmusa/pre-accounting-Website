@@ -8,6 +8,11 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 //$searchName =null;
 require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+ 
  
 
 ?>
@@ -136,7 +141,7 @@ require "db.php";
                         <div class="text-white fs-5">
                             <?php
 
-                            echo $_SESSION["name"];
+                            echo $_SESSION["username"];
                             ?>
                         </div>
 
@@ -191,7 +196,7 @@ require "db.php";
     <select class="form-select w-75 me-1" name="category">
         <option value="name">Müşteri İsmi</option>
         <option value="musteriNumber">Müşteri Numarası</option>
-        <option value="id">Şirket Adı</option>
+        <option value="companyName">Şirket Adı</option>
     </select>
     <input class="form-control me-2 w-100" type="search" placeholder="Ara" aria-label="Search" name="search">
     <button class="btn btn-outline-success rounded-pill text-dark" type="submit">Ara</button>
@@ -231,24 +236,24 @@ require "db.php";
                                            if (!empty($searchTerm) && !empty($category)) {
                                                // Prepare the SQL query based on the selected category
                                                switch ($category) {
-                                                   case 'name':
-                                                       $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm";
-                                                       break;
-                                                   case 'musteriNumber':
-                                                       $sql = "SELECT * FROM customers WHERE musterinumara LIKE :searchTerm";
-                                                       break;
-                                                   case 'id':
-                                                       // Assuming ID is an integer
-                                                       $sql = "SELECT * FROM customers WHERE companyName = :searchTerm";
-                                                       break;
-                                                   default:
-                                                       // Default to search by name
-                                                       $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm";
-                                                       break;
-                                               }
-                                               $stmt = $db->prepare($sql);
-                                               $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%'));
-                                           
+                                                case 'name':
+                                                    $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm AND userId = :userid";
+                                                    break;
+                                                case 'musteriNumber':
+                                                    $sql = "SELECT * FROM customers WHERE musterinumara LIKE :searchTerm AND userId = :userid";
+                                                    break;
+                                                case 'companyName':
+                                                    $sql = "SELECT * FROM customers WHERE companyName like :searchTerm AND userId = :userid";
+                                                    break;
+                                                default:
+                                                    // Default to search by name
+                                                    $sql = "SELECT * FROM customers WHERE name LIKE :searchTerm AND userId = :userid";
+                                                    break;
+                                            }
+                                            
+                                            $stmt = $db->prepare($sql);
+                                            $stmt->execute(array(':searchTerm' => '%' . $searchTerm . '%', ':userid' => $userId["id"]));
+                                            
                                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                                      //   echo "222222end";
                                                        // print_r($row);
@@ -276,8 +281,8 @@ require "db.php";
                                                 
 
                                                 else{
-                                                    $sql = $db->prepare("SELECT * FROM customers");                                               
-                                                    $sql->execute();
+                                                    $sql = $db->prepare("SELECT * FROM customers WHERE userId=? ;");                                               
+                                                    $sql->execute([$userId["id"]]);
                                                    // echo "1111111111111111111";
                                                     while ($row =  $sql ->fetch(PDO::FETCH_ASSOC)) { 
     

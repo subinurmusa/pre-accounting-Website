@@ -8,9 +8,14 @@ if (empty($_SESSION["username"])) {
 $visitcount = 7;
 //$searchName =null;
 require "db.php";
+
+$sqluserid=$db->prepare("SELECT id FROM `users` WHERE username = ?;");
+$sqluserid->execute([$_SESSION["username"]]);
+$userId=$sqluserid->fetch(PDO::FETCH_ASSOC);
+
 error_reporting(E_ALL);
-$firmainfosql = $db->prepare("SELECT * FROM `companyinfo` ");
-$firmainfosql->execute();
+$firmainfosql = $db->prepare("SELECT * FROM `companyinfo` WHERE userId=?");
+$firmainfosql->execute([$userId["id"]]);
 $firmainfo = $firmainfosql->fetch(PDO::FETCH_ASSOC);
 
 ?>
